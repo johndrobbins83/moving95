@@ -674,6 +674,34 @@
     display: flex; justify-content: space-between;
   }
 
+  /* ── PLACES AUTOCOMPLETE ── */
+  .pac-container {
+    font-family: 'VT323', 'Courier New', monospace !important;
+    font-size: 16px !important;
+    border: 2px solid var(--darker) !important;
+    border-top: none !important;
+    box-shadow: 2px 2px 0 var(--black) !important;
+    background: white !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+  }
+  .pac-item {
+    font-family: 'VT323', monospace !important;
+    font-size: 16px !important;
+    padding: 6px 10px !important;
+    cursor: pointer !important;
+    border-top: 1px dotted var(--dark) !important;
+    color: var(--black) !important;
+  }
+  .pac-item:hover, .pac-item-selected {
+    background: var(--blue) !important;
+    color: white !important;
+  }
+  .pac-item-query { font-size: 16px !important; font-weight: bold !important; }
+  .pac-icon { display: none !important; }
+  .pac-matched { font-weight: bold !important; color: var(--blue) !important; }
+  .pac-item:hover .pac-matched, .pac-item-selected .pac-matched { color: var(--yellow) !important; }
+
   /* ── ROUTE PLANNER ── */
   .route-stop {
     display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
@@ -752,6 +780,18 @@
     .item-row { grid-template-columns: 46px 1fr 90px 90px; }
   }
 </style>
+<script>
+// Google Places Autocomplete loader — runs after config is ready
+function loadPlacesAPI() {
+  const key = localStorage.getItem('apiKey') || '';
+  if (!key || document.getElementById('gplacesScript')) return;
+  const s = document.createElement('script');
+  s.id  = 'gplacesScript';
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places&callback=initPlacesAutocomplete';
+  s.async = true;
+  document.head.appendChild(s);
+}
+</script>
 </head>
 <body>
 
@@ -844,9 +884,15 @@
           <input type="number" id="quantity" value="1" min="1" max="999">
         </div>
       </div>
-      <div class="field">
-        <label for="description">Description</label>
-        <textarea id="description" placeholder="Color, size, condition, notes..."></textarea>
+      <div class="field-row">
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea id="description" placeholder="Color, size, condition, notes..."></textarea>
+        </div>
+        <div class="field" style="flex:0 0 120px;">
+          <label for="estCost">Est. Cost ($)</label>
+          <input type="number" id="estCost" min="0" step="0.01" placeholder="0.00">
+        </div>
       </div>
     </div>
   </div>
@@ -1147,8 +1193,9 @@
       <div class="win-card-body">
         <div class="config-note" style="margin-bottom:12px;">
           Sheet ID is in your sheet URL: docs.google.com/spreadsheets/d/<b>SHEET_ID</b>/edit<br><br>
-          API Key: console.cloud.google.com&#8594; APIs &#8594; Sheets API &#8594; Credentials.<br>
-          Set sheet to <b>Anyone with link can view</b>.
+          API Key: console.cloud.google.com &#8594; APIs &#8594; Sheets API &#8594; Credentials.<br>
+          Set sheet to <b>Anyone with link can view</b>.<br><br>
+          <b>For Route address autocomplete:</b> also enable <b>Places API</b> in your Google Cloud project (same API key works).
         </div>
         <div class="config-field">
           <label>Google Sheet ID</label>
@@ -1606,12 +1653,12 @@
       <div id="routeStops">
         <div class="route-stop" id="stop-origin">
           <span class="route-stop-label">📍 Origin</span>
-          <input type="text" id="addr-origin" placeholder="123 Old Street, City, State" autocomplete="off">
+          <input type="text" id="addr-origin" class="place-input" placeholder="Start typing an address..." autocomplete="off">
         </div>
         <div id="middleStops"></div>
         <div class="route-stop" id="stop-dest">
           <span class="route-stop-label">🏁 Destination</span>
-          <input type="text" id="addr-dest" placeholder="456 New Street, City, State" autocomplete="off">
+          <input type="text" id="addr-dest" class="place-input" placeholder="Start typing an address..." autocomplete="off">
         </div>
       </div>
 
@@ -2029,6 +2076,8 @@ function showPage(name) {
 
   // Auto-load viewer when switching to it
   if (isViewer && allItems.length === 0) loadViewerData();
+  // Load Places API when route tab opens
+  if (name === 'route') loadPlacesAPI();
 }
 
 // ══════════════════════════════
@@ -2170,9 +2219,12 @@ async function submitItem() {
 
   showProgress(55); setStatus('Sending to Sheets...');
 
+  const estCost = document.getElementById('estCost').value.trim();
+
   const payload = {
     itemNumber, itemName, itemType, binBoxNumber, itemWeight, itemOrigin,
     location, quantity: parseInt(quantity), description,
+    estCost: estCost ? parseFloat(estCost) : '',
     wrapped, fragile, images: imageDataArray, timestamp: new Date().toISOString()
   };
 
@@ -2221,7 +2273,7 @@ function fileToBase64(file) {
 //  CLEAR FORM
 // ══════════════════════════════
 function clearForm() {
-  ['itemName','itemType','location','itemOrigin','binBoxNumber','itemWeight','description'].forEach(id => {
+  ['itemName','itemType','location','itemOrigin','binBoxNumber','itemWeight','description','estCost'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('quantity').value = 1;
@@ -3356,9 +3408,41 @@ function addStop() {
   div.id = id;
   div.innerHTML = `
     <span class="route-stop-label">📍 Stop ${stopCount}</span>
-    <input type="text" id="addr-stop-${stopCount}" placeholder="Stop address..." autocomplete="off">
+    <input type="text" id="addr-stop-${stopCount}" class="place-input" placeholder="Start typing an address..." autocomplete="off">
     <button class="route-stop-remove" onclick="removeStop('${id}')">✕</button>`;
   document.getElementById('middleStops').appendChild(div);
+  // Attach autocomplete to the new input if Places API is loaded
+  const newInput = document.getElementById('addr-stop-' + stopCount);
+  if (window.google && window.google.maps && window.google.maps.places) {
+    attachAutocomplete(newInput);
+  }
+}
+
+// ── PLACES AUTOCOMPLETE ──
+function initPlacesAutocomplete() {
+  document.querySelectorAll('.place-input').forEach(attachAutocomplete);
+}
+
+function attachAutocomplete(input) {
+  if (!input || input.dataset.acAttached) return;
+  const ac = new google.maps.places.Autocomplete(input, {
+    types: ['geocode', 'establishment'],
+    fields: ['formatted_address', 'geometry', 'name']
+  });
+  // Prevent form submit on Enter
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') e.preventDefault();
+  });
+  // Store selected place coords for faster geocoding
+  ac.addListener('place_changed', () => {
+    const place = ac.getPlace();
+    if (place.geometry) {
+      input.dataset.lat = place.geometry.location.lat();
+      input.dataset.lng = place.geometry.location.lng();
+      if (place.formatted_address) input.value = place.formatted_address;
+    }
+  });
+  input.dataset.acAttached = 'true';
 }
 
 function removeStop(id) {
@@ -3378,7 +3462,12 @@ function getAddresses() {
   return { origin, dest, stops };
 }
 
-async function geocode(address) {
+async function geocode(address, inputEl) {
+  // Use cached coords from Places selection if available
+  if (inputEl && inputEl.dataset.lat && inputEl.dataset.lng) {
+    return { lat: parseFloat(inputEl.dataset.lat), lng: parseFloat(inputEl.dataset.lng) };
+  }
+  // Fallback: Nominatim geocoding
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
   const res  = await fetch(url, { headers: { 'Accept-Language': 'en' } });
   const data = await res.json();
@@ -3421,7 +3510,13 @@ async function planRoute() {
 
   try {
     // Geocode all addresses
-    const coords = await Promise.all(allAddrs.map(geocode));
+    // Collect input elements for each address to use cached coords
+    const allInputs = [
+      document.getElementById('addr-origin'),
+      ...Array.from({length: stopCount}, (_,i) => document.getElementById('addr-stop-'+(i+1))).filter(Boolean),
+      document.getElementById('addr-dest')
+    ].filter(Boolean);
+    const coords = await Promise.all(allAddrs.map((addr, i) => geocode(addr, allInputs[i])));
 
     // Straight-line × 1.3 road factor
     let straight = 0;
