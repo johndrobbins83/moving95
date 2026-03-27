@@ -179,6 +179,22 @@
   .field-row .field.wide { grid-column: 1 / -1; }
 
   /* ── TOGGLE BUTTONS ── */
+  .check-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    background: var(--face);
+    border-top: 2px solid var(--light); border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker); border-bottom: 2px solid var(--darker);
+    cursor: pointer; font-family: 'VT323', monospace;
+    font-size: 18px; font-weight: bold; color: var(--black);
+    user-select: none; min-height: 40px;
+  }
+  .check-pill input[type="checkbox"] { display: none; }
+  .check-pill:has(input:checked) {
+    background: var(--blue); color: white;
+    border-top: 2px solid var(--darker); border-left: 2px solid var(--darker);
+    border-right: 2px solid var(--light); border-bottom: 2px solid var(--light);
+  }
   .toggle-group { display: flex; gap: 0; margin-top: 2px; }
   .toggle-group input[type="radio"] { display: none; }
   .toggle-group label {
@@ -340,17 +356,16 @@
   }
 
   /* ── ITEM LIST ── */
+  /* ── INVENTORY LIST ── */
   #itemGrid { display: flex; flex-direction: column; gap: 0; }
 
-  /* Column header row */
-  /* ── INVENTORY LIST — two-line rows ── */
   .list-header {
     display: grid;
-    grid-template-columns: 46px 1fr 80px 80px;
+    grid-template-columns: 48px 1fr;
     gap: 0;
     background: var(--blue);
     color: white;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     border-bottom: 2px solid var(--darker);
     position: sticky;
@@ -358,55 +373,93 @@
     z-index: 5;
   }
   .list-header span {
-    padding: 5px 6px;
+    padding: 6px 8px;
     border-right: 1px solid rgba(255,255,255,0.2);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   .list-header span:last-child { border-right: none; }
 
+  /* Room divider */
+  .room-divider {
+    display: flex; align-items: center; gap: 0;
+    border-top: 3px solid var(--darker);
+    border-bottom: 3px solid var(--darker);
+    background: var(--darker);
+    color: white;
+    font-size: 15px; font-weight: bold;
+    padding: 6px 10px;
+    letter-spacing: 1px;
+    position: sticky;
+    top: 29px;
+    z-index: 4;
+  }
+  .room-divider-count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: normal;
+    opacity: 0.8;
+  }
+
+  /* Item rows */
   .item-row {
-    border-bottom: 1px solid rgba(0,0,0,0.12);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
     display: grid;
-    grid-template-columns: 46px 1fr 80px 80px;
+    grid-template-columns: 48px 1fr;
+    grid-template-rows: auto auto;
     align-items: stretch;
+    min-height: 52px;
   }
   .item-row:last-child { border-bottom: none; }
-  .item-row:hover { filter: brightness(0.94); }
+  .item-row:hover { filter: brightness(0.93); cursor: pointer; }
 
-  .item-cell {
-    padding: 5px 6px;
-    border-right: 1px solid rgba(0,0,0,0.08);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
+  /* # column — spans both rows */
+  .cell-num {
+    grid-row: 1 / 3;
+    color: var(--blue);
     font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.45);
+    border-right: 1px solid rgba(0,0,0,0.1);
+    padding: 6px 4px;
   }
-  .item-cell:last-child { border-right: none; }
 
-  /* Name cell spans full width on its own row via sub-grid trick */
-  .cell-num  { color: var(--blue); font-size: 12px; justify-content: center; background: rgba(255,255,255,0.4); align-items: flex-start; padding-top:7px; }
+  /* Top row: name + badges */
   .cell-name-block {
-    grid-column: 2 / 5;
-    padding: 5px 6px 2px;
-    font-size: 14px; font-weight: bold;
-    border-right: none;
+    grid-column: 2;
+    grid-row: 1;
+    padding: 6px 8px 3px;
+    font-size: 16px;
+    font-weight: bold;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    border-bottom: 1px dotted rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; gap: 6px;
   }
+  .cell-name-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cell-badge {
+    font-size: 12px; font-weight: bold; flex-shrink: 0;
+    padding: 1px 7px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.15);
+    white-space: nowrap;
+  }
+  .badge-wrap  { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+  .badge-frag  { background: #fff3e0; color: #c62828; border-color: #ffcc80; }
+
+  /* Bottom row: meta info */
   .cell-meta {
-    padding: 2px 6px 5px;
-    font-size: 11px; font-weight: normal; color: #444;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    display: flex; align-items: center;
+    grid-column: 2;
+    grid-row: 2;
+    padding: 3px 8px 6px;
+    font-size: 13px;
+    font-weight: normal;
+    color: #333;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 6px;
   }
-  .cell-center { justify-content: center; }
-  .cell-frag-yes { color: #c62828; }
-  .cell-wrap-yes { color: #2e7d32; }
+  .meta-tag {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 13px; color: #333;
+  }
+  .meta-tag-label { font-size: 11px; color: #888; font-weight: normal; }
 
   .badge { display: inline-block; padding: 1px 6px; font-size: 11px; font-weight: bold; border: 1px solid rgba(0,0,0,0.2); }
   .badge-yes  { background: #ffebee; color: #b71c1c; }
@@ -428,6 +481,9 @@
   .room-Listening-Room { background: #80CBC4; }
   .room-Kitchen        { background: #C5E1A5; }
   .room-Mini-Office    { background: #FFE082; }
+  .room-Bathroom       { background: #B2EBF2; }
+  .room-Plant-Area     { background: #C8E6C9; }
+  .room-Workshop       { background: #D7CCC8; }
   .room-default        { background: #e0e0e0; }
 
   /* ── DIALOGS ── */
@@ -579,6 +635,17 @@
     padding: 6px 8px; background: #fffde7; border-left: 3px solid #888;
     margin-bottom: 14px; line-height: 1.5;
   }
+  .header-wrench-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white; font-size: 20px;
+    padding: 4px 8px; cursor: pointer;
+    font-family: 'VT323', monospace;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .header-wrench-btn:hover { background: rgba(255,255,255,0.28); }
+  .header-wrench-btn.active-page { background: rgba(255,255,255,0.35); border-color: white; }
   .user-badge {
     background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35);
     color: white; font-size: 15px; font-weight: normal;
@@ -799,6 +866,92 @@
   .saved-route-actions { display: flex; gap: 6px; margin-top: 6px; }
   .saved-route-actions button { font-size: 14px; padding: 3px 10px; }
 
+  /* ── HUNT ── */
+  .hunt-tier-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    font-size: 17px; font-weight: bold;
+    border-top: 3px solid var(--darker);
+    border-bottom: 2px solid rgba(0,0,0,0.15);
+    position: sticky; top: 29px; z-index: 3;
+  }
+  .hunt-tier-badge {
+    font-size: 13px; font-weight: normal;
+    padding: 2px 10px;
+    border: 1px solid rgba(0,0,0,0.2);
+    white-space: nowrap;
+  }
+  .hunt-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    cursor: pointer; background: white;
+    transition: background 0.1s;
+  }
+  .hunt-item:hover { background: #f5f5f5; }
+  .hunt-item.found { opacity: 0.55; }
+  .hunt-item.found .hunt-item-name { text-decoration: line-through; }
+  .hunt-check {
+    width: 26px; height: 26px; flex-shrink: 0;
+    border-top: 2px solid var(--darker); border-left: 2px solid var(--darker);
+    border-right: 2px solid var(--light); border-bottom: 2px solid var(--light);
+    background: white; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: bold;
+  }
+  .hunt-check.checked {
+    background: var(--blue); color: white;
+    border-top: 2px solid var(--darker); border-left: 2px solid var(--darker);
+  }
+  .hunt-item-name { flex: 1; font-size: 16px; font-weight: bold; }
+  .hunt-pts {
+    font-size: 13px; font-weight: bold;
+    padding: 2px 8px;
+    border: 1px solid rgba(0,0,0,0.15);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .hunt-score-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px; padding: 10px;
+  }
+  .hunt-score-cell {
+    text-align: center; padding: 8px 4px;
+    border-top: 2px solid var(--light); border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker); border-bottom: 2px solid var(--darker);
+    background: white;
+  }
+  .hunt-score-num { font-size: 26px; font-weight: bold; color: var(--blue); }
+  .hunt-score-lbl { font-size: 12px; font-weight: normal; color: #555; }
+  .hunt-progress-bar {
+    height: 18px; margin: 0 10px 6px;
+    background: white;
+    border-top: 2px solid var(--darker); border-left: 2px solid var(--darker);
+    border-right: 2px solid var(--light); border-bottom: 2px solid var(--light);
+    overflow: hidden;
+  }
+  .hunt-progress-fill {
+    height: 100%;
+    background: repeating-linear-gradient(90deg,var(--blue) 0px,var(--blue) 14px,var(--blue2) 14px,var(--blue2) 16px);
+    transition: width 0.4s;
+  }
+
+  /* ── CALCULATOR ── */
+  .calc-btn {
+    background: var(--face);
+    border-top: 2px solid var(--light); border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker); border-bottom: 2px solid var(--darker);
+    font-family: 'VT323', monospace; font-size: 22px; font-weight: bold;
+    cursor: pointer; color: var(--black);
+    padding: 6px 0; text-align: center; width: 100%;
+  }
+  .calc-btn:active {
+    border-top: 2px solid var(--darker); border-left: 2px solid var(--darker);
+    border-right: 2px solid var(--light); border-bottom: 2px solid var(--light);
+  }
+  .calc-op  { color: var(--blue); }
+  .calc-fn  { color: #800000; }
+  .calc-eq  { background: var(--blue); color: white; }
+  .calc-eq:active { background: var(--blue2); }
+
   /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 14px; }
   ::-webkit-scrollbar-track { background: var(--face); }
@@ -820,8 +973,10 @@
   }
   @media (min-width: 1000px) {
     .win-card { max-width: 1100px; }
-    .list-header { grid-template-columns: 46px 1fr 90px 90px; }
-    .item-row { grid-template-columns: 46px 1fr 90px 90px; }
+    .list-header { grid-template-columns: 56px 1fr; }
+    .item-row { grid-template-columns: 56px 1fr; }
+    .cell-name-block { font-size: 17px; }
+    .cell-meta { font-size: 14px; }
   }
 </style>
 <script>
@@ -829,6 +984,450 @@
 function loadPlacesAPI() {
   initNominatimAutocomplete();
 }
+
+// ══════════════════════════════
+//  EDIT ITEM
+// ══════════════════════════════
+function openEditDialog(rowIdx) {
+  const item = allItems[rowIdx];
+  if (!item) return;
+
+  document.getElementById('editItemName').value    = item['Item Name']  || '';
+  document.getElementById('editItemType').value    = item['Type']       || '';
+  document.getElementById('editLocation').value    = item['Location']   || '';
+  document.getElementById('editBinBox').value      = item['Bin/Box #']  || '';
+  document.getElementById('editWeight').value      = item['Weight']     || '';
+  document.getElementById('editEstCost').value     = item['Est. Cost']  || '';
+  document.getElementById('editQty').value         = item['Quantity']   || 1;
+  document.getElementById('editDescription').value = item['Description']|| '';
+  document.getElementById('editRowIndex').value    = rowIdx;
+  document.getElementById('editItemNum').value     = item['Item #'] || '';
+  document.getElementById('editSaveStatus').textContent = '';
+
+  const wrapped = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
+  document.getElementById('editWrappedYes').checked = wrapped;
+  document.getElementById('editWrappedNo').checked  = !wrapped;
+
+  const fragile = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
+  document.getElementById('editFragileYes').checked = fragile;
+  document.getElementById('editFragileNo').checked  = !fragile;
+
+  const status = (item['Status'] || '').split(',').map(s => s.trim());
+  document.getElementById('editStatusPacked').checked   = status.includes('Packed');
+  document.getElementById('editStatusLoaded').checked   = status.includes('Loaded');
+  document.getElementById('editStatusUnpacked').checked = status.includes('Unpacked');
+
+  document.getElementById('editItemOverlay').classList.add('active');
+  document.getElementById('editItemName').focus();
+}
+
+function closeEditDialog() {
+  document.getElementById('editItemOverlay').classList.remove('active');
+}
+
+async function saveEditedItem() {
+  const rowIdx  = parseInt(document.getElementById('editRowIndex').value);
+  const itemNum = document.getElementById('editItemNum').value;
+  const stat    = document.getElementById('editSaveStatus');
+
+  const updated = {
+    'Item #':       itemNum,
+    'Item Name':    document.getElementById('editItemName').value.trim(),
+    'Type':         document.getElementById('editItemType').value,
+    'Location':     document.getElementById('editLocation').value,
+    'Bin/Box #':    document.getElementById('editBinBox').value.trim(),
+    'Weight':       document.getElementById('editWeight').value,
+    'Est. Cost':    document.getElementById('editEstCost').value,
+    'Quantity':     document.getElementById('editQty').value || 1,
+    'Description':  document.getElementById('editDescription').value.trim(),
+    'Wrapped?':     document.querySelector('input[name="editWrapped"]:checked')?.value || 'No',
+    'Fragile?':     document.querySelector('input[name="editFragile"]:checked')?.value || 'No',
+    'Status':       ['editStatusPacked','editStatusLoaded','editStatusUnpacked']
+                      .filter(id => document.getElementById(id).checked)
+                      .map(id => document.getElementById(id).value).join(', ')
+  };
+
+  if (!updated['Item Name']) {
+    stat.textContent = '⚠ Item Name is required.';
+    stat.style.color = '#cc0000'; return;
+  }
+
+  // Update in local array immediately
+  if (rowIdx >= 0 && allItems[rowIdx]) {
+    Object.assign(allItems[rowIdx], updated);
+  }
+
+  // Re-apply filters and re-render
+  applyFilters();
+  renderStats();
+
+  // Try to save to sheet via Apps Script
+  const scriptUrl = localStorage.getItem('sheetUrl') || '';
+  if (scriptUrl) {
+    stat.textContent = 'Saving to sheet...';
+    stat.style.color = '#555';
+    try {
+      await fetch(scriptUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateRow', item: updated })
+      });
+      stat.textContent = '✅ Saved!';
+      stat.style.color = '#006400';
+      setTimeout(closeEditDialog, 800);
+    } catch(e) {
+      stat.textContent = '✅ Updated locally. Sheet sync failed — refresh to reload from sheet.';
+      stat.style.color = '#cc6600';
+      setTimeout(closeEditDialog, 2000);
+    }
+  } else {
+    stat.textContent = '✅ Updated locally (no Script URL to sync to sheet).';
+    stat.style.color = '#006400';
+    setTimeout(closeEditDialog, 1200);
+  }
+}
+
+// ══════════════════════════════
+//  PDF EXPORT
+// ══════════════════════════════
+function downloadInventoryPDF() {
+  if (!allItems.length) {
+    showError('No inventory loaded. Tap Refresh first.');
+    return;
+  }
+
+  const items = filtered.length ? filtered : allItems;
+  const pi    = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+  const now   = new Date().toLocaleDateString('default', {year:'numeric',month:'long',day:'numeric'});
+
+  // Group by room
+  const roomOrder = [];
+  const roomMap   = {};
+  items.forEach(item => {
+    const loc = item['Location'] || 'Unknown';
+    if (!roomMap[loc]) { roomMap[loc] = []; roomOrder.push(loc); }
+    roomMap[loc].push(item);
+  });
+
+  // Room color map
+  const COLORS = {
+    'Living Room':'#FFD180','Bedroom':'#B3C5F7','Studio':'#A5D6A7',
+    'Office':'#80D8FF','Closet 1':'#CE93D8','Closet 2':'#F48FB1',
+    'Closet 3':'#FFAB91','Closet 4':'#BCAAA4','Sitting Room':'#FFF176',
+    'Listening Room':'#80CBC4','Kitchen':'#C5E1A5','Mini Office':'#FFE082',
+    'Bathroom':'#B2EBF2','Plant Area':'#C8E6C9','Workshop':'#D7CCC8'
+  };
+
+  // Build HTML for the PDF window
+  let tableRows = '';
+  let totalItems = 0;
+  let totalCost  = 0;
+
+  roomOrder.forEach(loc => {
+    const roomItems = roomMap[loc];
+    const bg = COLORS[loc] || '#e0e0e0';
+    tableRows += `<tr>
+      <td colspan="8" style="background:${bg};font-weight:bold;font-size:13px;padding:6px 8px;border:1px solid #999;letter-spacing:0.5px;">
+        📦 ${loc} &nbsp;·&nbsp; <span style="font-weight:normal;">${roomItems.length} item${roomItems.length!==1?'s':''}</span>
+      </td>
+    </tr>`;
+
+    roomItems.forEach(item => {
+      const num     = String(item['Item #']||'').padStart(4,'0');
+      const name    = item['Item Name']   || '';
+      const type    = item['Type']        || '';
+      const bin     = item['Bin/Box #']   || '';
+      const weight  = item['Weight']      || '';
+      const cost    = item['Est. Cost']   ? '$'+parseFloat(item['Est. Cost']).toFixed(2) : '';
+      const wrapped = (item['Wrapped?']  ||'').toLowerCase()==='yes' ? '✔' : '';
+      const fragile = (item['Fragile?']  ||'').toLowerCase()==='yes' ? '⚠' : '';
+      const status  = item['Status']      || '';
+      const desc    = item['Description'] || '';
+
+      if (cost) totalCost += parseFloat(item['Est. Cost']) || 0;
+      totalItems++;
+
+      tableRows += `<tr style="background:${bg}22;">
+        <td style="padding:4px 6px;border:1px solid #ddd;font-family:monospace;font-size:11px;color:#555;">${num}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-weight:bold;font-size:12px;">${name}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;">${type}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;text-align:center;">${bin}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;">${weight}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;text-align:center;color:#2e7d32;font-weight:bold;">${wrapped}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;text-align:center;color:#c62828;font-weight:bold;">${fragile}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;color:#555;">${cost}${status?' <span style=\'color:#888;font-size:10px;\'>['+status+']</span>':''}</td>
+      </tr>`;
+      if (desc) {
+        tableRows += `<tr style="background:#fafafa;">
+          <td></td>
+          <td colspan="7" style="padding:2px 6px 5px;border:1px solid #ddd;font-size:10px;color:#666;font-style:italic;">${desc}</td>
+        </tr>`;
+      }
+    });
+  });
+
+  const fromAddr = pi.fromAddr ? pi.fromAddr : '';
+  const toAddr   = pi.toAddr   ? pi.toAddr   : '';
+  const moveOut  = pi.moveOut  ? new Date(pi.moveOut+'T12:00:00').toLocaleDateString()  : '';
+  const moveIn   = pi.moveIn   ? new Date(pi.moveIn+'T12:00:00').toLocaleDateString()   : '';
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Moving Inventory — ${now}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #222; padding: 24px; }
+    h1 { font-size: 22px; color: #000080; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #555; margin-bottom: 16px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; padding: 12px; background: #f5f5f5; border: 1px solid #ddd; }
+    .meta-item label { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
+    .meta-item span  { font-size: 13px; font-weight: bold; color: #222; display: block; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th { background: #000080; color: white; padding: 6px 8px; font-size: 11px; text-align: left; border: 1px solid #000060; }
+    .summary { margin-top: 16px; padding: 12px; background: #e8f5e9; border: 1px solid #a5d6a7; display: flex; gap: 32px; }
+    .summary-item label { font-size: 10px; font-weight: bold; color: #555; text-transform: uppercase; }
+    .summary-item span  { font-size: 18px; font-weight: bold; color: #000080; display: block; }
+    .footer { margin-top: 20px; font-size: 10px; color: #999; border-top: 1px solid #ddd; padding-top: 8px; }
+    @media print {
+      body { padding: 12px; }
+      button { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 Moving Inventory</h1>
+  <div class="subtitle">Generated ${now}${pi.name ? ' · ' + pi.name : ''}</div>
+
+  ${fromAddr || toAddr || moveOut || moveIn ? `
+  <div class="meta-grid">
+    ${fromAddr ? `<div class="meta-item"><label>Moving From</label><span>${fromAddr}</span></div>` : ''}
+    ${toAddr   ? `<div class="meta-item"><label>Moving To</label><span>${toAddr}</span></div>`   : ''}
+    ${moveOut  ? `<div class="meta-item"><label>Move Out</label><span>${moveOut}</span></div>`    : ''}
+    ${moveIn   ? `<div class="meta-item"><label>Move In</label><span>${moveIn}</span></div>`      : ''}
+  </div>` : ''}
+
+  <div style="text-align:right;margin-bottom:8px;">
+    <button onclick="window.print()" style="padding:8px 20px;background:#000080;color:white;border:none;font-size:13px;cursor:pointer;border-radius:2px;">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:46px;">#</th>
+        <th>Item Name</th>
+        <th style="width:90px;">Type</th>
+        <th style="width:60px;">Bin/Box</th>
+        <th style="width:80px;">Weight</th>
+        <th style="width:40px;">Wrap</th>
+        <th style="width:40px;">Frag</th>
+        <th style="width:90px;">Cost / Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${tableRows}
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <div class="summary-item"><label>Total Items</label><span>${totalItems}</span></div>
+    <div class="summary-item"><label>Rooms</label><span>${roomOrder.length}</span></div>
+    ${totalCost > 0 ? `<div class="summary-item"><label>Est. Total Value</label><span>$${totalCost.toFixed(2)}</span></div>` : ''}
+  </div>
+
+  <div class="footer">Moving95 Inventory System · Generated ${now}</div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { showError('Pop-up blocked. Please allow pop-ups for this site and try again.'); return; }
+  win.document.write(html);
+  win.document.close();
+  // Trigger print dialog automatically
+  setTimeout(() => win.print(), 600);
+}
+
+// ══════════════════════════════
+//  SCAVENGER HUNT
+// ══════════════════════════════
+const HUNT_TIER_PTS   = [1, 3, 5, 10];
+const HUNT_TIER_COUNT = [15, 15, 15, 15];
+const HUNT_MAX_PTS    = HUNT_TIER_PTS.reduce((s,p,i) => s + p * HUNT_TIER_COUNT[i], 0); // 285
+const HUNT_TOTAL_ITEMS = 60;
+
+let huntState = JSON.parse(localStorage.getItem('huntState') || '{}');
+
+function saveHuntState() {
+  localStorage.setItem('huntState', JSON.stringify(huntState));
+}
+
+function toggleHuntItem(id, pts, tierIdx) {
+  const row = document.getElementById('row-' + id);
+  const chk = document.getElementById('chk-' + id);
+  const wasFound = huntState[id];
+  if (wasFound) {
+    delete huntState[id];
+    row.classList.remove('found');
+    chk.classList.remove('checked');
+    chk.textContent = '';
+  } else {
+    huntState[id] = pts;
+    row.classList.add('found');
+    chk.classList.add('checked');
+    chk.textContent = '✔';
+  }
+  saveHuntState();
+  updateHuntScore();
+}
+
+function updateHuntScore() {
+  const found  = Object.keys(huntState).length;
+  const total  = Object.values(huntState).reduce((s, p) => s + p, 0);
+  const pct    = Math.round((found / HUNT_TOTAL_ITEMS) * 100);
+
+  document.getElementById('huntTotal').textContent  = total;
+  document.getElementById('huntFound').textContent  = found;
+  document.getElementById('huntRemain').textContent = HUNT_TOTAL_ITEMS - found;
+  document.getElementById('huntPct').textContent    = pct + '%';
+  document.getElementById('huntProgressFill').style.width = pct + '%';
+
+  // Per-tier scores
+  const tierScores = [0, 0, 0, 0];
+  const tierCounts = [0, 0, 0, 0];
+  Object.entries(huntState).forEach(([id, pts]) => {
+    const tierIdx = parseInt(id.split('-')[1]);
+    if (tierIdx >= 0 && tierIdx < 4) {
+      tierScores[tierIdx] += pts;
+      tierCounts[tierIdx]++;
+    }
+  });
+  ['s1','s2','s3','s4'].forEach((elId, i) => {
+    const el = document.getElementById(elId);
+    if (el) el.textContent = tierScores[i] + ' pts';
+  });
+
+  // Update tier found counts
+  for (let t = 0; t < 4; t++) {
+    const el = document.getElementById('tier-count-' + t);
+    if (el) el.textContent = tierCounts[t] + ' / ' + HUNT_TIER_COUNT[t] + ' found';
+  }
+
+  // Milestone alerts
+  if (total >= 50 && !huntState._milestone50) {
+    huntState._milestone50 = true;
+    saveHuntState();
+    showSuccess('🎉 50 Points! First to 50 — choose the next stop!');
+  }
+}
+
+function initHuntUI() {
+  // Restore checked state from saved huntState
+  Object.entries(huntState).forEach(([id, pts]) => {
+    if (id.startsWith('_')) return;
+    const row = document.getElementById('row-' + id);
+    const chk = document.getElementById('chk-' + id);
+    if (row) row.classList.add('found');
+    if (chk) { chk.classList.add('checked'); chk.textContent = '✔'; }
+  });
+  updateHuntScore();
+}
+
+function resetHunt() {
+  if (!confirm('Reset the scavenger hunt? All progress will be lost.')) return;
+  huntState = {};
+  saveHuntState();
+  document.querySelectorAll('.hunt-item').forEach(el => el.classList.remove('found'));
+  document.querySelectorAll('.hunt-check').forEach(el => { el.classList.remove('checked'); el.textContent = ''; });
+  updateHuntScore();
+}
+
+// Init on page load and when switching to hunt tab
+document.addEventListener('DOMContentLoaded', () => {
+  initHuntUI();
+});
+
+// ══════════════════════════════
+//  CALCULATOR
+// ══════════════════════════════
+let calcVal      = '0';
+let calcExprStr  = '';
+let calcNewNum   = true;
+let calcOperator = null;
+let calcPrev     = null;
+
+function toggleCalc() {
+  const panel   = document.getElementById('calcPanel');
+  const overlay = document.getElementById('calcOverlay');
+  const open    = panel.style.display === 'none';
+  panel.style.display   = open ? 'block' : 'none';
+  overlay.style.display = open ? 'block' : 'none';
+  if (open) updateCalcDisplay();
+}
+
+function updateCalcDisplay() {
+  document.getElementById('calcDisplay').textContent = calcVal;
+  document.getElementById('calcExpr').textContent   = calcExprStr;
+}
+
+function calcInput(btn) {
+  if (btn === 'C') {
+    calcVal = '0'; calcExprStr = ''; calcNewNum = true;
+    calcOperator = null; calcPrev = null;
+    return updateCalcDisplay();
+  }
+  if (btn === '⌫') {
+    calcVal = calcVal.length > 1 ? calcVal.slice(0, -1) : '0';
+    return updateCalcDisplay();
+  }
+  if (['+','-','*','/'].includes(btn)) {
+    const sym = btn === '*' ? '×' : btn === '/' ? '÷' : btn;
+    calcPrev     = parseFloat(calcVal);
+    calcOperator = btn;
+    calcExprStr  = calcVal + ' ' + sym;
+    calcNewNum   = true;
+    return updateCalcDisplay();
+  }
+  if (btn === '=') {
+    if (calcOperator && calcPrev !== null) {
+      const curr = parseFloat(calcVal);
+      let result;
+      switch(calcOperator) {
+        case '+': result = calcPrev + curr; break;
+        case '-': result = calcPrev - curr; break;
+        case '*': result = calcPrev * curr; break;
+        case '/': result = curr !== 0 ? calcPrev / curr : 'Error'; break;
+      }
+      calcExprStr  = calcExprStr + ' ' + calcVal + ' =';
+      calcVal      = result === 'Error' ? 'Error' : String(parseFloat(result.toFixed(10)));
+      calcOperator = null; calcPrev = null; calcNewNum = true;
+    }
+    return updateCalcDisplay();
+  }
+  if (btn === '.') {
+    if (calcNewNum) { calcVal = '0.'; calcNewNum = false; }
+    else if (!calcVal.includes('.')) calcVal += '.';
+    return updateCalcDisplay();
+  }
+  // Digit
+  if (calcNewNum) { calcVal = btn; calcNewNum = false; }
+  else calcVal = calcVal === '0' ? btn : calcVal + btn;
+  updateCalcDisplay();
+}
+
+// Keyboard support for calculator
+document.addEventListener('keydown', function(e) {
+  const panel = document.getElementById('calcPanel');
+  if (panel.style.display === 'none') return;
+  const key = e.key;
+  if ('0123456789'.includes(key))              { calcInput(key); e.preventDefault(); }
+  else if (['+','-','*','/'].includes(key))    { calcInput(key); e.preventDefault(); }
+  else if (key === 'Enter' || key === '=')     { calcInput('='); e.preventDefault(); }
+  else if (key === 'Backspace')                { calcInput('⌫'); e.preventDefault(); }
+  else if (key === 'Escape')                   { toggleCalc(); }
+  else if (key === '.')                        { calcInput('.'); e.preventDefault(); }
+  else if (key.toLowerCase() === 'c')          { calcInput('C'); e.preventDefault(); }
+});
 </script>
 </head>
 <body>
@@ -872,6 +1471,9 @@ function loadPlacesAPI() {
   </div>
   <!-- Logged-in user badge -->
   <button class="user-badge" id="userBadge" onclick="doLogout()" title="Sign out" style="display:none;">&#128100; ... &#10006;</button>
+  <!-- Wrench / Config button -->
+  <button class="header-wrench-btn" onclick="showPage('config')" id="headerConfigBtn" title="Settings">&#128295;</button>
+  <button class="header-wrench-btn" onclick="toggleCalc()" id="headerCalcBtn" title="Calculator">&#129518;</button>
   <!-- Item # shown on form tab only -->
   <div class="header-item-num" id="headerItemNum">
     <span id="itemNumberDisplay">--</span>
@@ -901,7 +1503,7 @@ function loadPlacesAPI() {
           <select id="itemType">
             <option value="">-- Select --</option>
             <option>Bin</option><option>Box</option><option>Furniture</option>
-            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option><option>Pet Supplies</option><option>Pet Supplies</option>
+            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option><option>Pet Supplies</option><option>Clothing</option><option>Linens</option><option>Electronics</option><option>Instruments</option><option>Crafting</option><option>Plants</option><option>Other</option>
           </select>
         </div>
         <div class="field">
@@ -917,6 +1519,7 @@ function loadPlacesAPI() {
             <option>Heavy</option>
             <option>Very Heavy</option>
             <option>Bulky</option>
+            <option>Other</option>
           </select>
         </div>
         <div class="field" style="flex:0 0 80px;">
@@ -948,7 +1551,7 @@ function loadPlacesAPI() {
             <option>Living Room</option><option>Bedroom</option><option>Studio</option>
             <option>Office</option><option>Closet 1</option><option>Closet 2</option>
             <option>Closet 3</option><option>Closet 4</option><option>Sitting Room</option>
-            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option>
+            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option><option>Bathroom</option><option>Plant Area</option><option>Workshop</option><option>Other</option>
           </select>
         </div>
         <div class="field">
@@ -959,7 +1562,7 @@ function loadPlacesAPI() {
             <option>Garage</option><option>Studio</option><option>Living Room</option>
             <option>Bathrooms</option><option>Closet 1</option><option>Closet 2</option>
             <option>Utility Closet</option><option>Kitchen</option>
-            <option>Patio/Garden</option><option>Dining/Bar</option>
+            <option>Patio/Garden</option><option>Dining/Bar</option><option>Other</option>
           </select>
         </div>
       </div>
@@ -981,6 +1584,24 @@ function loadPlacesAPI() {
             <input type="radio" name="fragile" id="fragileYes" value="Yes">
             <label for="fragileYes">Yes</label>
           </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
+          <label class="check-pill" for="statusPacked">
+            <input type="checkbox" id="statusPacked" name="itemStatus" value="Packed">
+            📦 Packed
+          </label>
+          <label class="check-pill" for="statusLoaded">
+            <input type="checkbox" id="statusLoaded" name="itemStatus" value="Loaded">
+            🚛 Loaded
+          </label>
+          <label class="check-pill" for="statusUnpacked">
+            <input type="checkbox" id="statusUnpacked" name="itemStatus" value="Unpacked">
+            📬 Unpacked
+          </label>
         </div>
       </div>
     </div>
@@ -1055,7 +1676,7 @@ function loadPlacesAPI() {
             <option>Living Room</option><option>Bedroom</option><option>Studio</option>
             <option>Office</option><option>Closet 1</option><option>Closet 2</option>
             <option>Closet 3</option><option>Closet 4</option><option>Sitting Room</option>
-            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option>
+            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option><option>Bathroom</option><option>Plant Area</option><option>Workshop</option><option>Other</option>
           </select>
         </div>
         <div class="filter-group">
@@ -1063,7 +1684,7 @@ function loadPlacesAPI() {
           <select id="filterType" onchange="applyFilters()">
             <option value="">All Types</option>
             <option>Bin</option><option>Box</option><option>Furniture</option>
-            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option><option>Pet Supplies</option><option>Pet Supplies</option>
+            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option><option>Pet Supplies</option><option>Clothing</option><option>Linens</option><option>Electronics</option><option>Instruments</option><option>Crafting</option><option>Plants</option><option>Other</option>
           </select>
         </div>
         <div class="filter-group">
@@ -1096,7 +1717,10 @@ function loadPlacesAPI() {
   <div class="win-card">
     <div class="win-card-title">
       <span>📦 Items</span>
-      <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" style="font-size:15px;padding:3px 10px;">↺ Refresh</button>
+      <div style="display:flex;gap:4px;">
+        <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" style="font-size:15px;padding:3px 10px;">↺ Refresh</button>
+        <button class="cal-nav-btn" onclick="downloadInventoryPDF()" title="Download PDF" style="font-size:15px;padding:3px 10px;">⬇ PDF</button>
+      </div>
     </div>
     <div class="win-card-body" style="padding:8px;">
       <div class="stats-bar" id="statsBar"></div>
@@ -1109,6 +1733,7 @@ function loadPlacesAPI() {
       </div>
     </div>
   </div>
+  <div style="height:80px;"></div>
 </div>
 
 <!-- ══════════════════════════════
@@ -1471,6 +2096,34 @@ function loadPlacesAPI() {
             <option value="Paint/Repair">🖌️ Paint/Repair</option>
           </select>
         </div>
+        <div class="field" style="flex:0 0 130px;">
+          <label for="ckRoom">Room</label>
+          <select id="ckRoom">
+            <option value="">-- Room --</option>
+            <option>Bathroom</option>
+            <option>Bathrooms</option>
+            <option>Bedroom</option>
+            <option>Closet 1</option>
+            <option>Closet 2</option>
+            <option>Closet 3</option>
+            <option>Closet 4</option>
+            <option>Dining/Bar</option>
+            <option>Garage</option>
+            <option>Guestroom</option>
+            <option>Kitchen</option>
+            <option>Listening Room</option>
+            <option>Living Room</option>
+            <option>Mini Office</option>
+            <option>Office</option>
+            <option>Other</option>
+            <option>Patio/Garden</option>
+            <option>Plant Area</option>
+            <option>Sitting Room</option>
+            <option>Studio</option>
+            <option>Utility Closet</option>
+            <option>Workshop</option>
+          </select>
+        </div>
         <div class="field wide">
           <label for="ckText">Task</label>
           <input type="text" id="ckText" placeholder="e.g. Pack kitchen boxes" autocomplete="off"
@@ -1582,6 +2235,8 @@ function loadPlacesAPI() {
           <option>Hotel</option>
           <option>Truck Return</option>
           <option>Junk Removal</option>
+          <option>Truck Pickup</option>
+          <option>Other</option>
         </select>
       </div>
 
@@ -1644,6 +2299,7 @@ function loadPlacesAPI() {
           <option>Furniture</option>
           <option>Large Item</option>
           <option>Small Item</option>
+          <option>Other</option>
         </select>
       </div>
 
@@ -1816,6 +2472,381 @@ function loadPlacesAPI() {
   <div style="height:80px;"></div>
 </div>
 
+<!-- ══════════════════════════════
+     PAGE: HUNT
+══════════════════════════════ -->
+<div class="page" id="page-hunt">
+
+  <!-- Header card -->
+  <div class="win-card">
+    <div class="win-card-title" style="background:linear-gradient(to right,#b71c1c,#e53935);">
+      <span>🏆 Road Trip Scavenger Hunt</span>
+      <button class="cal-nav-btn" onclick="resetHunt()" style="background:rgba(255,255,255,0.2);color:white;border-color:rgba(255,255,255,0.4);font-size:13px;">↺ Reset</button>
+    </div>
+    <div class="config-note" style="margin:8px;line-height:1.6;">
+      Find items during your road trip · Mark them off when spotted · Earn points by difficulty · Highest score wins!<br>
+      <b>Bonus:</b> Photo proof = +2pts &nbsp;|&nbsp; Group selfie with item = +3pts
+    </div>
+    <!-- Score bar -->
+    <div class="hunt-score-bar">
+      <div class="hunt-score-cell">
+        <div class="hunt-score-num" id="huntTotal">0</div>
+        <div class="hunt-score-lbl">Total Pts</div>
+      </div>
+      <div class="hunt-score-cell">
+        <div class="hunt-score-num" id="huntFound">0</div>
+        <div class="hunt-score-lbl">Found</div>
+      </div>
+      <div class="hunt-score-cell">
+        <div class="hunt-score-num" id="huntRemain">60</div>
+        <div class="hunt-score-lbl">Remaining</div>
+      </div>
+      <div class="hunt-score-cell">
+        <div class="hunt-score-num" id="huntPct">0%</div>
+        <div class="hunt-score-lbl">Complete</div>
+      </div>
+    </div>
+    <div class="hunt-progress-bar">
+      <div class="hunt-progress-fill" id="huntProgressFill" style="width:0%"></div>
+    </div>
+    <div style="padding:0 10px 10px;display:flex;gap:6px;flex-wrap:wrap;">
+      <span style="font-size:13px;font-weight:normal;color:#555;">🟢 Easy: <b id="s1">0</b></span>
+      <span style="font-size:13px;font-weight:normal;color:#555;margin-left:8px;">🔵 Medium: <b id="s2">0</b></span>
+      <span style="font-size:13px;font-weight:normal;color:#555;margin-left:8px;">🟣 Hard: <b id="s3">0</b></span>
+      <span style="font-size:13px;font-weight:normal;color:#555;margin-left:8px;">🔴 Expert: <b id="s4">0</b></span>
+    </div>
+  </div>
+
+  <!-- Items list -->
+  <div class="win-card">
+    <div style="overflow-y:auto;">
+
+  <div class="hunt-tier-header" style="background:#E8F5E9;color:#4CAF50;">
+    <span>🟢 Tier 1</span>
+    <span class="hunt-tier-badge" style="background:#4CAF50;color:white;">1 pt each</span>
+    <span id="tier-count-0" style="margin-left:auto;font-size:13px;font-weight:normal;color:#4CAF50;"></span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-0" onclick="toggleHuntItem('hunt-0-0',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-0"></div>
+    <span class="hunt-item-name">Stop sign</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-1" onclick="toggleHuntItem('hunt-0-1',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-1"></div>
+    <span class="hunt-item-name">Gas station</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-2" onclick="toggleHuntItem('hunt-0-2',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-2"></div>
+    <span class="hunt-item-name">Fast food restaurant</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-3" onclick="toggleHuntItem('hunt-0-3',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-3"></div>
+    <span class="hunt-item-name">Pickup truck</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-4" onclick="toggleHuntItem('hunt-0-4',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-4"></div>
+    <span class="hunt-item-name">Dog in a car</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-5" onclick="toggleHuntItem('hunt-0-5',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-5"></div>
+    <span class="hunt-item-name">License plate from another state</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-6" onclick="toggleHuntItem('hunt-0-6',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-6"></div>
+    <span class="hunt-item-name">Traffic light</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-7" onclick="toggleHuntItem('hunt-0-7',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-7"></div>
+    <span class="hunt-item-name">Billboard advertisement</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-8" onclick="toggleHuntItem('hunt-0-8',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-8"></div>
+    <span class="hunt-item-name">Construction cones</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-9" onclick="toggleHuntItem('hunt-0-9',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-9"></div>
+    <span class="hunt-item-name">Motorcycle</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-10" onclick="toggleHuntItem('hunt-0-10',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-10"></div>
+    <span class="hunt-item-name">School bus</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-11" onclick="toggleHuntItem('hunt-0-11',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-11"></div>
+    <span class="hunt-item-name">Bridge</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-12" onclick="toggleHuntItem('hunt-0-12',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-12"></div>
+    <span class="hunt-item-name">Car with roof rack</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-13" onclick="toggleHuntItem('hunt-0-13',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-13"></div>
+    <span class="hunt-item-name">Rest area sign</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-0-14" onclick="toggleHuntItem('hunt-0-14',1,0)">
+    <div class="hunt-check" id="chk-hunt-0-14"></div>
+    <span class="hunt-item-name">Water tower</span>
+    <span class="hunt-pts" style="color:#4CAF50;border-color:#4CAF5033;">1pt</span>
+  </div>
+  <div class="hunt-tier-header" style="background:#E3F2FD;color:#1976D2;">
+    <span>🔵 Tier 2</span>
+    <span class="hunt-tier-badge" style="background:#1976D2;color:white;">3 pts each</span>
+    <span id="tier-count-1" style="margin-left:auto;font-size:13px;font-weight:normal;color:#1976D2;"></span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-0" onclick="toggleHuntItem('hunt-1-0',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-0"></div>
+    <span class="hunt-item-name">Police car</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-1" onclick="toggleHuntItem('hunt-1-1',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-1"></div>
+    <span class="hunt-item-name">Fire truck</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-2" onclick="toggleHuntItem('hunt-1-2',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-2"></div>
+    <span class="hunt-item-name">Ambulance</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-3" onclick="toggleHuntItem('hunt-1-3',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-3"></div>
+    <span class="hunt-item-name">Tractor</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-4" onclick="toggleHuntItem('hunt-1-4',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-4"></div>
+    <span class="hunt-item-name">Wind turbine</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-5" onclick="toggleHuntItem('hunt-1-5',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-5"></div>
+    <span class="hunt-item-name">Cow or horse field</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-6" onclick="toggleHuntItem('hunt-1-6',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-6"></div>
+    <span class="hunt-item-name">Vintage/classic car</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-7" onclick="toggleHuntItem('hunt-1-7',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-7"></div>
+    <span class="hunt-item-name">Car pulling a trailer</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-8" onclick="toggleHuntItem('hunt-1-8',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-8"></div>
+    <span class="hunt-item-name">Drive-in restaurant</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-9" onclick="toggleHuntItem('hunt-1-9',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-9"></div>
+    <span class="hunt-item-name">Roadside attraction</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-10" onclick="toggleHuntItem('hunt-1-10',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-10"></div>
+    <span class="hunt-item-name">Car with bumper stickers</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-11" onclick="toggleHuntItem('hunt-1-11',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-11"></div>
+    <span class="hunt-item-name">Train crossing</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-12" onclick="toggleHuntItem('hunt-1-12',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-12"></div>
+    <span class="hunt-item-name">Tunnel</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-13" onclick="toggleHuntItem('hunt-1-13',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-13"></div>
+    <span class="hunt-item-name">Ferry boat</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-1-14" onclick="toggleHuntItem('hunt-1-14',3,1)">
+    <div class="hunt-check" id="chk-hunt-1-14"></div>
+    <span class="hunt-item-name">State welcome sign</span>
+    <span class="hunt-pts" style="color:#1976D2;border-color:#1976D233;">3pt</span>
+  </div>
+  <div class="hunt-tier-header" style="background:#F3E5F5;color:#7B1FA2;">
+    <span>🟣 Tier 3</span>
+    <span class="hunt-tier-badge" style="background:#7B1FA2;color:white;">5 pts each</span>
+    <span id="tier-count-2" style="margin-left:auto;font-size:13px;font-weight:normal;color:#7B1FA2;"></span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-0" onclick="toggleHuntItem('hunt-2-0',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-0"></div>
+    <span class="hunt-item-name">Car with a broken headlight</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-1" onclick="toggleHuntItem('hunt-2-1',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-1"></div>
+    <span class="hunt-item-name">Person riding a horse</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-2" onclick="toggleHuntItem('hunt-2-2',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-2"></div>
+    <span class="hunt-item-name">Car with three or more bikes mounted</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-3" onclick="toggleHuntItem('hunt-2-3',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-3"></div>
+    <span class="hunt-item-name">Food truck</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-4" onclick="toggleHuntItem('hunt-2-4',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-4"></div>
+    <span class="hunt-item-name">Outdoor mural</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-5" onclick="toggleHuntItem('hunt-2-5',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-5"></div>
+    <span class="hunt-item-name">Abandoned building</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-6" onclick="toggleHuntItem('hunt-2-6',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-6"></div>
+    <span class="hunt-item-name">Lighthouse</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-7" onclick="toggleHuntItem('hunt-2-7',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-7"></div>
+    <span class="hunt-item-name">Double rainbow</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-8" onclick="toggleHuntItem('hunt-2-8',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-8"></div>
+    <span class="hunt-item-name">Street performer</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-9" onclick="toggleHuntItem('hunt-2-9',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-9"></div>
+    <span class="hunt-item-name">Car with out-of-country license plate</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-10" onclick="toggleHuntItem('hunt-2-10',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-10"></div>
+    <span class="hunt-item-name">Hot air balloon</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-11" onclick="toggleHuntItem('hunt-2-11',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-11"></div>
+    <span class="hunt-item-name">Convertible with top down</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-12" onclick="toggleHuntItem('hunt-2-12',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-12"></div>
+    <span class="hunt-item-name">Someone towing a boat</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-13" onclick="toggleHuntItem('hunt-2-13',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-13"></div>
+    <span class="hunt-item-name">Roadside fruit/vegetable stand</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-2-14" onclick="toggleHuntItem('hunt-2-14',5,2)">
+    <div class="hunt-check" id="chk-hunt-2-14"></div>
+    <span class="hunt-item-name">Oversized roadside statue</span>
+    <span class="hunt-pts" style="color:#7B1FA2;border-color:#7B1FA233;">5pt</span>
+  </div>
+  <div class="hunt-tier-header" style="background:#FFEBEE;color:#C62828;">
+    <span>🔴 Tier 4</span>
+    <span class="hunt-tier-badge" style="background:#C62828;color:white;">10 pts each</span>
+    <span id="tier-count-3" style="margin-left:auto;font-size:13px;font-weight:normal;color:#C62828;"></span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-0" onclick="toggleHuntItem('hunt-3-0',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-0"></div>
+    <span class="hunt-item-name">Celebrity look-alike</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-1" onclick="toggleHuntItem('hunt-3-1',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-1"></div>
+    <span class="hunt-item-name">Movie being filmed</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-2" onclick="toggleHuntItem('hunt-3-2',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-2"></div>
+    <span class="hunt-item-name">Animal crossing road (not a pet)</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-3" onclick="toggleHuntItem('hunt-3-3',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-3"></div>
+    <span class="hunt-item-name">Parade or festival</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-4" onclick="toggleHuntItem('hunt-3-4',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-4"></div>
+    <span class="hunt-item-name">Car with same license plate letters as your initials</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-5" onclick="toggleHuntItem('hunt-3-5',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-5"></div>
+    <span class="hunt-item-name">Wedding happening outdoors</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-6" onclick="toggleHuntItem('hunt-3-6',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-6"></div>
+    <span class="hunt-item-name">Snow in summer / unusual weather event</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-7" onclick="toggleHuntItem('hunt-3-7',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-7"></div>
+    <span class="hunt-item-name">Someone changing a tire</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-8" onclick="toggleHuntItem('hunt-3-8',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-8"></div>
+    <span class="hunt-item-name">Three identical cars in a row</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-9" onclick="toggleHuntItem('hunt-3-9',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-9"></div>
+    <span class="hunt-item-name">Helicopter landing</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-10" onclick="toggleHuntItem('hunt-3-10',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-10"></div>
+    <span class="hunt-item-name">Car decorated for a celebration</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-11" onclick="toggleHuntItem('hunt-3-11',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-11"></div>
+    <span class="hunt-item-name">Pop-up roadside concert or band</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-12" onclick="toggleHuntItem('hunt-3-12',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-12"></div>
+    <span class="hunt-item-name">Unique shaped building</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-13" onclick="toggleHuntItem('hunt-3-13',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-13"></div>
+    <span class="hunt-item-name">Antique gas station</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+  <div class="hunt-item" id="row-hunt-3-14" onclick="toggleHuntItem('hunt-3-14',10,3)">
+    <div class="hunt-check" id="chk-hunt-3-14"></div>
+    <span class="hunt-item-name">Car with custom paint or wrap</span>
+    <span class="hunt-pts" style="color:#C62828;border-color:#C6282833;">10pt</span>
+  </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-form" onclick="showPage('form')">
@@ -1839,10 +2870,158 @@ function loadPlacesAPI() {
     <span class="nav-btn-icon">🗺️</span>
     <span class="nav-btn-label">Route</span>
   </button>
-  <button class="nav-btn" id="nav-config" onclick="showPage('config')">
-    <span class="nav-btn-icon">⚙️</span>
-    <span class="nav-btn-label">Config</span>
+  <button class="nav-btn" id="nav-hunt" onclick="showPage('hunt')">
+    <span class="nav-btn-icon">🏆</span>
+    <span class="nav-btn-label">Hunt</span>
   </button>
+</div>
+
+<!-- ── CALCULATOR ── -->
+<div id="calcOverlay" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.4);" onclick="toggleCalc()"></div>
+<div id="calcPanel" style="display:none;position:fixed;top:56px;right:8px;z-index:301;width:260px;">
+  <div style="background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);box-shadow:4px 4px 0 var(--black);">
+    <div style="background:linear-gradient(to right,var(--blue),var(--blue2));padding:5px 10px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="color:white;font-size:17px;font-weight:bold;">🧮 Calculator</span>
+      <button onclick="toggleCalc()" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;font-family:'VT323',monospace;">✕</button>
+    </div>
+    <!-- Display -->
+    <div style="padding:8px 8px 4px;">
+      <div id="calcExpr" style="height:18px;font-size:13px;font-weight:normal;color:#666;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      <div id="calcDisplay" style="background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:6px 8px;font-size:28px;font-weight:bold;text-align:right;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);">0</div>
+    </div>
+    <!-- Buttons -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px 8px 8px;">
+      <!-- Row 1 -->
+      <button class="calc-btn calc-fn" onclick="calcInput('C')" style="grid-column:span 2;">C</button>
+      <button class="calc-btn calc-fn" onclick="calcInput('⌫')">⌫</button>
+      <button class="calc-btn calc-op" onclick="calcInput('/')">÷</button>
+      <!-- Row 2 -->
+      <button class="calc-btn" onclick="calcInput('7')">7</button>
+      <button class="calc-btn" onclick="calcInput('8')">8</button>
+      <button class="calc-btn" onclick="calcInput('9')">9</button>
+      <button class="calc-btn calc-op" onclick="calcInput('*')">×</button>
+      <!-- Row 3 -->
+      <button class="calc-btn" onclick="calcInput('4')">4</button>
+      <button class="calc-btn" onclick="calcInput('5')">5</button>
+      <button class="calc-btn" onclick="calcInput('6')">6</button>
+      <button class="calc-btn calc-op" onclick="calcInput('-')">−</button>
+      <!-- Row 4 -->
+      <button class="calc-btn" onclick="calcInput('1')">1</button>
+      <button class="calc-btn" onclick="calcInput('2')">2</button>
+      <button class="calc-btn" onclick="calcInput('3')">3</button>
+      <button class="calc-btn calc-op" onclick="calcInput('+')">+</button>
+      <!-- Row 5 -->
+      <button class="calc-btn" onclick="calcInput('0')" style="grid-column:span 2;">0</button>
+      <button class="calc-btn" onclick="calcInput('.')">.</button>
+      <button class="calc-btn calc-eq" onclick="calcInput('=')">=</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT ITEM DIALOG ── -->
+<div class="dialog-overlay" id="editItemOverlay">
+  <div class="dialog-box" style="max-width:460px;max-height:90vh;overflow-y:auto;">
+    <div class="dialog-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));justify-content:space-between;">
+      <span>✏️ Edit Item</span>
+      <button class="dialog-close" onclick="closeEditDialog()">✕</button>
+    </div>
+    <div style="padding:14px;">
+
+      <div class="config-field">
+        <label style="font-size:16px;">Item Name *</label>
+        <input type="text" id="editItemName" autocomplete="off" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="config-field">
+          <label style="font-size:16px;">Type</label>
+          <select id="editItemType" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+            <option value="">-- Type --</option>
+            <option>Bin</option><option>Box</option><option>Furniture</option>
+            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option>
+            <option>Pet Supplies</option><option>Clothing</option><option>Linens</option>
+            <option>Electronics</option><option>Instruments</option><option>Crafting</option><option>Plants</option><option>Other</option>
+          </select>
+        </div>
+        <div class="config-field">
+          <label style="font-size:16px;">Location</label>
+          <select id="editLocation" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+            <option value="">-- Room --</option>
+            <option>Living Room</option><option>Bedroom</option><option>Studio</option>
+            <option>Office</option><option>Closet 1</option><option>Closet 2</option>
+            <option>Closet 3</option><option>Closet 4</option><option>Sitting Room</option>
+            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option>
+            <option>Bathroom</option><option>Plant Area</option><option>Workshop</option><option>Other</option>
+          </select>
+        </div>
+        <div class="config-field">
+          <label style="font-size:16px;">Bin/Box #</label>
+          <input type="text" id="editBinBox" autocomplete="off" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
+        </div>
+        <div class="config-field">
+          <label style="font-size:16px;">Weight</label>
+          <select id="editWeight" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+            <option value="">-- Weight --</option>
+            <option>Light</option><option>Medium</option><option>Heavy</option>
+            <option>Very Heavy</option><option>Bulky</option><option>Other</option>
+          </select>
+        </div>
+        <div class="config-field">
+          <label style="font-size:16px;">Est. Cost ($)</label>
+          <input type="number" id="editEstCost" min="0" step="0.01" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
+        </div>
+        <div class="config-field">
+          <label style="font-size:16px;">Qty</label>
+          <input type="number" id="editQty" min="1" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
+        </div>
+      </div>
+
+      <div class="config-field">
+        <label style="font-size:16px;">Description</label>
+        <textarea id="editDescription" rows="2" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:16px;font-weight:normal;resize:vertical;"></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:16px;font-weight:bold;">Wrapped?</label>
+          <div class="toggle-group" style="margin-top:4px;">
+            <input type="radio" name="editWrapped" id="editWrappedNo" value="No" checked>
+            <label for="editWrappedNo">No</label>
+            <input type="radio" name="editWrapped" id="editWrappedYes" value="Yes">
+            <label for="editWrappedYes">Yes</label>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:16px;font-weight:bold;">Fragile?</label>
+          <div class="toggle-group" style="margin-top:4px;">
+            <input type="radio" name="editFragile" id="editFragileNo" value="No" checked>
+            <label for="editFragileNo">No</label>
+            <input type="radio" name="editFragile" id="editFragileYes" value="Yes">
+            <label for="editFragileYes">Yes</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-field" style="margin-bottom:12px;">
+        <label style="font-size:16px;">Status</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          <label class="check-pill" for="editStatusPacked"><input type="checkbox" id="editStatusPacked" value="Packed"> 📦 Packed</label>
+          <label class="check-pill" for="editStatusLoaded"><input type="checkbox" id="editStatusLoaded" value="Loaded"> 🚛 Loaded</label>
+          <label class="check-pill" for="editStatusUnpacked"><input type="checkbox" id="editStatusUnpacked" value="Unpacked"> 📬 Unpacked</label>
+        </div>
+      </div>
+
+      <input type="hidden" id="editRowIndex">
+      <input type="hidden" id="editItemNum">
+
+      <div id="editSaveStatus" style="font-size:14px;font-weight:normal;color:#555;min-height:20px;margin-bottom:8px;"></div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn danger" onclick="closeEditDialog()" style="flex:1;">✕ Cancel</button>
+        <button class="btn btn-submit" onclick="saveEditedItem()" style="flex:2;">💾 Save Changes</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ── DIALOGS ── -->
@@ -2277,17 +3456,21 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
   window.scrollTo(0, 0);
 
   // Swap header elements per page
   const isForm   = name === 'form';
   const isViewer = name === 'viewer';
+  const isConfig = name === 'config';
   document.getElementById('headerItemNum').style.display    = isForm   ? 'flex'  : 'none';
   document.getElementById('headerRefreshBtn').style.display = isViewer ? 'block' : 'none';
+  const wrench = document.getElementById('headerConfigBtn');
+  if (wrench) wrench.classList.toggle('active-page', isConfig);
 
   // Update header subtitle
-  const subs = { form:'Add items', viewer:'Browse inventory', config:'Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner' };
+  const subs = { form:'Add items', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt' };
   document.getElementById('headerStatus').textContent = subs[name] || '';
 
   // Auto-load viewer when switching to it
@@ -2447,7 +3630,9 @@ async function submitItem() {
     itemNumber, itemName, itemType, binBoxNumber, itemWeight, itemOrigin,
     location, quantity: parseInt(quantity), description,
     estCost: estCost ? parseFloat(estCost) : '',
-    wrapped, fragile, images: imageDataArray, timestamp: new Date().toISOString()
+    wrapped, fragile,
+    itemStatus: Array.from(document.querySelectorAll('input[name="itemStatus"]:checked')).map(el => el.value).join(', '),
+    images: imageDataArray, timestamp: new Date().toISOString()
   };
 
   try {
@@ -2470,6 +3655,9 @@ function onSubmitSuccess(payload) {
   setStatus('✅ #' + payload.itemNumber + ' "' + payload.itemName + '" saved.');
   document.getElementById('headerStatus').textContent = 'Last: ' + payload.itemName;
   showSuccess('Item #' + payload.itemNumber + '\n"' + payload.itemName + '"\nlogged!\n\nNext: #' + String(itemCounter).padStart(4,'0'));
+
+  // Auto-add Pack and Load tasks to the checklist
+  autoAddItemTasks(payload);
   document.getElementById('itemName').value = '';
   document.getElementById('description').value = '';
   document.getElementById('imagePreview').innerHTML = '';
@@ -2501,6 +3689,7 @@ function clearForm() {
   document.getElementById('quantity').value = 1;
   document.getElementById('wrappedNo').checked  = true;
   document.getElementById('fragileNo').checked  = true;
+  document.querySelectorAll('input[name="itemStatus"]').forEach(el => el.checked = false);
   document.getElementById('imagePreview').innerHTML = '';
   document.getElementById('imageCount').textContent = '';
   document.getElementById('imageInput').value = '';
@@ -3008,37 +4197,69 @@ function renderItems() {
     return;
   }
 
-  const header = `<div class="list-header">
-    <span>#</span>
-    <span>Name / Details</span>
-    <span>Wrap</span>
-    <span>Fragile</span>
-  </div>`;
+  const header = '<div class="list-header"><span>#</span><span>Item Name &amp; Details</span></div>';
 
-  const rows = filtered.map(item => {
-    const loc     = item['Location'] || '';
-    const name    = item['Item Name'] || '(unnamed)';
-    const num     = item['Item #'] || '?';
-    const type    = item['Type'] || '';
-    const wrapped = item['Wrapped?'] || 'No';
-    const fragile = item['Fragile?'] || 'No';
-    const bin     = item['Bin/Box #'] || '—';
-    const weight  = item['Weight'] || '—';
-    const imgUrl  = item['Image URL(s)'] || '';
-    const isWrapped  = wrapped.toLowerCase() === 'yes';
-    const isFragile  = fragile.toLowerCase() === 'yes';
-    const imgIcon = imgUrl ? `<a href="${imgUrl}" target="_blank" style="margin-left:4px;font-size:12px;color:var(--blue);">📷</a>` : '';
-    const metaParts = [type, loc, bin?'Box:'+bin:'', weight].filter(Boolean).join(' · ');
-    return `<div class="item-row ${roomClass(loc)}">
-      <div class="item-cell cell-num">${String(num).padStart(4,'0')}</div>
-      <div class="item-cell cell-name-block">${name}${imgIcon}</div>
-      <div class="item-cell cell-center ${isWrapped?'cell-wrap-yes':''}" style="align-items:flex-end;padding-bottom:5px;">${isWrapped?'✔ Wrap':'—'}</div>
-      <div class="item-cell cell-center ${isFragile?'cell-frag-yes':''}" style="align-items:flex-end;padding-bottom:5px;">${isFragile?'⚠ Frag':'—'}</div>
-      <div style="grid-column:2/5;" class="cell-meta">${metaParts}</div>
-    </div>`;
-  }).join('');
+  // Group items by room in order
+  const roomOrder = [];
+  const roomMap   = {};
+  filtered.forEach(item => {
+    const loc = item['Location'] || 'Unknown';
+    if (!roomMap[loc]) { roomMap[loc] = []; roomOrder.push(loc); }
+    roomMap[loc].push(item);
+  });
 
-  grid.innerHTML = header + rows;
+  let html = header;
+
+  roomOrder.forEach(loc => {
+    const items = roomMap[loc];
+    const rc = roomClass(loc);
+
+    // Room divider
+    html += '<div class="room-divider ' + rc + '" style="color:#000;background:rgba(0,0,0,0.18);">' +
+      '<span>📦 ' + loc + '</span>' +
+      '<span class="room-divider-count">' + items.length + ' item' + (items.length !== 1 ? 's' : '') + '</span>' +
+    '</div>';
+
+    items.forEach(item => {
+      const name    = item['Item Name'] || '(unnamed)';
+      const num     = item['Item #'] || '?';
+      const type    = item['Type'] || '';
+      const wrapped = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
+      const fragile = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
+      const bin     = item['Bin/Box #'] || '';
+      const weight  = item['Weight'] || '';
+      const cost    = item['Est. Cost'] ? '$' + parseFloat(item['Est. Cost']).toFixed(0) : '';
+      const qty     = item['Quantity'] && item['Quantity'] != 1 ? 'x' + item['Quantity'] : '';
+      const imgUrl  = item['Image URL(s)'] || '';
+
+      const imgLink = imgUrl
+        ? '<a href="' + imgUrl + '" target="_blank" style="font-size:13px;color:var(--blue);text-decoration:none;" onclick="event.stopPropagation()">📷</a>'
+        : '';
+      const wrapBadge = wrapped ? '<span class="cell-badge badge-wrap">✔ Wrap</span>' : '';
+      const fragBadge = fragile ? '<span class="cell-badge badge-frag">⚠ Frag</span>' : '';
+
+      const metaParts = [];
+      if (type)   metaParts.push(type);
+      if (bin)    metaParts.push('Box ' + bin);
+      if (weight) metaParts.push(weight);
+      if (cost)   metaParts.push(cost);
+      if (qty)    metaParts.push(qty);
+
+      const rowIdx = allItems.indexOf(item);
+      html += '<div class="item-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" style="cursor:pointer;" title="Tap to edit">' +
+        '<div class="cell-num">' + String(num).padStart(4,'0') + '</div>' +
+        '<div class="cell-name-block">' +
+          '<span class="cell-name-text">' + name + '</span>' +
+          imgLink + wrapBadge + fragBadge +
+        '</div>' +
+        '<div class="cell-meta">' +
+          metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') +
+        '</div>' +
+      '</div>';
+    });
+  });
+
+  grid.innerHTML = html;
 }
 
 function renderStats() {
@@ -3078,19 +4299,49 @@ function saveChecklist() {
   localStorage.setItem('checklistItems', JSON.stringify(checklistItems));
 }
 
+function autoAddItemTasks(payload) {
+  const name = payload.itemName || 'Item ' + payload.itemNumber;
+  const num  = payload.itemNumber || '????';
+  const now  = new Date().toISOString();
+
+  const tasks = [
+    { cat: 'Pack', text: 'Pack #' + num + ' — ' + name, room: payload.location || '' },
+    { cat: 'Load', text: 'Load #' + num + ' — ' + name, room: payload.location || '' }
+  ];
+
+  tasks.forEach(t => {
+    checklistItems.push({
+      id:      'ck_auto_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      text:    t.text,
+      cat:     t.cat,
+      room:    t.room || '',
+      done:    false,
+      auto:    true,
+      created: now
+    });
+  });
+
+  saveChecklist();
+  renderChecklist();
+  updateCkProgress();
+}
+
 function addChecklistItem() {
   const text = document.getElementById('ckText').value.trim();
   const cat  = document.getElementById('ckCategory').value;
+  const room = document.getElementById('ckRoom').value;
   if (!text) { document.getElementById('ckText').focus(); return; }
   checklistItems.push({
     id:   'ck_' + Date.now(),
     text,
     cat:  cat || 'Moving',
+    room: room || '',
     done: false,
     created: new Date().toISOString()
   });
   saveChecklist();
   document.getElementById('ckText').value = '';
+  document.getElementById('ckRoom').value = '';
   renderChecklist();
   updateCkProgress();
   document.getElementById('ckText').focus();
@@ -3164,7 +4415,10 @@ function renderChecklist() {
         <div class="ck-check${item.done ? ' checked' : ''}" onclick="toggleCkItem('${item.id}')">
           ${item.done ? '✔' : ''}
         </div>
-        <span class="ck-text">${item.text}</span>
+        <div style="flex:1;overflow:hidden;">
+          <span class="ck-text">${item.text}</span>
+          ${item.room ? `<div style="font-size:12px;font-weight:normal;color:#666;margin-top:1px;">📍 ${item.room}</div>` : ''}
+        </div>
         <button class="ck-delete" onclick="deleteCkItem('${item.id}')" title="Delete">✕</button>
       </div>`;
     });
@@ -3202,7 +4456,8 @@ const EVENT_TYPES = {
   'Driving':      '#1E88E5',
   'Hotel':        '#8E24AA',
   'Truck Return': '#00ACC1',
-  'Junk Removal': '#6D4C41'
+  'Junk Removal': '#6D4C41',
+  'Truck Pickup':  '#546E7A'
 };
 
 let calYear  = new Date().getFullYear();
@@ -3510,19 +4765,18 @@ function renderDeliveryList() {
     const color = DELIVERY_TYPE_COLORS[d.type] || '#888';
     const dateLabel = d.date ? new Date(d.date + 'T12:00:00').toLocaleDateString('default', {month:'short',day:'numeric',year:'numeric'}) : '';
     const timeLabel = d.time ? formatTime(d.time) : '';
-    return `<div class="ev-item" style="border-left-color:\${color};" onclick="openDeliveryForm('\${d.id}')">
-      <div class="ev-item-header">
-        <div class="ev-type-dot" style="background:\${color}"></div>
-        <span class="ev-name">\${d.item || '(unnamed)'}</span>
-        <span class="ev-time">\${d.type || ''}</span>
-      </div>
-      \${d.company ? '<div class="ev-contact">🏢 ' + d.company + '</div>' : ''}
-      \${d.phone   ? '<div class="ev-contact">📞 <a href="tel:' + d.phone + '" style="color:var(--blue)" onclick="event.stopPropagation()">' + d.phone + '</a></div>' : ''}
-      \${d.email   ? '<div class="ev-contact">✉️ <a href="mailto:' + d.email + '" style="color:var(--blue)" onclick="event.stopPropagation()">' + d.email + '</a></div>' : ''}
-      \${d.website ? '<div class="ev-contact">🌐 <a href="' + d.website + '" target="_blank" style="color:var(--blue)" onclick="event.stopPropagation()">' + d.website.replace(/^https?:\/\//, '') + '</a></div>' : ''}
-      \${dateLabel || timeLabel ? '<div class="ev-contact">📅 ' + [dateLabel, timeLabel].filter(Boolean).join(' ') + '</div>' : ''}
-      \${d.desc ? '<div class="ev-contact" style="margin-top:2px;">' + d.desc + '</div>' : ''}
-    </div>`;
+    const cHtml = d.company ? '<div class="ev-contact">\u{1F3E2} ' + d.company + '</div>' : '';
+    const pHtml = d.phone   ? '<div class="ev-contact">\u{1F4DE} <a href="tel:' + d.phone + '" style="color:var(--blue)" onclick="event.stopPropagation()">' + d.phone + '</a></div>' : '';
+    const eHtml = d.email   ? '<div class="ev-contact">\u2709\uFE0F <a href="mailto:' + d.email + '" style="color:var(--blue)" onclick="event.stopPropagation()">' + d.email + '</a></div>' : '';
+    const wHtml = d.website ? '<div class="ev-contact">\u{1F310} <a href="' + d.website + '" target="_blank" style="color:var(--blue)" onclick="event.stopPropagation()">' + d.website.replace(/^https?:\/\//, '') + '</a></div>' : '';
+    const dHtml = (dateLabel || timeLabel) ? '<div class="ev-contact">\u{1F4C5} ' + [dateLabel, timeLabel].filter(Boolean).join(' ') + '</div>' : '';
+    const nHtml = d.desc ? '<div class="ev-contact" style="margin-top:2px;">' + d.desc + '</div>' : '';
+    return '<div class="ev-item" style="border-left-color:' + color + ';" onclick="openDeliveryForm(\'' + d.id + '\')">' +
+      '<div class="ev-item-header">' +
+        '<div class="ev-type-dot" style="background:' + color + '"></div>' +
+        '<span class="ev-name">' + (d.item || '(unnamed)') + '</span>' +
+        '<span class="ev-time">' + (d.type || '') + '</span>' +
+      '</div>' + cHtml + pHtml + eHtml + wHtml + dHtml + nHtml + '</div>';
   }).join('');
 }
 
@@ -4151,6 +5405,271 @@ function openInGoogleMaps() {
   if (waypts) url = `https://www.google.com/maps/dir/${origin}/${waypts}/${dest}`;
   window.open(url, '_blank');
 }
+
+
+// ══════════════════════════════
+//  EDIT ITEM
+// ══════════════════════════════
+function openEditDialog(rowIdx) {
+  const item = allItems[rowIdx];
+  if (!item) return;
+
+  document.getElementById('editItemName').value    = item['Item Name']  || '';
+  document.getElementById('editItemType').value    = item['Type']       || '';
+  document.getElementById('editLocation').value    = item['Location']   || '';
+  document.getElementById('editBinBox').value      = item['Bin/Box #']  || '';
+  document.getElementById('editWeight').value      = item['Weight']     || '';
+  document.getElementById('editEstCost').value     = item['Est. Cost']  || '';
+  document.getElementById('editQty').value         = item['Quantity']   || 1;
+  document.getElementById('editDescription').value = item['Description']|| '';
+  document.getElementById('editRowIndex').value    = rowIdx;
+  document.getElementById('editItemNum').value     = item['Item #'] || '';
+  document.getElementById('editSaveStatus').textContent = '';
+
+  const wrapped = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
+  document.getElementById('editWrappedYes').checked = wrapped;
+  document.getElementById('editWrappedNo').checked  = !wrapped;
+
+  const fragile = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
+  document.getElementById('editFragileYes').checked = fragile;
+  document.getElementById('editFragileNo').checked  = !fragile;
+
+  const status = (item['Status'] || '').split(',').map(s => s.trim());
+  document.getElementById('editStatusPacked').checked   = status.includes('Packed');
+  document.getElementById('editStatusLoaded').checked   = status.includes('Loaded');
+  document.getElementById('editStatusUnpacked').checked = status.includes('Unpacked');
+
+  document.getElementById('editItemOverlay').classList.add('active');
+  document.getElementById('editItemName').focus();
+}
+
+function closeEditDialog() {
+  document.getElementById('editItemOverlay').classList.remove('active');
+}
+
+async function saveEditedItem() {
+  const rowIdx  = parseInt(document.getElementById('editRowIndex').value);
+  const itemNum = document.getElementById('editItemNum').value;
+  const stat    = document.getElementById('editSaveStatus');
+
+  const updated = {
+    'Item #':       itemNum,
+    'Item Name':    document.getElementById('editItemName').value.trim(),
+    'Type':         document.getElementById('editItemType').value,
+    'Location':     document.getElementById('editLocation').value,
+    'Bin/Box #':    document.getElementById('editBinBox').value.trim(),
+    'Weight':       document.getElementById('editWeight').value,
+    'Est. Cost':    document.getElementById('editEstCost').value,
+    'Quantity':     document.getElementById('editQty').value || 1,
+    'Description':  document.getElementById('editDescription').value.trim(),
+    'Wrapped?':     document.querySelector('input[name="editWrapped"]:checked')?.value || 'No',
+    'Fragile?':     document.querySelector('input[name="editFragile"]:checked')?.value || 'No',
+    'Status':       ['editStatusPacked','editStatusLoaded','editStatusUnpacked']
+                      .filter(id => document.getElementById(id).checked)
+                      .map(id => document.getElementById(id).value).join(', ')
+  };
+
+  if (!updated['Item Name']) {
+    stat.textContent = '⚠ Item Name is required.';
+    stat.style.color = '#cc0000'; return;
+  }
+
+  // Update in local array immediately
+  if (rowIdx >= 0 && allItems[rowIdx]) {
+    Object.assign(allItems[rowIdx], updated);
+  }
+
+  // Re-apply filters and re-render
+  applyFilters();
+  renderStats();
+
+  // Try to save to sheet via Apps Script
+  const scriptUrl = localStorage.getItem('sheetUrl') || '';
+  if (scriptUrl) {
+    stat.textContent = 'Saving to sheet...';
+    stat.style.color = '#555';
+    try {
+      await fetch(scriptUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateRow', item: updated })
+      });
+      stat.textContent = '✅ Saved!';
+      stat.style.color = '#006400';
+      setTimeout(closeEditDialog, 800);
+    } catch(e) {
+      stat.textContent = '✅ Updated locally. Sheet sync failed — refresh to reload from sheet.';
+      stat.style.color = '#cc6600';
+      setTimeout(closeEditDialog, 2000);
+    }
+  } else {
+    stat.textContent = '✅ Updated locally (no Script URL to sync to sheet).';
+    stat.style.color = '#006400';
+    setTimeout(closeEditDialog, 1200);
+  }
+}
+
+// ══════════════════════════════
+//  PDF EXPORT
+// ══════════════════════════════
+function downloadInventoryPDF() {
+  if (!allItems.length) {
+    showError('No inventory loaded. Tap Refresh first.');
+    return;
+  }
+
+  const items = filtered.length ? filtered : allItems;
+  const pi    = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+  const now   = new Date().toLocaleDateString('default', {year:'numeric',month:'long',day:'numeric'});
+
+  // Group by room
+  const roomOrder = [];
+  const roomMap   = {};
+  items.forEach(item => {
+    const loc = item['Location'] || 'Unknown';
+    if (!roomMap[loc]) { roomMap[loc] = []; roomOrder.push(loc); }
+    roomMap[loc].push(item);
+  });
+
+  // Room color map
+  const COLORS = {
+    'Living Room':'#FFD180','Bedroom':'#B3C5F7','Studio':'#A5D6A7',
+    'Office':'#80D8FF','Closet 1':'#CE93D8','Closet 2':'#F48FB1',
+    'Closet 3':'#FFAB91','Closet 4':'#BCAAA4','Sitting Room':'#FFF176',
+    'Listening Room':'#80CBC4','Kitchen':'#C5E1A5','Mini Office':'#FFE082',
+    'Bathroom':'#B2EBF2','Plant Area':'#C8E6C9','Workshop':'#D7CCC8'
+  };
+
+  // Build HTML for the PDF window
+  let tableRows = '';
+  let totalItems = 0;
+  let totalCost  = 0;
+
+  roomOrder.forEach(loc => {
+    const roomItems = roomMap[loc];
+    const bg = COLORS[loc] || '#e0e0e0';
+    tableRows += `<tr>
+      <td colspan="8" style="background:${bg};font-weight:bold;font-size:13px;padding:6px 8px;border:1px solid #999;letter-spacing:0.5px;">
+        📦 ${loc} &nbsp;·&nbsp; <span style="font-weight:normal;">${roomItems.length} item${roomItems.length!==1?'s':''}</span>
+      </td>
+    </tr>`;
+
+    roomItems.forEach(item => {
+      const num     = String(item['Item #']||'').padStart(4,'0');
+      const name    = item['Item Name']   || '';
+      const type    = item['Type']        || '';
+      const bin     = item['Bin/Box #']   || '';
+      const weight  = item['Weight']      || '';
+      const cost    = item['Est. Cost']   ? '$'+parseFloat(item['Est. Cost']).toFixed(2) : '';
+      const wrapped = (item['Wrapped?']  ||'').toLowerCase()==='yes' ? '✔' : '';
+      const fragile = (item['Fragile?']  ||'').toLowerCase()==='yes' ? '⚠' : '';
+      const status  = item['Status']      || '';
+      const desc    = item['Description'] || '';
+
+      if (cost) totalCost += parseFloat(item['Est. Cost']) || 0;
+      totalItems++;
+
+      tableRows += `<tr style="background:${bg}22;">
+        <td style="padding:4px 6px;border:1px solid #ddd;font-family:monospace;font-size:11px;color:#555;">${num}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-weight:bold;font-size:12px;">${name}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;">${type}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;text-align:center;">${bin}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;">${weight}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;text-align:center;color:#2e7d32;font-weight:bold;">${wrapped}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;text-align:center;color:#c62828;font-weight:bold;">${fragile}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;font-size:11px;color:#555;">${cost}${status?' <span style=\'color:#888;font-size:10px;\'>['+status+']</span>':''}</td>
+      </tr>`;
+      if (desc) {
+        tableRows += `<tr style="background:#fafafa;">
+          <td></td>
+          <td colspan="7" style="padding:2px 6px 5px;border:1px solid #ddd;font-size:10px;color:#666;font-style:italic;">${desc}</td>
+        </tr>`;
+      }
+    });
+  });
+
+  const fromAddr = pi.fromAddr ? pi.fromAddr : '';
+  const toAddr   = pi.toAddr   ? pi.toAddr   : '';
+  const moveOut  = pi.moveOut  ? new Date(pi.moveOut+'T12:00:00').toLocaleDateString()  : '';
+  const moveIn   = pi.moveIn   ? new Date(pi.moveIn+'T12:00:00').toLocaleDateString()   : '';
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Moving Inventory — ${now}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #222; padding: 24px; }
+    h1 { font-size: 22px; color: #000080; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #555; margin-bottom: 16px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; padding: 12px; background: #f5f5f5; border: 1px solid #ddd; }
+    .meta-item label { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
+    .meta-item span  { font-size: 13px; font-weight: bold; color: #222; display: block; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th { background: #000080; color: white; padding: 6px 8px; font-size: 11px; text-align: left; border: 1px solid #000060; }
+    .summary { margin-top: 16px; padding: 12px; background: #e8f5e9; border: 1px solid #a5d6a7; display: flex; gap: 32px; }
+    .summary-item label { font-size: 10px; font-weight: bold; color: #555; text-transform: uppercase; }
+    .summary-item span  { font-size: 18px; font-weight: bold; color: #000080; display: block; }
+    .footer { margin-top: 20px; font-size: 10px; color: #999; border-top: 1px solid #ddd; padding-top: 8px; }
+    @media print {
+      body { padding: 12px; }
+      button { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 Moving Inventory</h1>
+  <div class="subtitle">Generated ${now}${pi.name ? ' · ' + pi.name : ''}</div>
+
+  ${fromAddr || toAddr || moveOut || moveIn ? `
+  <div class="meta-grid">
+    ${fromAddr ? `<div class="meta-item"><label>Moving From</label><span>${fromAddr}</span></div>` : ''}
+    ${toAddr   ? `<div class="meta-item"><label>Moving To</label><span>${toAddr}</span></div>`   : ''}
+    ${moveOut  ? `<div class="meta-item"><label>Move Out</label><span>${moveOut}</span></div>`    : ''}
+    ${moveIn   ? `<div class="meta-item"><label>Move In</label><span>${moveIn}</span></div>`      : ''}
+  </div>` : ''}
+
+  <div style="text-align:right;margin-bottom:8px;">
+    <button onclick="window.print()" style="padding:8px 20px;background:#000080;color:white;border:none;font-size:13px;cursor:pointer;border-radius:2px;">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:46px;">#</th>
+        <th>Item Name</th>
+        <th style="width:90px;">Type</th>
+        <th style="width:60px;">Bin/Box</th>
+        <th style="width:80px;">Weight</th>
+        <th style="width:40px;">Wrap</th>
+        <th style="width:40px;">Frag</th>
+        <th style="width:90px;">Cost / Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${tableRows}
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <div class="summary-item"><label>Total Items</label><span>${totalItems}</span></div>
+    <div class="summary-item"><label>Rooms</label><span>${roomOrder.length}</span></div>
+    ${totalCost > 0 ? `<div class="summary-item"><label>Est. Total Value</label><span>$${totalCost.toFixed(2)}</span></div>` : ''}
+  </div>
+
+  <div class="footer">Moving95 Inventory System · Generated ${now}</div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { showError('Pop-up blocked. Please allow pop-ups for this site and try again.'); return; }
+  win.document.write(html);
+  win.document.close();
+  // Trigger print dialog automatically
+  setTimeout(() => win.print(), 600);
+}
+
 
 </script>
 </body>
