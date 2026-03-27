@@ -675,6 +675,14 @@
   }
 
   /* ── PLACES AUTOCOMPLETE ── */
+  /* Hide Google Maps error/warning icons inside inputs */
+  .place-input { background-image: none !important; padding-right: 8px !important; }
+  input[class*="place-input"] { background-image: none !important; }
+  /* Hide the gm-err overlay that Google injects */
+  .gm-err-container,
+  .gm-err-content,
+  .gm-err-message,
+  .gm-style .gm-err-container { display: none !important; }
   .pac-container {
     font-family: 'VT323', 'Courier New', monospace !important;
     font-size: 16px !important;
@@ -787,32 +795,90 @@ let placesApiLoading = false;
 
 function loadPlacesAPI() {
   const key = localStorage.getItem('apiKey') || '';
-  if (!key) { showRoutePlainInputs(); return; }
-  if (placesApiLoaded)  { initPlacesAutocomplete(); return; }
-  if (placesApiLoading) return;
-  placesApiLoading = true;
 
-  // Remove any previous failed attempt
+  if (placesApiLoaded) { initPlacesAutocomplete(); return; }
+  if (placesApiLoading) return;
+
+  if (!key) {
+    initNominatimAutocomplete();
+    return;
+  }
+
+  placesApiLoading = true;
   const old = document.getElementById('gplacesScript');
   if (old) old.remove();
 
+  // Test the key first with a lightweight Maps JS load
   const s  = document.createElement('script');
   s.id     = 'gplacesScript';
-  s.src    = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&libraries=places&loading=async&callback=initPlacesAutocomplete';
+  s.src    = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places&callback=initPlacesAutocomplete';
   s.async  = true;
   s.onerror = function() {
+    placesApiLoaded  = false;
     placesApiLoading = false;
-    showRoutePlainInputs();
+    initNominatimAutocomplete();
   };
   document.head.appendChild(s);
 }
 
-function showRoutePlainInputs() {
-  // Fallback — hide any broken autocomplete widgets, keep plain inputs
-  document.querySelectorAll('.place-input').forEach(function(el) {
-    el.style.display = 'block';
-    el.placeholder = 'Enter address...';
+// Fallback autocomplete using Nominatim (no API key needed)
+function initNominatimAutocomplete() {
+  document.querySelectorAll('.place-input').forEach(attachNominatimAC);
+}
+
+function attachNominatimAC(input) {
+  if (!input || input.dataset.acAttached) return;
+  input.dataset.acAttached = 'true';
+  input.setAttribute('autocomplete', 'off');
+
+  let debounce;
+  let dropdown;
+
+  input.addEventListener('input', function() {
+    clearTimeout(debounce);
+    const q = input.value.trim();
+    if (q.length < 3) { removeDropdown(); return; }
+    debounce = setTimeout(async () => {
+      try {
+        const res  = await fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=5&addressdetails=1', { headers: { 'Accept-Language': 'en' } });
+        const data = await res.json();
+        showNominatimDropdown(input, data);
+      } catch(e) {}
+    }, 350);
   });
+
+  input.addEventListener('blur', () => setTimeout(removeDropdown, 200));
+
+  function showNominatimDropdown(inp, results) {
+    removeDropdown();
+    if (!results.length) return;
+    dropdown = document.createElement('div');
+    dropdown.className = 'nom-dropdown';
+    dropdown.style.cssText = 'position:absolute;z-index:9999;background:white;border:2px solid #404040;width:' + inp.offsetWidth + 'px;max-height:200px;overflow-y:auto;font-family:VT323,monospace;font-size:16px;box-shadow:2px 2px 0 #000;';
+    const rect = inp.getBoundingClientRect();
+    dropdown.style.left = (rect.left + window.scrollX) + 'px';
+    dropdown.style.top  = (rect.bottom + window.scrollY) + 'px';
+    results.forEach(r => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:6px 10px;cursor:pointer;border-bottom:1px dotted #808080;';
+      item.textContent = r.display_name;
+      item.addEventListener('mousedown', () => {
+        inp.value = r.display_name;
+        inp.dataset.lat = r.lat;
+        inp.dataset.lng = r.lon;
+        removeDropdown();
+      });
+      item.addEventListener('mouseover', () => item.style.background = '#000080', item.style.color = '#fff');
+      item.addEventListener('mouseout',  () => { item.style.background = ''; item.style.color = ''; });
+      dropdown.appendChild(item);
+    });
+    document.body.appendChild(dropdown);
+  }
+
+  function removeDropdown() {
+    if (dropdown && dropdown.parentNode) dropdown.parentNode.removeChild(dropdown);
+    dropdown = null;
+  }
 }
 </script>
 </head>
@@ -3447,6 +3513,13 @@ function addStop() {
 
 // ── PLACES AUTOCOMPLETE ──
 function initPlacesAutocomplete() {
+  // Verify google.maps.places actually loaded cleanly
+  if (!window.google || !window.google.maps || !window.google.maps.places) {
+    placesApiLoaded  = false;
+    placesApiLoading = false;
+    initNominatimAutocomplete();
+    return;
+  }
   placesApiLoaded  = true;
   placesApiLoading = false;
   document.querySelectorAll('.place-input').forEach(attachAutocomplete);
