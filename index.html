@@ -1941,7 +1941,14 @@ async function doLogin() {
   try {
     spin.textContent || (spin.textContent = 'Loading your profile...');
     const res  = await fetch(scriptUrl + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
-    const data = res.ok ? await res.json() : null;
+    let data = null;
+    if (res.ok) {
+      const text = await res.text();
+      try { data = JSON.parse(text); } catch(e) {
+        console.warn('Non-JSON response from script:', text.substring(0, 100));
+        data = null;
+      }
+    }
 
     if (data && data.pin) {
       // Profile found — verify PIN
@@ -2146,7 +2153,18 @@ async function syncProfileFromSheet() {
   stat.textContent = 'Pulling config from cloud...'; stat.style.color = '#555';
   try {
     const res  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
-    const data = res.ok ? await res.json() : null;
+    let data = null;
+    if (res.ok) {
+      const text = await res.text();
+      try { data = JSON.parse(text); } catch(e) {
+        const stat = document.getElementById('syncStatus');
+        if (stat) {
+          stat.textContent = '⚠ Script returned non-JSON: "' + text.substring(0,80) + '..." — Make sure your Script URL ends with /exec and is deployed correctly.';
+          stat.style.color = '#cc0000';
+        }
+        return;
+      }
+    }
 
     if (data && (data.apiKey || data.sheetId || data.sheetUrl || data.gcalId)) {
       applyProfileData(data, user);
