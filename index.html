@@ -1175,18 +1175,38 @@ function loadPlacesAPI() {
     </div>
     <div id="secProfile" style="display:none;">
       <div class="win-card-body">
-        <div class="config-note" style="margin-bottom:12px;">
-          Logged in as: <b id="profileName">—</b><br><br>
-          Your config is stored in the <b>Profiles</b> tab of your Google Sheet and syncs across all devices automatically when you sign in.
+
+        <!-- Status row -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);">
+          <span style="font-size:22px;">&#128100;</span>
+          <div style="flex:1;">
+            <div style="font-size:18px;font-weight:bold;" id="profileName">Not logged in</div>
+            <div style="font-size:13px;font-weight:normal;color:#555;" id="profileScriptStatus">Checking...</div>
+          </div>
         </div>
-        <div class="btn-row" style="margin-bottom:10px;">
-          <button class="btn btn-submit" onclick="syncProfileToSheet()" style="flex:1;">&#9650; Push Config to Cloud</button>
+
+        <!-- Script URL — always visible here for easy access on new devices -->
+        <div class="config-field" style="margin-bottom:10px;">
+          <label>Apps Script URL <span style="font-size:13px;font-weight:normal;color:#555;">(required for sync)</span></label>
+          <input type="text" id="profileScriptUrl" placeholder="https://script.google.com/macros/s/..."
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            style="font-size:13px;letter-spacing:0;">
+          <div class="btn-row" style="margin-top:6px;">
+            <button class="btn btn-submit" onclick="saveScriptUrlFromProfile()" style="flex:1;font-size:16px;">&#128190; Save URL</button>
+          </div>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-submit" onclick="syncProfileFromSheet()" style="flex:1;">&#9660; Pull Config from Cloud</button>
+
+        <div style="border-top:1px solid var(--dark);padding-top:12px;margin-bottom:10px;">
+          <div class="btn-row" style="margin-bottom:8px;">
+            <button class="btn btn-submit" onclick="syncProfileToSheet()" style="flex:1;">&#9650; Push Config to Cloud</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-submit" onclick="syncProfileFromSheet()" style="flex:1;">&#9660; Pull Config from Cloud</button>
+          </div>
+          <div class="config-note" id="syncStatus" style="margin-top:8px;">Enter your Script URL above, then Pull to load your config on this device.</div>
         </div>
-        <div class="config-note" id="syncStatus" style="margin-top:8px;">Use Push to save your current config. Use Pull to load it on a new device.</div>
-        <div style="margin-top:14px;border-top:1px solid var(--dark);padding-top:12px;">
+
+        <div style="border-top:1px solid var(--dark);padding-top:12px;">
           <button class="btn" onclick="doLogout()" style="width:100%;color:#800000;">&#128274; Sign Out</button>
         </div>
       </div>
@@ -1985,6 +2005,7 @@ function applyLogin(user) {
   renderChecklist();
   updateCkProgress();
   renderDeliveryList();
+  updateProfileScriptStatus();
 }
 
 function applyProfileData(data, user) {
@@ -2031,6 +2052,37 @@ function gatherConfig() {
     gcalDur:  getLive('gcalDuration', 'gcalDuration', '2'),
     personal: localStorage.getItem('personalInfo') || '{}'
   };
+}
+
+function saveScriptUrlFromProfile() {
+  const input = document.getElementById('profileScriptUrl');
+  const url   = input ? input.value.trim() : '';
+  if (!url) return;
+  localStorage.setItem('sheetUrl', url);
+  // Also update the main config field
+  const mainInput = document.getElementById('sheetUrl');
+  if (mainInput) mainInput.value = url;
+  updateProfileScriptStatus();
+  silentPushProfile();
+  const stat = document.getElementById('syncStatus');
+  stat.textContent = '✅ Script URL saved. Tap Pull Config to load your credentials.';
+  stat.style.color = '#006400';
+}
+
+function updateProfileScriptStatus() {
+  const url        = localStorage.getItem('sheetUrl') || '';
+  const statusEl   = document.getElementById('profileScriptStatus');
+  const urlInput   = document.getElementById('profileScriptUrl');
+  if (urlInput && url) urlInput.value = url;
+  if (statusEl) {
+    if (url) {
+      statusEl.textContent = '✅ Script URL connected';
+      statusEl.style.color = '#006400';
+    } else {
+      statusEl.textContent = '⚠ No Script URL — paste it below to enable sync';
+      statusEl.style.color = '#cc6600';
+    }
+  }
 }
 
 async function silentPushProfile() {
