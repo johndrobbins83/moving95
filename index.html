@@ -1502,8 +1502,7 @@ document.addEventListener('keydown', function(e) {
           <label for="itemType">Type *</label>
           <select id="itemType">
             <option value="">-- Select --</option>
-            <option>Bin</option><option>Box</option><option>Furniture</option>
-            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option><option>Pet Supplies</option><option>Clothing</option><option>Linens</option><option>Electronics</option><option>Instruments</option><option>Crafting</option><option>Plants</option><option>Other</option>
+            <option>Art/Wall</option><option>Bin</option><option>Box</option><option>Clothing</option><option>Crafting</option><option>Dishes/Bar</option><option>Electronics</option><option>Furniture</option><option>Instruments</option><option>Kitchen Appliance</option><option>Linens</option><option>Pet Supplies</option><option>Plants</option><option>Other</option>
           </select>
         </div>
         <div class="field">
@@ -1548,21 +1547,14 @@ document.addEventListener('keydown', function(e) {
           <label for="location">Location *</label>
           <select id="location">
             <option value="">-- Room --</option>
-            <option>Living Room</option><option>Bedroom</option><option>Studio</option>
-            <option>Office</option><option>Closet 1</option><option>Closet 2</option>
-            <option>Closet 3</option><option>Closet 4</option><option>Sitting Room</option>
-            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option><option>Bathroom</option><option>Plant Area</option><option>Workshop</option><option>Other</option>
+            <option>Bathroom</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Closet 3</option><option>Closet 4</option><option>Kitchen</option><option>Listening Room</option><option>Living Room</option><option>Mini Office</option><option>Office</option><option>Plant Area</option><option>Sitting Room</option><option>Studio</option><option>Workshop</option><option>Other</option>
           </select>
         </div>
         <div class="field">
           <label for="itemOrigin">Origin</label>
           <select id="itemOrigin">
             <option value="">-- Origin --</option>
-            <option>Bedroom</option><option>Guestroom</option><option>Office</option>
-            <option>Garage</option><option>Studio</option><option>Living Room</option>
-            <option>Bathrooms</option><option>Closet 1</option><option>Closet 2</option>
-            <option>Utility Closet</option><option>Kitchen</option>
-            <option>Patio/Garden</option><option>Dining/Bar</option><option>Other</option>
+            <option>Bathrooms</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Dining/Bar</option><option>Garage</option><option>Guestroom</option><option>Kitchen</option><option>Living Room</option><option>Office</option><option>Patio/Garden</option><option>Studio</option><option>Utility Closet</option><option>Other</option>
           </select>
         </div>
       </div>
@@ -1673,18 +1665,14 @@ document.addEventListener('keydown', function(e) {
           <label>Room</label>
           <select id="filterRoom" onchange="applyFilters()">
             <option value="">All Rooms</option>
-            <option>Living Room</option><option>Bedroom</option><option>Studio</option>
-            <option>Office</option><option>Closet 1</option><option>Closet 2</option>
-            <option>Closet 3</option><option>Closet 4</option><option>Sitting Room</option>
-            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option><option>Bathroom</option><option>Plant Area</option><option>Workshop</option><option>Other</option>
+            <option>Bathroom</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Closet 3</option><option>Closet 4</option><option>Kitchen</option><option>Listening Room</option><option>Living Room</option><option>Mini Office</option><option>Office</option><option>Plant Area</option><option>Sitting Room</option><option>Studio</option><option>Workshop</option><option>Other</option>
           </select>
         </div>
         <div class="filter-group">
           <label>Type</label>
           <select id="filterType" onchange="applyFilters()">
             <option value="">All Types</option>
-            <option>Bin</option><option>Box</option><option>Furniture</option>
-            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option><option>Pet Supplies</option><option>Clothing</option><option>Linens</option><option>Electronics</option><option>Instruments</option><option>Crafting</option><option>Plants</option><option>Other</option>
+            <option>Art/Wall</option><option>Bin</option><option>Box</option><option>Clothing</option><option>Crafting</option><option>Dishes/Bar</option><option>Electronics</option><option>Furniture</option><option>Instruments</option><option>Kitchen Appliance</option><option>Linens</option><option>Pet Supplies</option><option>Plants</option><option>Other</option>
           </select>
         </div>
         <div class="filter-group">
@@ -2228,14 +2216,14 @@ document.addEventListener('keydown', function(e) {
         <label for="evType">Event Type *</label>
         <select id="evType">
           <option value="">-- Select --</option>
-          <option>Movers</option>
-          <option>Move Out</option>
-          <option>Move In</option>
           <option>Driving</option>
           <option>Hotel</option>
-          <option>Truck Return</option>
           <option>Junk Removal</option>
+          <option>Move In</option>
+          <option>Move Out</option>
+          <option>Movers</option>
           <option>Truck Pickup</option>
+          <option>Truck Return</option>
           <option>Other</option>
         </select>
       </div>
@@ -2295,10 +2283,10 @@ document.addEventListener('keydown', function(e) {
         <label for="dlvType">Type *</label>
         <select id="dlvType">
           <option value="">-- Select Type --</option>
-          <option>Utility</option>
           <option>Furniture</option>
           <option>Large Item</option>
           <option>Small Item</option>
+          <option>Utility</option>
           <option>Other</option>
         </select>
       </div>
@@ -2937,21 +2925,14 @@ document.addEventListener('keydown', function(e) {
           <label style="font-size:16px;">Type</label>
           <select id="editItemType" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Type --</option>
-            <option>Bin</option><option>Box</option><option>Furniture</option>
-            <option>Art/Wall</option><option>Kitchen Appliance</option><option>Dishes/Bar</option>
-            <option>Pet Supplies</option><option>Clothing</option><option>Linens</option>
-            <option>Electronics</option><option>Instruments</option><option>Crafting</option><option>Plants</option><option>Other</option>
+            <option>Art/Wall</option><option>Bin</option><option>Box</option><option>Clothing</option><option>Crafting</option><option>Dishes/Bar</option><option>Electronics</option><option>Furniture</option><option>Instruments</option><option>Kitchen Appliance</option><option>Linens</option><option>Pet Supplies</option><option>Plants</option><option>Other</option>
           </select>
         </div>
         <div class="config-field">
           <label style="font-size:16px;">Location</label>
           <select id="editLocation" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Room --</option>
-            <option>Living Room</option><option>Bedroom</option><option>Studio</option>
-            <option>Office</option><option>Closet 1</option><option>Closet 2</option>
-            <option>Closet 3</option><option>Closet 4</option><option>Sitting Room</option>
-            <option>Listening Room</option><option>Kitchen</option><option>Mini Office</option>
-            <option>Bathroom</option><option>Plant Area</option><option>Workshop</option><option>Other</option>
+            <option>Bathroom</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Closet 3</option><option>Closet 4</option><option>Kitchen</option><option>Listening Room</option><option>Living Room</option><option>Mini Office</option><option>Office</option><option>Plant Area</option><option>Sitting Room</option><option>Studio</option><option>Workshop</option><option>Other</option>
           </select>
         </div>
         <div class="config-field">
@@ -2962,8 +2943,7 @@ document.addEventListener('keydown', function(e) {
           <label style="font-size:16px;">Weight</label>
           <select id="editWeight" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Weight --</option>
-            <option>Light</option><option>Medium</option><option>Heavy</option>
-            <option>Very Heavy</option><option>Bulky</option><option>Other</option>
+            <option>Bulky</option><option>Heavy</option><option>Light</option><option>Medium</option><option>Very Heavy</option><option>Other</option>
           </select>
         </div>
         <div class="config-field">
