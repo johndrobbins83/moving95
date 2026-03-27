@@ -951,6 +951,23 @@
   .calc-fn  { color: #800000; }
   .calc-eq  { background: var(--blue); color: white; }
   .calc-eq:active { background: var(--blue2); }
+  .budget-item {
+    display: flex; align-items: flex-start; gap: 6px;
+    padding: 5px 8px; border-bottom: 1px dotted var(--dark);
+    font-size: 13px;
+  }
+  .budget-item:last-child { border-bottom: none; }
+  .budget-cat-pill {
+    font-size: 11px; font-weight: bold; padding: 1px 5px;
+    border: 1px solid rgba(0,0,0,0.15); white-space: nowrap; flex-shrink: 0;
+  }
+  .budget-item-del {
+    background: none; border: none; cursor: pointer;
+    color: #ccc; font-size: 13px; font-family: 'VT323', monospace;
+    padding: 0 2px; flex-shrink: 0; line-height: 1;
+  }
+  .budget-item-del:hover { color: #800000; }
+  .calc-eq:active { background: var(--blue2); }
 
   /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 14px; }
@@ -1428,6 +1445,119 @@ document.addEventListener('keydown', function(e) {
   else if (key === '.')                        { calcInput('.'); e.preventDefault(); }
   else if (key.toLowerCase() === 'c')          { calcInput('C'); e.preventDefault(); }
 });
+
+// ══════════════════════════════
+//  BUDGET TRACKER
+// ══════════════════════════════
+let budgetItems = JSON.parse(localStorage.getItem('budgetItems') || '[]');
+
+const BUDGET_CAT_COLORS = {
+  'Moving':   { bg:'#E3F2FD', color:'#1565C0' },
+  'Rent':     { bg:'#F3E5F5', color:'#6A1B9A' },
+  'Utilities':{ bg:'#FFF3E0', color:'#E65100' },
+  'Gas':      { bg:'#E8F5E9', color:'#2E7D32' },
+  'Food':     { bg:'#FFF8E1', color:'#F57F17' },
+  'Hotel':    { bg:'#FCE4EC', color:'#880E4F' },
+  'Storage':  { bg:'#E0F2F1', color:'#00695C' },
+  'Supplies': { bg:'#F9FBE7', color:'#558B2F' },
+  'Other':    { bg:'#F5F5F5', color:'#424242' }
+};
+
+function saveBudget() {
+  localStorage.setItem('budgetItems', JSON.stringify(budgetItems));
+}
+
+function toggleBudgetForm() {
+  const form = document.getElementById('budgetForm');
+  const open = form.style.display === 'none';
+  form.style.display = open ? 'block' : 'none';
+  if (open) document.getElementById('budgetName').focus();
+}
+
+function addBudgetItem() {
+  const name   = document.getElementById('budgetName').value.trim();
+  const cat    = document.getElementById('budgetCat').value;
+  const amount = parseFloat(document.getElementById('budgetAmount').value);
+  const date   = document.getElementById('budgetDate').value;
+
+  if (!name) { document.getElementById('budgetName').focus(); return; }
+  if (isNaN(amount) || amount <= 0) { document.getElementById('budgetAmount').focus(); return; }
+
+  budgetItems.push({
+    id:     'b_' + Date.now(),
+    name,
+    cat:    cat || 'Other',
+    amount,
+    date
+  });
+
+  saveBudget();
+  renderBudget();
+
+  // Clear form fields
+  document.getElementById('budgetName').value   = '';
+  document.getElementById('budgetAmount').value = '';
+  document.getElementById('budgetDate').value   = '';
+  document.getElementById('budgetCat').value    = '';
+  document.getElementById('budgetName').focus();
+}
+
+function deleteBudgetItem(id) {
+  budgetItems = budgetItems.filter(b => b.id !== id);
+  saveBudget();
+  renderBudget();
+}
+
+function clearBudget() {
+  if (!confirm('Clear all budget items?')) return;
+  budgetItems = [];
+  saveBudget();
+  renderBudget();
+}
+
+function renderBudget() {
+  const tally = document.getElementById('budgetTally');
+  const list  = document.getElementById('budgetList');
+  const total = document.getElementById('budgetTotal');
+
+  if (!budgetItems.length) {
+    tally.style.display = 'none';
+    return;
+  }
+
+  tally.style.display = 'block';
+
+  const sum = budgetItems.reduce((s, b) => s + b.amount, 0);
+  total.textContent = '$' + sum.toFixed(2);
+
+  // Sort by date due, then by category
+  const sorted = [...budgetItems].sort((a, b) => {
+    if (a.date && b.date) return a.date.localeCompare(b.date);
+    if (a.date) return -1;
+    if (b.date) return 1;
+    return a.cat.localeCompare(b.cat);
+  });
+
+  list.innerHTML = sorted.map(b => {
+    const col     = BUDGET_CAT_COLORS[b.cat] || BUDGET_CAT_COLORS['Other'];
+    const dateStr = b.date ? new Date(b.date + 'T12:00:00').toLocaleDateString('default', {month:'short', day:'numeric'}) : '';
+    return '<div class="budget-item">' +
+      '<span class="budget-cat-pill" style="background:' + col.bg + ';color:' + col.color + ';">' + b.cat + '</span>' +
+      '<div style="flex:1;overflow:hidden;">' +
+        '<div style="font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + b.name + '</div>' +
+        (dateStr ? '<div style="font-size:11px;font-weight:normal;color:#888;">Due: ' + dateStr + '</div>' : '') +
+      '</div>' +
+      '<span style="font-size:14px;font-weight:bold;color:var(--blue);white-space:nowrap;flex-shrink:0;">$' + b.amount.toFixed(2) + '</span>' +
+      '<button class="budget-item-del" data-id="' + b.id + '" onclick="deleteBudgetItem(this.dataset.id)">&#10005;</button>' +
+    '</div>';
+  }).join('');
+}
+
+// Init budget on load
+document.addEventListener('DOMContentLoaded', () => {
+  renderBudget();
+});
+
 </script>
 </head>
 <body>
@@ -2902,6 +3032,65 @@ document.addEventListener('keydown', function(e) {
       <button class="calc-btn" onclick="calcInput('0')" style="grid-column:span 2;">0</button>
       <button class="calc-btn" onclick="calcInput('.')">.</button>
       <button class="calc-btn calc-eq" onclick="calcInput('=')">=</button>
+    </div>
+    <!-- Budget button -->
+    <div style="padding:0 8px 8px;">
+      <button class="calc-btn" onclick="toggleBudgetForm()" style="width:100%;font-size:16px;color:#2e7d32;border-color:#a5d6a7;">
+        💰 Create New Budget Item
+      </button>
+    </div>
+
+    <!-- Budget form (hidden by default) -->
+    <div id="budgetForm" style="display:none;border-top:2px solid var(--darker);padding:8px;">
+      <div style="font-size:15px;font-weight:bold;margin-bottom:6px;color:var(--blue);">➕ Add Budget Item</div>
+      <div style="margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:bold;margin-bottom:2px;">Expense Name</div>
+        <input type="text" id="budgetName" placeholder="e.g. First Month Rent"
+          style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 6px;font-family:'VT323',monospace;font-size:16px;font-weight:bold;">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+        <div>
+          <div style="font-size:13px;font-weight:bold;margin-bottom:2px;">Category</div>
+          <select id="budgetCat" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:15px;font-weight:bold;-webkit-appearance:none;border-radius:0;">
+            <option value="">-- Type --</option>
+            <option>Gas</option>
+            <option>Moving</option>
+            <option>Rent</option>
+            <option>Utilities</option>
+            <option>Food</option>
+            <option>Hotel</option>
+            <option>Storage</option>
+            <option>Supplies</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:bold;margin-bottom:2px;">Amount ($)</div>
+          <input type="number" id="budgetAmount" placeholder="0.00" step="0.01" min="0"
+            style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 6px;font-family:'VT323',monospace;font-size:16px;font-weight:bold;">
+        </div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:bold;margin-bottom:2px;">Date Due</div>
+        <input type="date" id="budgetDate"
+          style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 6px;font-family:'VT323',monospace;font-size:15px;font-weight:bold;">
+      </div>
+      <button class="calc-btn calc-eq" onclick="addBudgetItem()" style="width:100%;font-size:16px;">+ Add to Budget</button>
+    </div>
+
+    <!-- Budget tally -->
+    <div id="budgetTally" style="display:none;border-top:2px solid var(--darker);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px 4px;">
+        <span style="font-size:15px;font-weight:bold;">📊 Budget</span>
+        <div style="display:flex;gap:4px;">
+          <button class="calc-btn" onclick="clearBudget()" style="font-size:12px;padding:2px 6px;color:#800000;">Clear</button>
+        </div>
+      </div>
+      <div style="padding:4px 6px;background:#e8f5e9;border-bottom:1px solid #a5d6a7;display:flex;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:bold;color:#2e7d32;">Total</span>
+        <span style="font-size:18px;font-weight:bold;color:#2e7d32;" id="budgetTotal">$0.00</span>
+      </div>
+      <div id="budgetList" style="max-height:180px;overflow-y:auto;"></div>
     </div>
   </div>
 </div>
@@ -5649,6 +5838,8 @@ function downloadInventoryPDF() {
   // Trigger print dialog automatically
   setTimeout(() => win.print(), 600);
 }
+
+
 
 
 </script>
