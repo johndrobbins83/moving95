@@ -763,6 +763,40 @@
     -webkit-appearance: none; border-radius: 0;
   }
 
+  /* ── GAS STATIONS ── */
+  .gas-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-bottom: 1px solid rgba(0,0,0,0.08);
+    background: white;
+  }
+  .gas-item:last-child { border-bottom: none; }
+  .gas-item:hover { background: #f5fff5; }
+  .gas-icon { font-size: 22px; flex-shrink: 0; }
+  .gas-info { flex: 1; overflow: hidden; }
+  .gas-name { font-size: 15px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gas-addr { font-size: 12px; font-weight: normal; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gas-dist { font-size: 12px; font-weight: normal; color: var(--blue); white-space: nowrap; flex-shrink: 0; }
+  .gas-open { font-size: 11px; font-weight: bold; }
+  .gas-open.open   { color: #2e7d32; }
+  .gas-open.closed { color: #c62828; }
+
+  /* ── SAVED ROUTES ── */
+  .saved-route-item {
+    padding: 8px 10px; margin-bottom: 6px;
+    border-top: 2px solid var(--light); border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker); border-bottom: 2px solid var(--darker);
+    background: white; cursor: pointer;
+  }
+  .saved-route-item:hover { background: #eef2ff; }
+  .saved-route-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 3px;
+  }
+  .saved-route-name { font-size: 17px; font-weight: bold; flex: 1; }
+  .saved-route-meta { font-size: 13px; font-weight: normal; color: #555; }
+  .saved-route-stops { font-size: 13px; font-weight: normal; color: #444; line-height: 1.5; margin-top: 2px; }
+  .saved-route-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .saved-route-actions button { font-size: 14px; padding: 3px 10px; }
+
   /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 14px; }
   ::-webkit-scrollbar-track { background: var(--face); }
@@ -1675,6 +1709,14 @@ function loadPlacesAPI() {
     </div>
   </div>
 
+  <!-- Map -->
+  <div class="win-card" id="routeMapCard" style="display:none;">
+    <div class="win-card-title">🗺️ Map Preview</div>
+    <div class="win-card-body" style="padding:0;">
+      <iframe id="routeMapFrame" allowfullscreen></iframe>
+    </div>
+  </div>
+
   <!-- Stats -->
   <div class="win-card" id="routeStatsCard" style="display:none;">
     <div class="win-card-title">📊 Trip Summary</div>
@@ -1715,15 +1757,32 @@ function loadPlacesAPI() {
 
       <div class="btn-row" style="margin-top:10px;">
         <button class="btn" onclick="openInGoogleMaps()" style="flex:1;">📱 Open in Google Maps</button>
+        <button class="btn btn-submit" onclick="saveCurrentRoute()" style="flex:1;">💾 Save Route</button>
+      </div>
+      <div class="btn-row" style="margin-top:6px;">
+        <button class="btn" onclick="findGasStations()" id="findGasBtn" style="flex:1;">⛽ Find Gas Stations Along Route</button>
       </div>
     </div>
   </div>
 
-  <!-- Map -->
-  <div class="win-card" id="routeMapCard" style="display:none;">
-    <div class="win-card-title">🗺️ Map Preview</div>
-    <div class="win-card-body" style="padding:0;">
-      <iframe id="routeMapFrame" allowfullscreen></iframe>
+  <!-- Gas Stations -->
+  <div class="win-card" id="gasStationsCard" style="display:none;">
+    <div class="win-card-title">
+      <span>⛽ Gas Stations Along Route</span>
+      <span id="gasStationsCount" style="font-size:14px;font-weight:normal;opacity:0.8;"></span>
+    </div>
+    <div id="gasStationsList" style="padding:6px 8px 8px;">
+    </div>
+  </div>
+
+  <!-- Saved Routes -->
+  <div class="win-card" id="savedRoutesCard">
+    <div class="win-card-title">
+      <span>📂 Saved Routes</span>
+      <span id="savedRoutesCount" style="font-size:14px;font-weight:normal;opacity:0.8;"></span>
+    </div>
+    <div id="savedRoutesList" style="padding:6px 8px 8px;">
+      <div style="padding:12px;color:#888;font-size:15px;font-weight:normal;">No saved routes yet. Plan a route and tap 💾 Save Route.</div>
     </div>
   </div>
 
@@ -1913,25 +1972,48 @@ function applyLogin(user) {
 }
 
 function applyProfileData(data, user) {
-  // Apply config fields from sheet profile
-  if (data.sheetUrl) { localStorage.setItem('sheetUrl', data.sheetUrl); }
-  if (data.sheetId)  { localStorage.setItem('sheetId',  data.sheetId); }
-  if (data.apiKey)   { localStorage.setItem('apiKey',   data.apiKey); }
-  if (data.tabName)  { localStorage.setItem('tabName',  data.tabName); }
-  if (data.gcalId)   { localStorage.setItem('gcalId',   data.gcalId); }
-  if (data.gcalDur)  { localStorage.setItem('gcalDuration', data.gcalDur); }
-  if (data.personal) { localStorage.setItem('personalInfo', data.personal); }
+  // Map all profile fields to localStorage keys
+  // The profile sheet stores columns: sheetUrl, sheetId, apiKey, tabName, gcalId, gcalDur, personal
+  const fieldMap = {
+    sheetUrl: 'sheetUrl',
+    sheetId:  'sheetId',
+    apiKey:   'apiKey',
+    tabName:  'tabName',
+    gcalId:   'gcalId',
+    gcalDur:  'gcalDuration',
+    personal: 'personalInfo'
+  };
+  Object.entries(fieldMap).forEach(([profileKey, storageKey]) => {
+    const val = data[profileKey];
+    if (val && String(val).trim()) {
+      localStorage.setItem(storageKey, String(val).trim());
+    }
+  });
   applyLogin(user);
 }
 
 function gatherConfig() {
+  // Always read live from inputs in case user just typed something
+  const sheetUrl = document.getElementById('sheetUrl')   ? document.getElementById('sheetUrl').value.trim()   : (localStorage.getItem('sheetUrl') || '');
+  const sheetId  = document.getElementById('cfgSheetId') ? document.getElementById('cfgSheetId').value.trim() : (localStorage.getItem('sheetId')  || '');
+  const apiKey   = document.getElementById('cfgApiKey')  ? document.getElementById('cfgApiKey').value.trim()  : (localStorage.getItem('apiKey')   || '');
+  const tabName  = document.getElementById('cfgTabName') ? document.getElementById('cfgTabName').value.trim() : (localStorage.getItem('tabName')  || 'Inventory');
+  const gcalId   = document.getElementById('gcalId')     ? document.getElementById('gcalId').value.trim()     : (localStorage.getItem('gcalId')   || '');
+  const gcalDur  = document.getElementById('gcalDuration') ? document.getElementById('gcalDuration').value    : (localStorage.getItem('gcalDuration') || '2');
+  // Save to localStorage so they persist immediately
+  if (sheetUrl) localStorage.setItem('sheetUrl', sheetUrl);
+  if (sheetId)  localStorage.setItem('sheetId',  sheetId);
+  if (apiKey)   localStorage.setItem('apiKey',   apiKey);
+  if (tabName)  localStorage.setItem('tabName',  tabName);
+  if (gcalId)   localStorage.setItem('gcalId',   gcalId);
+  if (gcalDur)  localStorage.setItem('gcalDuration', gcalDur);
   return {
-    sheetUrl: localStorage.getItem('sheetUrl') || '',
-    sheetId:  localStorage.getItem('sheetId')  || '',
-    apiKey:   localStorage.getItem('apiKey')   || '',
-    tabName:  localStorage.getItem('tabName')  || 'Inventory',
-    gcalId:   localStorage.getItem('gcalId')   || '',
-    gcalDur:  localStorage.getItem('gcalDuration') || '2',
+    sheetUrl: sheetUrl || localStorage.getItem('sheetUrl') || '',
+    sheetId:  sheetId  || localStorage.getItem('sheetId')  || '',
+    apiKey:   apiKey   || localStorage.getItem('apiKey')   || '',
+    tabName:  tabName  || localStorage.getItem('tabName')  || 'Inventory',
+    gcalId:   gcalId   || localStorage.getItem('gcalId')   || '',
+    gcalDur:  gcalDur  || localStorage.getItem('gcalDuration') || '2',
     personal: localStorage.getItem('personalInfo') || '{}'
   };
 }
@@ -3401,9 +3483,15 @@ function deleteDelivery() {
 // ══════════════════════════════
 //  ROUTE PLANNER
 // ══════════════════════════════
-let stopCount    = 0;
-let routeMiles   = 0;
+let stopCount       = 0;
+let routeMiles      = 0;
 let currentGasPrice = 0;
+let currentRouteData = null;
+let savedRoutes     = JSON.parse(localStorage.getItem('savedRoutes') || '[]');
+
+function saveSavedRoutes() {
+  localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
+}
 
 function addStop() {
   if (stopCount >= 5) return;
@@ -3424,10 +3512,114 @@ function addStop() {
   }
 }
 
-// ── PLACES AUTOCOMPLETE ──
-// Google Places removed — using Nominatim fallback instead
+// ── ADDRESS AUTOCOMPLETE (Nominatim / OpenStreetMap) ──
 function initPlacesAutocomplete() { initNominatimAutocomplete(); }
 function attachAutocomplete(input) { attachNominatimAC(input); }
+
+function initNominatimAutocomplete() {
+  document.querySelectorAll('.place-input').forEach(attachNominatimAC);
+}
+
+function attachNominatimAC(input) {
+  if (!input || input.dataset.acAttached) return;
+  input.dataset.acAttached = 'true';
+  input.setAttribute('autocomplete', 'off');
+
+  let debounceTimer = null;
+  let dropdownEl    = null;
+
+  function removeDropdown() {
+    if (dropdownEl) { dropdownEl.remove(); dropdownEl = null; }
+  }
+
+  function showDropdown(results) {
+    removeDropdown();
+    if (!results.length) return;
+
+    dropdownEl = document.createElement('div');
+    dropdownEl.style.cssText = [
+      'position:fixed',
+      'z-index:99999',
+      'background:white',
+      'border-top:none',
+      'border:2px solid #404040',
+      'border-top:none',
+      'max-height:220px',
+      'overflow-y:auto',
+      'font-family:VT323,monospace',
+      'font-size:16px',
+      'box-shadow:2px 4px 0 rgba(0,0,0,0.3)',
+      'box-sizing:border-box'
+    ].join(';');
+
+    // Position below the input
+    const rect = input.getBoundingClientRect();
+    dropdownEl.style.left  = rect.left + 'px';
+    dropdownEl.style.top   = (rect.bottom) + 'px';
+    dropdownEl.style.width = rect.width + 'px';
+
+    results.forEach(function(r) {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:7px 10px;cursor:pointer;border-bottom:1px dotted #ccc;line-height:1.3;color:#000;';
+      // Show short name bold + full address smaller
+      const parts = r.display_name.split(', ');
+      const short = parts.slice(0, 2).join(', ');
+      const rest  = parts.slice(2).join(', ');
+      item.innerHTML = '<span style="font-weight:bold;">' + short + '</span>' +
+        (rest ? '<br><span style="font-size:13px;color:#555;">' + rest + '</span>' : '');
+
+      item.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        input.value = r.display_name;
+        input.dataset.lat = r.lat;
+        input.dataset.lng = r.lon;
+        removeDropdown();
+        input.blur();
+      });
+      item.addEventListener('mouseover', function() {
+        item.style.background = '#000080';
+        item.style.color = 'white';
+        item.querySelectorAll('span').forEach(s => s.style.color = 'white');
+      });
+      item.addEventListener('mouseout', function() {
+        item.style.background = 'white';
+        item.style.color = '#000';
+        item.querySelectorAll('span').forEach(s => s.style.color = '');
+        item.querySelectorAll('span:last-child').forEach(s => s.style.color = '#555');
+      });
+      dropdownEl.appendChild(item);
+    });
+
+    document.body.appendChild(dropdownEl);
+  }
+
+  input.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = input.value.trim();
+    if (q.length < 3) { removeDropdown(); return; }
+    debounceTimer = setTimeout(async function() {
+      try {
+        const res  = await fetch(
+          'https://nominatim.openstreetmap.org/search?format=json&q=' +
+          encodeURIComponent(q) + '&limit=6&addressdetails=0&countrycodes=us',
+          { headers: { 'Accept-Language': 'en-US' } }
+        );
+        const data = await res.json();
+        showDropdown(data);
+      } catch(err) {
+        console.log('Nominatim error:', err);
+      }
+    }, 400);
+  });
+
+  // Close dropdown when clicking outside
+  input.addEventListener('blur', function() {
+    setTimeout(removeDropdown, 200);
+  });
+
+  // Reposition dropdown on scroll/resize
+  window.addEventListener('scroll', removeDropdown, { passive: true });
+}
 
 function removeStop(id) {
   const el = document.getElementById(id);
@@ -3521,6 +3713,16 @@ async function planRoute() {
     document.getElementById('statMiles').textContent = miles.toFixed(1);
     document.getElementById('statTime').textContent  = timeStr;
 
+    // Store current route data for saving
+    currentRouteData = {
+      origin:  allAddrs[0],
+      dest:    allAddrs[allAddrs.length - 1],
+      stops:   allAddrs.slice(1, -1),
+      miles:   miles.toFixed(1),
+      time:    timeStr,
+      coords:  coords
+    };
+
     // Gas price
     const gasPrice = await fetchGasPrice();
     currentGasPrice = gasPrice;
@@ -3567,6 +3769,240 @@ function buildGoogleMapsUrl(addresses, coords) {
   const pad = 0.05;
   const markers = coords.map((c,i) => `mlat${i}=${c.lat}&mlon${i}=${c.lng}`).join('&');
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLng-pad}%2C${bbox.minLat-pad}%2C${bbox.maxLng+pad}%2C${bbox.maxLat+pad}&layer=mapnik`;
+}
+
+function saveCurrentRoute() {
+  if (!currentRouteData) { showError('Plan a route first before saving.'); return; }
+
+  const name = prompt('Name this route:', currentRouteData.origin.split(',')[0] + ' → ' + currentRouteData.dest.split(',')[0]);
+  if (!name) return;
+
+  const route = {
+    id:      'route_' + Date.now(),
+    name:    name.trim(),
+    origin:  currentRouteData.origin,
+    dest:    currentRouteData.dest,
+    stops:   currentRouteData.stops || [],
+    miles:   currentRouteData.miles,
+    time:    currentRouteData.time,
+    saved:   new Date().toLocaleDateString()
+  };
+
+  savedRoutes.unshift(route);
+  saveSavedRoutes();
+  renderSavedRoutes();
+  showSuccess('Route "' + route.name + '" saved!');
+}
+
+function loadSavedRoute(id) {
+  const route = savedRoutes.find(r => r.id === id);
+  if (!route) return;
+
+  // Fill in all the address fields
+  document.getElementById('addr-origin').value = route.origin;
+  document.getElementById('addr-dest').value   = route.dest;
+
+  // Clear existing stops
+  document.getElementById('middleStops').innerHTML = '';
+  stopCount = 0;
+
+  // Re-add stops
+  route.stops.forEach(addr => {
+    addStop();
+    const input = document.getElementById('addr-stop-' + stopCount);
+    if (input) input.value = addr;
+  });
+
+  // Scroll to top of route page and re-plan
+  window.scrollTo(0, 0);
+  planRoute();
+}
+
+function deleteSavedRoute(id) {
+  if (!confirm('Delete this saved route?')) return;
+  savedRoutes = savedRoutes.filter(r => r.id !== id);
+  saveSavedRoutes();
+  renderSavedRoutes();
+}
+
+function renderSavedRoutes() {
+  const list  = document.getElementById('savedRoutesList');
+  const count = document.getElementById('savedRoutesCount');
+
+  if (!savedRoutes.length) {
+    list.innerHTML = '<div style="padding:12px;color:#888;font-size:15px;font-weight:normal;">No saved routes yet. Plan a route and tap 💾 Save Route.</div>';
+    count.textContent = '';
+    return;
+  }
+
+  count.textContent = savedRoutes.length + ' saved';
+
+  list.innerHTML = savedRoutes.map(route => {
+    const stopsList = route.stops && route.stops.length
+      ? route.stops.map((s, i) => '  Stop ' + (i+1) + ': ' + s).join(', ')
+      : '';
+    return `<div class="saved-route-item">
+      <div class="saved-route-header">
+        <span class="saved-route-name">🗺️ ${route.name}</span>
+        <span class="saved-route-meta">${route.miles} mi · ${route.time}</span>
+      </div>
+      <div class="saved-route-stops">
+        <span style="color:var(--blue);">📍</span> ${route.origin}<br>
+        ${route.stops && route.stops.length ? route.stops.map(s => '<span style="color:#888;">↓</span> ' + s + '<br>').join('') : ''}
+        <span style="color:#c62828;">🏁</span> ${route.dest}
+      </div>
+      <div style="font-size:12px;font-weight:normal;color:#888;margin-top:3px;">Saved ${route.saved}</div>
+      <div class="saved-route-actions">
+        <button class="btn btn-submit" onclick="loadSavedRoute('${route.id}')" style="flex:1;font-size:14px;">▶ Load</button>
+        <button class="btn" onclick="openSavedInMaps('${route.id}')" style="flex:1;font-size:14px;">📱 Maps</button>
+        <button class="btn" onclick="deleteSavedRoute('${route.id}')" style="flex:0 0 auto;font-size:14px;color:#800000;">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openSavedInMaps(id) {
+  const route = savedRoutes.find(r => r.id === id);
+  if (!route) return;
+  const all    = [route.origin, ...(route.stops || []), route.dest];
+  const origin = encodeURIComponent(all[0]);
+  const dest   = encodeURIComponent(all[all.length - 1]);
+  const waypts = all.slice(1, -1).map(encodeURIComponent).join('/');
+  const url    = waypts
+    ? `https://www.google.com/maps/dir/${origin}/${waypts}/${dest}`
+    : `https://www.google.com/maps/dir/${origin}/${dest}`;
+  window.open(url, '_blank');
+}
+
+// Init saved routes on page load
+document.addEventListener('DOMContentLoaded', () => {
+  renderSavedRoutes();
+});
+
+async function findGasStations() {
+  if (!currentRouteData || !currentRouteData.coords || currentRouteData.coords.length < 2) {
+    showError('Plan a route first, then search for gas stations.');
+    return;
+  }
+
+  const btn  = document.getElementById('findGasBtn');
+  const card = document.getElementById('gasStationsCard');
+  const list = document.getElementById('gasStationsList');
+  const cnt  = document.getElementById('gasStationsCount');
+
+  btn.textContent = '⛽ Searching...';
+  btn.disabled = true;
+  card.style.display = 'block';
+  list.innerHTML = '<div style="padding:16px;text-align:center;font-size:15px;font-weight:normal;color:#555;">Searching for gas stations along your route...</div>';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  try {
+    const coords = currentRouteData.coords;
+
+    // Sample points along the route (every ~30 miles or evenly spaced up to 8 points)
+    const samplePoints = sampleRoutePoints(coords, 8);
+
+    // Build Overpass query — find fuel stations within ~8km of sampled points
+    const nodeQueries = samplePoints.map(p =>
+      `node["amenity"="fuel"](around:8000,${p.lat},${p.lng});`
+    ).join('\n');
+
+    const query = `[out:json][timeout:25];
+(
+${nodeQueries}
+);
+out body;`;
+
+    const res  = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body:   'data=' + encodeURIComponent(query)
+    });
+    const data = await res.json();
+
+    if (!data.elements || !data.elements.length) {
+      list.innerHTML = '<div style="padding:16px;text-align:center;font-size:15px;font-weight:normal;color:#888;">No gas stations found along this route.</div>';
+      cnt.textContent = '';
+      btn.textContent = '⛽ Find Gas Stations Along Route';
+      btn.disabled = false;
+      return;
+    }
+
+    // Deduplicate by id, score by proximity to route midpoint
+    const seen    = new Set();
+    const midpt   = coords[Math.floor(coords.length / 2)];
+    const unique  = data.elements.filter(el => {
+      if (seen.has(el.id)) return false;
+      seen.add(el.id);
+      return el.lat && el.lon;
+    });
+
+    // Sort by distance to nearest route point
+    unique.forEach(el => {
+      el._dist = Math.min(...coords.map(c => haversineMiles(
+        { lat: el.lat, lng: el.lon }, { lat: c.lat, lng: c.lng }
+      )));
+    });
+    unique.sort((a, b) => a._dist - b._dist);
+    const top = unique.slice(0, 15);
+
+    cnt.textContent = top.length + ' found';
+
+    list.innerHTML = top.map(el => {
+      const tags    = el.tags || {};
+      const name    = tags.name || tags.brand || 'Gas Station';
+      const brand   = tags.brand || '';
+      const street  = tags['addr:street'] ? (tags['addr:housenumber'] ? tags['addr:housenumber'] + ' ' : '') + tags['addr:street'] : '';
+      const city    = tags['addr:city'] || '';
+      const addr    = [street, city].filter(Boolean).join(', ') || 'See on map';
+      const dist    = el._dist.toFixed(1);
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${el.lat},${el.lon}`;
+      const navUrl  = `https://www.google.com/maps/dir/?api=1&destination=${el.lat},${el.lon}`;
+
+      // Fuel types
+      const fuels = [];
+      if (tags['fuel:diesel'])        fuels.push('Diesel');
+      if (tags['fuel:octane_91'] || tags['fuel:octane_93']) fuels.push('Premium');
+      if (tags['fuel:e85'])           fuels.push('E85');
+      const fuelStr = fuels.length ? fuels.join(' · ') : '';
+
+      return `<div class="gas-item">
+        <div class="gas-icon">⛽</div>
+        <div class="gas-info">
+          <div class="gas-name">${name}</div>
+          <div class="gas-addr">${addr}</div>
+          ${fuelStr ? '<div style="font-size:11px;font-weight:normal;color:#777;margin-top:1px;">' + fuelStr + '</div>' : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <div class="gas-dist">${dist} mi off route</div>
+          <div style="display:flex;gap:4px;">
+            <a href="${mapsUrl}" target="_blank">
+              <button class="btn" style="font-size:12px;padding:2px 7px;">📍 View</button>
+            </a>
+            <a href="${navUrl}" target="_blank">
+              <button class="btn btn-submit" style="font-size:12px;padding:2px 7px;">🧭 Go</button>
+            </a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+  } catch(err) {
+    list.innerHTML = '<div style="padding:12px;color:#cc0000;font-size:15px;font-weight:normal;">Error: ' + err.message + '</div>';
+    cnt.textContent = '';
+  }
+
+  btn.textContent = '⛽ Refresh Gas Stations';
+  btn.disabled = false;
+}
+
+function sampleRoutePoints(coords, maxPoints) {
+  if (coords.length <= maxPoints) return coords;
+  const result = [];
+  const step   = (coords.length - 1) / (maxPoints - 1);
+  for (let i = 0; i < maxPoints; i++) {
+    result.push(coords[Math.round(i * step)]);
+  }
+  return result;
 }
 
 function openInGoogleMaps() {
