@@ -6,7 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#008080">
-<title>📦 Moving Inventory</title>
+<title>Moving95</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -2072,24 +2074,52 @@ async function syncProfileToSheet() {
 }
 
 async function syncProfileFromSheet() {
-  const url  = localStorage.getItem('sheetUrl') || '';
   const stat = document.getElementById('syncStatus');
-  if (!url || !currentUser) { stat.textContent = '⚠ Not configured.'; return; }
+
+  // Resolve user — currentUser variable or fallback to localStorage
+  const user = currentUser || localStorage.getItem('loggedInUser') || '';
+  if (!user) {
+    stat.textContent = '⚠ Not logged in. Please sign in first.';
+    stat.style.color = '#cc0000'; return;
+  }
+  // Update currentUser in case it was null
+  if (!currentUser) currentUser = user;
+
+  const url = localStorage.getItem('sheetUrl') || '';
+  if (!url) {
+    stat.textContent = '⚠ No Apps Script URL saved. Go to Config → Apps Script URL and save it first.';
+    stat.style.color = '#cc0000'; return;
+  }
+
   stat.textContent = 'Pulling config from cloud...'; stat.style.color = '#555';
   try {
-    const res  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(currentUser.toLowerCase()));
+    const res  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
     const data = res.ok ? await res.json() : null;
-    if (data && data.sheetUrl) {
-      applyProfileData(data, currentUser);
+
+    if (data && (data.apiKey || data.sheetId || data.sheetUrl || data.gcalId)) {
+      applyProfileData(data, user);
       loadSavedConfig();
-      stat.textContent = '✅ Config loaded from cloud.';
+      loadPersonalInfo();
+      refreshCredentials();
+      // Show what was loaded
+      const loaded = [
+        data.apiKey   ? 'API Key'     : '',
+        data.sheetId  ? 'Sheet ID'    : '',
+        data.sheetUrl ? 'Script URL'  : '',
+        data.gcalId   ? 'Calendar ID' : ''
+      ].filter(Boolean).join(', ');
+      stat.textContent = '✅ Loaded: ' + loaded;
       stat.style.color = '#006400';
+    } else if (data && data.found === false) {
+      stat.textContent = '⚠ No profile found for "' + user + '". Push your config first from a device where it is set up.';
+      stat.style.color = '#cc6600';
     } else {
-      stat.textContent = '⚠ No cloud profile found. Use Push to save first.';
+      stat.textContent = '⚠ Profile exists but has no config saved. Push your config from your main device first.';
       stat.style.color = '#cc6600';
     }
   } catch(e) {
-    stat.textContent = '⚠ Error: ' + e.message; stat.style.color = '#cc0000';
+    stat.textContent = '⚠ Network error: ' + e.message;
+    stat.style.color = '#cc0000';
   }
 }
 
