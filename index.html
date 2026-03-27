@@ -837,9 +837,9 @@ function loadPlacesAPI() {
     <div class="login-title">&#128274; Moving Inventory — Sign In</div>
     <div class="login-body">
       <div class="login-note" id="loginNote">
-        First time? Enter any username and a PIN you want. Your config will be saved to that profile in the cloud.<br><br>
-        Returning? Enter your username and PIN to load your settings on this device.
+        Enter your username and PIN to sign in. Your config will sync automatically from the cloud.
       </div>
+
       <div class="login-field">
         <label>Username</label>
         <input type="text" id="loginUser" placeholder="e.g. John" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -854,7 +854,9 @@ function loadPlacesAPI() {
       <div class="btn-row">
         <button class="btn btn-submit" onclick="doLogin()" style="flex:1;font-size:20px;">&#128274; Sign In</button>
       </div>
-      <div id="loginSpinner" style="display:none;text-align:center;padding:10px;font-size:16px;font-weight:normal;color:#555;">Checking credentials...</div>
+      <div id="loginSpinner" style="display:none;text-align:center;padding:10px;font-size:16px;font-weight:normal;color:#555;">
+        Loading your profile...
+      </div>
     </div>
   </div>
 </div>
@@ -1090,7 +1092,10 @@ function loadPlacesAPI() {
   </div>
 
   <div class="win-card">
-    <div class="win-card-title">📦 Items</div>
+    <div class="win-card-title">
+      <span>📦 Items</span>
+      <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" style="font-size:15px;padding:3px 10px;">↺ Refresh</button>
+    </div>
     <div class="win-card-body" style="padding:8px;">
       <div class="stats-bar" id="statsBar"></div>
       <div id="itemGrid">
@@ -1875,10 +1880,12 @@ document.addEventListener('DOMContentLoaded', () => {
 let currentUser = null;
 
 async function doLogin() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pin  = document.getElementById('loginPin').value.trim();
-  const err  = document.getElementById('loginError');
-  const spin = document.getElementById('loginSpinner');
+  const user   = document.getElementById('loginUser').value.trim();
+  const pin    = document.getElementById('loginPin').value.trim();
+  const err    = document.getElementById('loginError');
+  const spin   = document.getElementById('loginSpinner');
+
+  err.style.display = 'none';
 
   if (!user || !pin) {
     err.textContent = 'Please enter a username and PIN.';
@@ -1889,39 +1896,46 @@ async function doLogin() {
     err.style.display = 'block'; return;
   }
 
-  err.style.display = 'none';
+  // Use script URL from localStorage only
+  let scriptUrl = localStorage.getItem('sheetUrl') || '';
+
   spin.style.display = 'block';
 
-  const scriptUrl = localStorage.getItem('sheetUrl') || '';
-
   if (!scriptUrl) {
-    // No script URL yet — first time setup, just log in locally
+    // Still no URL — log in locally, show the URL field for next time
     spin.style.display = 'none';
     const pinHash = await hashPin(pin);
     localStorage.setItem('profile_' + user.toLowerCase() + '_pin', pinHash);
     localStorage.setItem('loggedInUser', user);
-    applyLogin(user);
+    err.textContent = 'No Apps Script URL found. Go to Config → Apps Script URL after login to connect your account.';
+    err.style.color = '#cc6600';
+    err.style.background = '#fffde7';
+    err.style.borderLeftColor = '#cc6600';
+    err.style.display = 'block';
+    setTimeout(() => { applyLogin(user); }, 2000);
     return;
   }
 
-  // Try to authenticate against the sheet
   try {
-    spin.style.display = 'block';
-    const res = await fetch(scriptUrl + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
+    spin.textContent || (spin.textContent = 'Loading your profile...');
+    const res  = await fetch(scriptUrl + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
     const data = res.ok ? await res.json() : null;
 
     if (data && data.pin) {
-      // Profile exists in sheet — verify PIN
+      // Profile found — verify PIN
       const pinHash = await hashPin(pin);
       if (pinHash !== data.pin) {
         spin.style.display = 'none';
         err.textContent = 'Incorrect PIN. Try again.';
+        err.style.color = '#cc0000';
+        err.style.background = '#fff0f0';
+        err.style.borderLeftColor = '#cc0000';
         err.style.display = 'block'; return;
       }
-      // Load config from sheet profile
+      // ✅ PIN correct — apply ALL profile data
       applyProfileData(data, user);
     } else {
-      // New profile — create it
+      // No profile found — create one
       const pinHash = await hashPin(pin);
       const profile = gatherConfig();
       profile.user = user.toLowerCase();
@@ -1935,8 +1949,8 @@ async function doLogin() {
       applyLogin(user);
     }
   } catch(e) {
-    // Offline or no script — fall back to local PIN check
-    const pinHash = await hashPin(pin);
+    // Network error — fall back to local PIN
+    const pinHash    = await hashPin(pin);
     const storedHash = localStorage.getItem('profile_' + user.toLowerCase() + '_pin');
     if (storedHash && storedHash !== pinHash) {
       spin.style.display = 'none';
@@ -1972,8 +1986,7 @@ function applyLogin(user) {
 }
 
 function applyProfileData(data, user) {
-  // Map all profile fields to localStorage keys
-  // The profile sheet stores columns: sheetUrl, sheetId, apiKey, tabName, gcalId, gcalDur, personal
+  // Map profile sheet columns → localStorage keys
   const fieldMap = {
     sheetUrl: 'sheetUrl',
     sheetId:  'sheetId',
@@ -1981,41 +1994,60 @@ function applyProfileData(data, user) {
     tabName:  'tabName',
     gcalId:   'gcalId',
     gcalDur:  'gcalDuration',
-    personal: 'personalInfo'
+    personal: 'personalInfo',
+    pin:      'profile_' + user.toLowerCase() + '_pin'
   };
+  let applied = 0;
   Object.entries(fieldMap).forEach(([profileKey, storageKey]) => {
     const val = data[profileKey];
     if (val && String(val).trim()) {
       localStorage.setItem(storageKey, String(val).trim());
+      applied++;
     }
   });
+  console.log('Profile applied:', applied, 'fields for user:', user);
   applyLogin(user);
 }
 
 function gatherConfig() {
-  // Always read live from inputs in case user just typed something
-  const sheetUrl = document.getElementById('sheetUrl')   ? document.getElementById('sheetUrl').value.trim()   : (localStorage.getItem('sheetUrl') || '');
-  const sheetId  = document.getElementById('cfgSheetId') ? document.getElementById('cfgSheetId').value.trim() : (localStorage.getItem('sheetId')  || '');
-  const apiKey   = document.getElementById('cfgApiKey')  ? document.getElementById('cfgApiKey').value.trim()  : (localStorage.getItem('apiKey')   || '');
-  const tabName  = document.getElementById('cfgTabName') ? document.getElementById('cfgTabName').value.trim() : (localStorage.getItem('tabName')  || 'Inventory');
-  const gcalId   = document.getElementById('gcalId')     ? document.getElementById('gcalId').value.trim()     : (localStorage.getItem('gcalId')   || '');
-  const gcalDur  = document.getElementById('gcalDuration') ? document.getElementById('gcalDuration').value    : (localStorage.getItem('gcalDuration') || '2');
-  // Save to localStorage so they persist immediately
-  if (sheetUrl) localStorage.setItem('sheetUrl', sheetUrl);
-  if (sheetId)  localStorage.setItem('sheetId',  sheetId);
-  if (apiKey)   localStorage.setItem('apiKey',   apiKey);
-  if (tabName)  localStorage.setItem('tabName',  tabName);
-  if (gcalId)   localStorage.setItem('gcalId',   gcalId);
-  if (gcalDur)  localStorage.setItem('gcalDuration', gcalDur);
+  // Read from localStorage as source of truth
+  // Also check live DOM values in case user just typed something new
+  function getLive(domId, storageKey, fallback) {
+    const el = document.getElementById(domId);
+    const live = el ? el.value.trim() : '';
+    const stored = localStorage.getItem(storageKey) || '';
+    const val = live || stored || fallback || '';
+    if (val) localStorage.setItem(storageKey, val);
+    return val;
+  }
   return {
-    sheetUrl: sheetUrl || localStorage.getItem('sheetUrl') || '',
-    sheetId:  sheetId  || localStorage.getItem('sheetId')  || '',
-    apiKey:   apiKey   || localStorage.getItem('apiKey')   || '',
-    tabName:  tabName  || localStorage.getItem('tabName')  || 'Inventory',
-    gcalId:   gcalId   || localStorage.getItem('gcalId')   || '',
-    gcalDur:  gcalDur  || localStorage.getItem('gcalDuration') || '2',
+    sheetUrl: getLive('sheetUrl',     'sheetUrl', ''),
+    sheetId:  getLive('cfgSheetId',   'sheetId',  ''),
+    apiKey:   getLive('cfgApiKey',    'apiKey',   ''),
+    tabName:  getLive('cfgTabName',   'tabName',  'Inventory'),
+    gcalId:   getLive('gcalId',       'gcalId',   ''),
+    gcalDur:  getLive('gcalDuration', 'gcalDuration', '2'),
     personal: localStorage.getItem('personalInfo') || '{}'
   };
+}
+
+async function silentPushProfile() {
+  // Push config to cloud quietly (no UI feedback) whenever a config is saved
+  if (!currentUser) return;
+  const url = localStorage.getItem('sheetUrl') || '';
+  if (!url) return;
+  try {
+    const pinHash = localStorage.getItem('profile_' + currentUser.toLowerCase() + '_pin') || '';
+    const profile = { ...gatherConfig(), user: currentUser.toLowerCase(), pin: pinHash };
+    await fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'saveProfile', profile })
+    });
+    refreshCredentials();
+  } catch(e) {
+    // Silent fail — user can manually push if needed
+  }
 }
 
 async function syncProfileToSheet() {
@@ -2207,6 +2239,7 @@ function saveSheetUrl() {
   localStorage.setItem('sheetUrl', url);
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save URL'; }, 2000);
+  silentPushProfile();
 }
 
 function saveApiConfig() {
@@ -2227,9 +2260,10 @@ function saveApiConfig() {
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save Viewer Config'; }, 2000);
   // Reload Places API with new key if route tab is active
-  placesApiLoaded = false; placesApiLoading = false;
   const old = document.getElementById('gplacesScript');
   if (old) old.remove();
+  // Auto-push to cloud silently
+  silentPushProfile();
   // Reset viewer so it reloads fresh
   allItems = []; filtered = [];
 }
@@ -2414,6 +2448,7 @@ function saveGcalConfig() {
   }
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save Calendar Config'; }, 2000);
+  silentPushProfile();
 }
 
 function toggleSection(sectionId, btnId) {
@@ -2868,7 +2903,7 @@ function renderItems() {
   const grid = document.getElementById('itemGrid');
   if (!filtered.length) {
     grid.innerHTML = allItems.length === 0
-      ? '<div class="state-msg"><span class="icon">🗂️</span>No data loaded.<br><span style="font-size:15px;font-weight:normal;">Tap ↺ Refresh in the header.</span></div>'
+      ? '<div class="state-msg"><span class="icon">🗂️</span>No data loaded.<br><button class="btn btn-submit" onclick="loadViewerData()" style="margin-top:12px;font-size:18px;">↺ Load Inventory</button></div>'
       : '<div class="state-msg"><span class="icon">🔍</span>No items match your filters.</div>';
     return;
   }
