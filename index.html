@@ -781,15 +781,38 @@
   }
 </style>
 <script>
-// Google Places Autocomplete loader — runs after config is ready
+// Google Places Autocomplete loader
+let placesApiLoaded  = false;
+let placesApiLoading = false;
+
 function loadPlacesAPI() {
   const key = localStorage.getItem('apiKey') || '';
-  if (!key || document.getElementById('gplacesScript')) return;
-  const s = document.createElement('script');
-  s.id  = 'gplacesScript';
-  s.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places&callback=initPlacesAutocomplete';
-  s.async = true;
+  if (!key) { showRoutePlainInputs(); return; }
+  if (placesApiLoaded)  { initPlacesAutocomplete(); return; }
+  if (placesApiLoading) return;
+  placesApiLoading = true;
+
+  // Remove any previous failed attempt
+  const old = document.getElementById('gplacesScript');
+  if (old) old.remove();
+
+  const s  = document.createElement('script');
+  s.id     = 'gplacesScript';
+  s.src    = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&libraries=places&loading=async&callback=initPlacesAutocomplete';
+  s.async  = true;
+  s.onerror = function() {
+    placesApiLoading = false;
+    showRoutePlainInputs();
+  };
   document.head.appendChild(s);
+}
+
+function showRoutePlainInputs() {
+  // Fallback — hide any broken autocomplete widgets, keep plain inputs
+  document.querySelectorAll('.place-input').forEach(function(el) {
+    el.style.display = 'block';
+    el.placeholder = 'Enter address...';
+  });
 }
 </script>
 </head>
@@ -2142,6 +2165,10 @@ function saveApiConfig() {
   status.style.borderLeftColor = '#006400'; status.style.color = '#006400';
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save Viewer Config'; }, 2000);
+  // Reload Places API with new key if route tab is active
+  placesApiLoaded = false; placesApiLoading = false;
+  const old = document.getElementById('gplacesScript');
+  if (old) old.remove();
   // Reset viewer so it reloads fresh
   allItems = []; filtered = [];
 }
@@ -3420,6 +3447,8 @@ function addStop() {
 
 // ── PLACES AUTOCOMPLETE ──
 function initPlacesAutocomplete() {
+  placesApiLoaded  = true;
+  placesApiLoading = false;
   document.querySelectorAll('.place-input').forEach(attachAutocomplete);
 }
 
