@@ -1207,8 +1207,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 16px 8px;
+    gap: 6px;
+    padding: 18px 12px;
     font-family: 'VT323', monospace;
     font-size: 17px;
     font-weight: bold;
@@ -1222,14 +1222,22 @@
     transition: opacity 0.15s;
   }
   .trivia-cat-btn:active { opacity: 0.7; }
+  @media (min-width: 601px) {
+    .trivia-cat-btn { font-size: 20px; padding: 22px 16px; }
+    #trivia-home > div:last-of-type { max-width: 600px; margin: 0 auto; }
+  }
   .trivia-ans-btn {
-    padding: 12px 8px;
+    padding: 16px 12px;
     font-family: 'VT323', monospace;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     cursor: pointer;
     text-align: center;
-    line-height: 1.3;
+    line-height: 1.35;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--face);
     border-top: 2px solid var(--light);
     border-left: 2px solid var(--light);
@@ -1238,10 +1246,92 @@
     color: var(--black);
     transition: background 0.15s;
   }
+  @media (min-width: 601px) {
+    .trivia-ans-btn { font-size: 20px; min-height: 72px; padding: 18px 16px; }
+  }
   .trivia-ans-btn:disabled { cursor: default; }
+  #trivia-timer-bar.warning { background: #f57f17; }
+  #trivia-timer-bar.danger  { background: #c62828; }
+  #trivia-timer-num.warning { color: #f57f17; }
+  #trivia-timer-num.danger  { color: #c62828; }
   .trivia-ans-btn.correct  { background: #c8e6c9 !important; border-color: #2e7d32 !important; color: #1b5e20 !important; }
   .trivia-ans-btn.wrong    { background: #ffcdd2 !important; border-color: #c62828 !important; color: #7f0000 !important; }
   .trivia-ans-btn.reveal   { background: #fff9c4 !important; border-color: #f9a825 !important; }
+
+
+  /* ── SUDOKU GAME ── */
+  .sudoku-diff-btn {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 16px 8px;
+    cursor: pointer;
+    background: var(--face);
+    border-width: 2px;
+    border-style: solid;
+    text-align: center;
+    line-height: 1.4;
+    transition: opacity 0.15s;
+  }
+  .sudoku-diff-btn:active { opacity: 0.7; }
+  .sudoku-num-btn {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 10px 0;
+    cursor: pointer;
+    background: var(--face);
+    border-top: 2px solid var(--light);
+    border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker);
+    border-bottom: 2px solid var(--darker);
+    color: var(--blue);
+    text-align: center;
+  }
+  .sudoku-num-btn:active { background: var(--blue); color: white; }
+  .sudoku-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'VT323', monospace;
+    font-size: clamp(14px, 3.5vw, 24px);
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid var(--dark);
+    background: var(--face);
+    color: var(--black);
+    box-sizing: border-box;
+    position: relative;
+    transition: background 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sudoku-cell.given     { color: var(--black); background: #e8e8e8; cursor: default; }
+  .sudoku-cell.selected  { background: #bbdefb !important; }
+  .sudoku-cell.highlight { background: #e3f2fd; }
+  .sudoku-cell.error     { color: #c62828 !important; background: #ffebee !important; }
+  .sudoku-cell.hint-flash { background: #c8e6c9 !important; }
+  /* Thick borders for 3×3 box boundaries */
+  .sudoku-cell.bb-right  { border-right:  2px solid var(--black); }
+  .sudoku-cell.bb-bottom { border-bottom: 2px solid var(--black); }
+  /* Notes (pencil marks) */
+  .sudoku-notes {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    width: 100%; height: 100%;
+    position: absolute; inset: 0;
+    padding: 1px;
+    box-sizing: border-box;
+  }
+  .sudoku-note-digit {
+    font-size: clamp(6px, 1.5vw, 10px);
+    font-family: 'VT323', monospace;
+    display: flex; align-items: center; justify-content: center;
+    color: #555; line-height: 1;
+  }
+  body.dark-mode .sudoku-cell.given { background: #0d1b2a; }
+  body.dark-mode .sudoku-cell.selected { background: #1565c0 !important; }
+  body.dark-mode .sudoku-cell.highlight { background: #0d2a3a; }
 
 </style>
 <script>
@@ -4011,12 +4101,118 @@ document.addEventListener('DOMContentLoaded', function() {
         <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Bar Trivia</span>
       </div>
 
+      <!-- Sudoku icon -->
+      <div onclick="showGameSection('sudoku')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1b5e20,#43a047);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);">🔢</div>
+        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Sudoku</span>
+      </div>
+
     </div>
   </div>
 
   <!-- Inline game panels (hidden until selected) -->
   <div id="gamePanel-hunt" style="display:none;"></div>
   <div id="gamePanel-snake" style="display:none;"></div>
+</div>
+
+
+<!-- ══════════════════════════════
+     PAGE: SUDOKU
+══════════════════════════════ -->
+<div class="page" id="page-sudoku">
+
+  <div class="win-card">
+    <div class="win-card-title" style="background:linear-gradient(to right,#1b5e20,#43a047);">
+      <span>🔢 Sudoku</span>
+      <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(255,255,255,0.2);color:white;border-color:rgba(255,255,255,0.4);font-size:13px;">← Games</button>
+    </div>
+  </div>
+
+  <!-- Home / difficulty picker -->
+  <div id="sudoku-home" style="padding:16px;max-width:480px;margin:0 auto;">
+
+    <!-- Stats bar -->
+    <div id="sudoku-stats" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;gap:0;border:2px solid var(--darker);overflow:hidden;">
+        <div style="flex:1;background:var(--face);padding:8px 4px;text-align:center;border-right:1px solid var(--darker);">
+          <div style="font-size:11px;font-weight:normal;color:#555;">BEST TIME</div>
+          <div id="sudoku-best-time" style="font-size:20px;font-weight:bold;color:var(--blue);">--:--</div>
+        </div>
+        <div style="flex:1;background:var(--face);padding:8px 4px;text-align:center;border-right:1px solid var(--darker);">
+          <div style="font-size:11px;font-weight:normal;color:#555;">PLAYED</div>
+          <div id="sudoku-played" style="font-size:20px;font-weight:bold;color:var(--blue);">0</div>
+        </div>
+        <div style="flex:1;background:var(--face);padding:8px 4px;text-align:center;">
+          <div style="font-size:11px;font-weight:normal;color:#555;">WON</div>
+          <div id="sudoku-won" style="font-size:20px;font-weight:bold;color:#2e7d32;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:var(--black);margin-bottom:14px;text-align:center;">Select Difficulty:</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button onclick="startSudoku('easy')"   class="sudoku-diff-btn" style="border-color:#2e7d32;color:#2e7d32;">
+        <span style="font-size:28px;">😊</span><br>Easy<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">36 clues</span>
+      </button>
+      <button onclick="startSudoku('medium')" class="sudoku-diff-btn" style="border-color:#f57f17;color:#f57f17;">
+        <span style="font-size:28px;">🤔</span><br>Medium<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">30 clues</span>
+      </button>
+      <button onclick="startSudoku('hard')"   class="sudoku-diff-btn" style="border-color:#c62828;color:#c62828;">
+        <span style="font-size:28px;">😤</span><br>Hard<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">25 clues</span>
+      </button>
+      <button onclick="startSudoku('expert')" class="sudoku-diff-btn" style="border-color:#6a1b9a;color:#6a1b9a;">
+        <span style="font-size:28px;">🧠</span><br>Expert<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">22 clues</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Game board -->
+  <div id="sudoku-game" style="display:none;padding:12px;">
+    <div style="max-width:520px;margin:0 auto;">
+
+      <!-- Top bar: back + difficulty + timer -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <button onclick="sudokuBackToMenu()" style="font-family:'VT323',monospace;font-size:16px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:4px 12px;cursor:pointer;color:var(--black);">← Menu</button>
+        <div style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;" id="sudoku-diff-label"></div>
+        <div style="font-family:'VT323',monospace;font-size:22px;font-weight:bold;color:var(--blue);" id="sudoku-timer">00:00</div>
+      </div>
+
+      <!-- Action bar: new game + hint + undo + erase -->
+      <div style="display:flex;gap:6px;margin-bottom:10px;">
+        <button onclick="startSudoku(sudokuState.difficulty)" style="flex:1;font-family:'VT323',monospace;font-size:15px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:6px 4px;cursor:pointer;color:var(--black);">🔄 New</button>
+        <button onclick="sudokuHint()" style="flex:1;font-family:'VT323',monospace;font-size:15px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:6px 4px;cursor:pointer;color:var(--black);">💡 Hint</button>
+        <button onclick="sudokuUndo()" style="flex:1;font-family:'VT323',monospace;font-size:15px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:6px 4px;cursor:pointer;color:var(--black);">↩ Undo</button>
+        <button onclick="sudokuErase()" style="flex:1;font-family:'VT323',monospace;font-size:15px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:6px 4px;cursor:pointer;color:var(--black);">✕ Erase</button>
+      </div>
+
+      <!-- Mistakes counter -->
+      <div style="text-align:center;font-family:'VT323',monospace;font-size:15px;color:#c62828;margin-bottom:8px;">
+        Mistakes: <span id="sudoku-mistakes">0</span> / 3
+      </div>
+
+      <!-- Board -->
+      <div id="sudoku-board" style="display:grid;grid-template-columns:repeat(9,1fr);border:3px solid var(--black);margin-bottom:12px;"></div>
+
+      <!-- Number pad -->
+      <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px;">
+        <button onclick="sudokuInput(1)" class="sudoku-num-btn">1</button>
+        <button onclick="sudokuInput(2)" class="sudoku-num-btn">2</button>
+        <button onclick="sudokuInput(3)" class="sudoku-num-btn">3</button>
+        <button onclick="sudokuInput(4)" class="sudoku-num-btn">4</button>
+        <button onclick="sudokuInput(5)" class="sudoku-num-btn">5</button>
+        <button onclick="sudokuInput(6)" class="sudoku-num-btn">6</button>
+        <button onclick="sudokuInput(7)" class="sudoku-num-btn">7</button>
+        <button onclick="sudokuInput(8)" class="sudoku-num-btn">8</button>
+        <button onclick="sudokuInput(9)" class="sudoku-num-btn">9</button>
+      </div>
+
+      <!-- Win / mistake message -->
+      <div id="sudoku-msg" style="display:none;text-align:center;font-family:'VT323',monospace;font-size:22px;font-weight:bold;padding:14px;margin-top:6px;"></div>
+
+    </div>
+  </div>
+
 </div>
 
 
@@ -4100,44 +4296,58 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <!-- Question screen -->
-  <div id="trivia-quiz" style="display:none;padding:16px;">
+  <div id="trivia-quiz" style="display:none;padding:16px 16px 24px;">
+    <!-- Centred max-width column on desktop -->
+    <div style="max-width:680px;margin:0 auto;">
 
     <!-- Header bar -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <button onclick="endTrivia()" style="font-family:'VT323',monospace;font-size:16px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:4px 12px;cursor:pointer;color:var(--black);">← Back</button>
-      <div style="font-family:'VT323',monospace;font-size:16px;color:var(--black);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <button onclick="endTrivia()" style="font-family:'VT323',monospace;font-size:17px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:5px 14px;cursor:pointer;color:var(--black);">← Back</button>
+      <div style="font-family:'VT323',monospace;font-size:17px;color:var(--black);">
         <span id="trivia-q-cat" style="opacity:0.7;"></span>
         &nbsp;|&nbsp;Q&nbsp;<span id="trivia-q-num">1</span>
       </div>
-      <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:var(--blue);">
+      <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:var(--blue);">
         🏆&nbsp;<span id="trivia-q-score">0</span>
       </div>
     </div>
 
-    <!-- Difficulty badge -->
-    <div id="trivia-difficulty" style="text-align:center;margin-bottom:8px;"></div>
-
-    <!-- Question card -->
-    <div class="win-card" style="margin-bottom:12px;">
-      <div class="win-card-body" style="padding:16px;">
-        <div id="trivia-question" style="font-size:18px;font-weight:bold;line-height:1.4;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;"></div>
+    <!-- Difficulty + Timer row -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div id="trivia-difficulty" style="flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-family:'VT323',monospace;font-size:14px;color:var(--black);">⏱ TIME</span>
+          <span id="trivia-timer-num" style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:var(--blue);">30</span>
+        </div>
+        <div style="height:10px;background:var(--dark);border:1px solid var(--darker);overflow:hidden;">
+          <div id="trivia-timer-bar" style="height:100%;width:100%;background:var(--blue);transition:width 1s linear;"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Answer buttons -->
-    <div id="trivia-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"></div>
+    <!-- Question card -->
+    <div class="win-card" style="margin-bottom:16px;">
+      <div class="win-card-body" style="padding:20px 24px;">
+        <div id="trivia-question" style="font-size:20px;font-weight:bold;line-height:1.5;text-align:center;min-height:64px;display:flex;align-items:center;justify-content:center;"></div>
+      </div>
+    </div>
+
+    <!-- Answer buttons — 2 col grid, nicely sized -->
+    <div id="trivia-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"></div>
 
     <!-- Feedback -->
-    <div id="trivia-feedback" style="display:none;padding:12px;text-align:center;font-size:17px;font-weight:bold;margin-bottom:12px;"></div>
+    <div id="trivia-feedback" style="display:none;padding:14px 16px;text-align:center;font-size:18px;font-weight:bold;margin-bottom:14px;border-radius:0;"></div>
 
     <!-- Loading spinner -->
-    <div id="trivia-loading" style="display:none;text-align:center;padding:20px;font-size:16px;font-weight:normal;color:#555;">⏳ Loading question...</div>
+    <div id="trivia-loading" style="display:none;text-align:center;padding:24px;font-size:16px;font-weight:normal;color:#555;">⏳ Loading question...</div>
 
     <!-- Next button -->
-    <button id="trivia-next-btn" onclick="nextTriviaQuestion()" style="display:none;width:100%;font-family:'VT323',monospace;font-size:20px;font-weight:bold;background:var(--blue);color:white;border:none;padding:12px;cursor:pointer;letter-spacing:1px;">
+    <button id="trivia-next-btn" onclick="nextTriviaQuestion()" style="display:none;width:100%;font-family:'VT323',monospace;font-size:22px;font-weight:bold;background:var(--blue);color:white;border:none;padding:14px;cursor:pointer;letter-spacing:1px;">
       NEXT QUESTION ▶
     </button>
 
+    </div><!-- /max-width wrapper -->
   </div>
 
 </div>
@@ -5568,7 +5778,7 @@ function showPage(name) {
   if (calcBtn) calcBtn.classList.toggle('active-page', isBudget);
 
   // Update header subtitle
-  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', profile:'My Profile', budget:'Move Budget' };
+  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', profile:'My Profile', budget:'Move Budget' };
   // headerStatus removed
 
   // Auto-load viewer when switching to it
@@ -5576,7 +5786,7 @@ function showPage(name) {
   // Refresh sync readiness when config page opens
   if (isConfig) updateSyncReadiness();
   // Keep Games nav-btn lit when on hunt or trivia (sub-pages of Games)
-  if (name === 'hunt' || name === 'trivia') {
+  if (name === 'hunt' || name === 'trivia' || name === 'sudoku') {
     const gamesBtn = document.getElementById('nav-games');
     if (gamesBtn) gamesBtn.classList.add('active');
   }
@@ -8156,7 +8366,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GAMES PAGE ──────────────────────────────────────────────────────────────
 function showGameSection(game) {
-  if (game === 'trivia') {
+  if (game === 'sudoku') {
+    showPage('sudoku');
+    updateSudokuStats();
+  } else if (game === 'trivia') {
     showPage('trivia');
     updateTriviaRouteStatus();
   } else if (game === 'hunt') {
@@ -8301,6 +8514,7 @@ async function startTrivia(category) {
 }
 
 function endTrivia() {
+  clearTriviaTimer();
   document.getElementById('trivia-home').style.display = 'block';
   document.getElementById('trivia-quiz').style.display = 'none';
   // Update scorebar
@@ -8315,6 +8529,7 @@ function endTrivia() {
 
 // ── Load / buffer questions ───────────────────────────────────────────────────
 async function loadNextQuestion() {
+  clearTriviaTimer();
   document.getElementById('trivia-loading').style.display   = 'block';
   document.getElementById('trivia-answers').style.display   = 'none';
   document.getElementById('trivia-question').textContent    = '';
@@ -8351,6 +8566,62 @@ async function loadNextQuestion() {
 }
 
 // ── Display a question ────────────────────────────────────────────────────────
+var triviaTimerInterval = null;
+var triviaTimerSeconds  = 30;
+
+function startTriviaTimer() {
+  clearTriviaTimer();
+  triviaTimerSeconds = 30;
+  var bar = document.getElementById('trivia-timer-bar');
+  var num = document.getElementById('trivia-timer-num');
+  if (bar) { bar.style.width = '100%'; bar.className = ''; }
+  if (num) { num.textContent = '30'; num.className = ''; }
+
+  triviaTimerInterval = setInterval(function() {
+    triviaTimerSeconds--;
+    var pct = (triviaTimerSeconds / 30) * 100;
+    if (bar) bar.style.width = pct + '%';
+    if (num) num.textContent = triviaTimerSeconds;
+
+    // Colour changes
+    if (triviaTimerSeconds <= 5) {
+      if (bar) bar.className = 'danger';
+      if (num) num.className = 'danger';
+    } else if (triviaTimerSeconds <= 10) {
+      if (bar) bar.className = 'warning';
+      if (num) num.className = 'warning';
+    }
+
+    if (triviaTimerSeconds <= 0) {
+      clearTriviaTimer();
+      timeOutTrivia();
+    }
+  }, 1000);
+}
+
+function clearTriviaTimer() {
+  if (triviaTimerInterval) { clearInterval(triviaTimerInterval); triviaTimerInterval = null; }
+}
+
+function timeOutTrivia() {
+  // Disable all buttons and reveal correct answer
+  var q = triviaState.current;
+  var allBtns = document.getElementById('trivia-answers').querySelectorAll('.trivia-ans-btn');
+  allBtns.forEach(function(b) {
+    b.disabled = true;
+    if (b.innerHTML === q.correct) b.classList.add('correct');
+  });
+  triviaState.streak = 0;
+  triviaState.total += 1;
+  var fb = document.getElementById('trivia-feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = '⏰ Time\'s up! Answer: <b>' + q.correct + '</b>';
+  fb.style.color = '#c62828';
+  fb.style.background = '#ffebee';
+  document.getElementById('trivia-next-btn').style.display = 'block';
+  document.getElementById('trivia-q-score').textContent = triviaState.score;
+}
+
 function displayQuestion(q) {
   document.getElementById('trivia-loading').style.display  = 'none';
   document.getElementById('trivia-q-num').textContent      = triviaState.qNum;
@@ -8373,10 +8644,14 @@ function displayQuestion(q) {
     btn.onclick     = function() { handleAnswer(ans, btn); };
     container.appendChild(btn);
   });
+
+  // Start 30s timer
+  startTriviaTimer();
 }
 
 // ── Handle answer selection ───────────────────────────────────────────────────
 function handleAnswer(chosen, btn) {
+  clearTriviaTimer();
   var q = triviaState.current;
   // Disable all buttons
   var allBtns = document.getElementById('trivia-answers').querySelectorAll('.trivia-ans-btn');
@@ -8413,6 +8688,404 @@ function handleAnswer(chosen, btn) {
 
 function nextTriviaQuestion() {
   loadNextQuestion();
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SUDOKU GAME
+// ══════════════════════════════════════════════════════════════════════════════
+
+var sudokuState = {
+  difficulty: 'easy',
+  given:    [],   // 81-element array, 0 = empty
+  solution: [],   // solved board
+  board:    [],   // current player board (0 = empty)
+  notes:    [],   // 81 sets of pencil marks
+  selected: -1,
+  mistakes: 0,
+  history:  [],   // for undo
+  timerSec: 0,
+  timerInterval: null,
+  noteMode: false,
+  hints: 3,
+  stats: JSON.parse(localStorage.getItem('sudokuStats') || '{"played":0,"won":0,"bestTimes":{}}')
+};
+
+var CLUES = { easy: 36, medium: 30, hard: 25, expert: 22 };
+
+// ── Pure board generator ──────────────────────────────────────────────────────
+function sdkShuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+
+function sdkIsValid(board, pos, num) {
+  var row = Math.floor(pos / 9), col = pos % 9;
+  for (var i = 0; i < 9; i++) {
+    if (board[row * 9 + i] === num) return false;
+    if (board[i * 9 + col] === num) return false;
+  }
+  var br = Math.floor(row / 3) * 3, bc = Math.floor(col / 3) * 3;
+  for (var r = br; r < br + 3; r++)
+    for (var c = bc; c < bc + 3; c++)
+      if (board[r * 9 + c] === num) return false;
+  return true;
+}
+
+function sdkFill(board) {
+  for (var i = 0; i < 81; i++) {
+    if (board[i] === 0) {
+      var nums = sdkShuffle([1,2,3,4,5,6,7,8,9]);
+      for (var n = 0; n < 9; n++) {
+        if (sdkIsValid(board, i, nums[n])) {
+          board[i] = nums[n];
+          if (sdkFill(board)) return true;
+          board[i] = 0;
+        }
+      }
+      return false;
+    }
+  }
+  return true;
+}
+
+function sdkSolve(board) {
+  // Returns true if unique solution, fills board in place
+  for (var i = 0; i < 81; i++) {
+    if (board[i] === 0) {
+      var found = 0, lastVal = 0;
+      for (var n = 1; n <= 9; n++) {
+        if (sdkIsValid(board, i, n)) {
+          board[i] = n;
+          if (sdkSolve(board)) { found++; lastVal = n; if (found > 1) { board[i] = 0; return false; } }
+          board[i] = 0;
+        }
+      }
+      if (found === 1) { board[i] = lastVal; return true; }
+      return false;
+    }
+  }
+  return true;
+}
+
+function sdkCountSolutions(board, limit) {
+  limit = limit || 2;
+  var count = 0;
+  function solve(b) {
+    if (count >= limit) return;
+    for (var i = 0; i < 81; i++) {
+      if (b[i] === 0) {
+        for (var n = 1; n <= 9; n++) {
+          if (sdkIsValid(b, i, n)) {
+            b[i] = n;
+            solve(b);
+            b[i] = 0;
+          }
+        }
+        return;
+      }
+    }
+    count++;
+  }
+  solve(board.slice());
+  return count;
+}
+
+function generatePuzzle(difficulty) {
+  // 1. Fill a complete board
+  var solution = new Array(81).fill(0);
+  sdkFill(solution);
+
+  // 2. Remove cells while keeping unique solution
+  var clues = CLUES[difficulty] || 30;
+  var puzzle = solution.slice();
+  var positions = sdkShuffle(Array.from({length: 81}, function(_, i){ return i; }));
+  var removed = 0;
+  var target = 81 - clues;
+
+  for (var k = 0; k < positions.length && removed < target; k++) {
+    var pos = positions[k];
+    var backup = puzzle[pos];
+    puzzle[pos] = 0;
+    // Quick symmetry: also try removing its mirror
+    var mirror = 80 - pos;
+    var mBackup = (mirror !== pos) ? puzzle[mirror] : -1;
+    if (mirror !== pos) puzzle[mirror] = 0;
+
+    var test = puzzle.slice();
+    var sols = sdkCountSolutions(test, 2);
+    if (sols === 1) {
+      removed += (mirror !== pos && mBackup !== -1) ? 2 : 1;
+    } else {
+      puzzle[pos] = backup;
+      if (mirror !== pos && mBackup !== -1) puzzle[mirror] = mBackup;
+    }
+  }
+
+  return { puzzle: puzzle, solution: solution };
+}
+
+// ── Start / render ────────────────────────────────────────────────────────────
+function startSudoku(difficulty) {
+  sudokuState.difficulty = difficulty;
+  sudokuState.selected   = -1;
+  sudokuState.mistakes   = 0;
+  sudokuState.history    = [];
+  sudokuState.notes      = Array.from({length: 81}, function(){ return new Set(); });
+  sudokuState.hints      = 3;
+  sudokuState.noteMode   = false;
+
+  // Stop any running timer
+  if (sudokuState.timerInterval) clearInterval(sudokuState.timerInterval);
+  sudokuState.timerSec = 0;
+  document.getElementById('sudoku-timer').textContent = '00:00';
+
+  // Generate puzzle (may take ~50-200ms for hard/expert — acceptable)
+  var result = generatePuzzle(difficulty);
+  sudokuState.given    = result.puzzle.slice();
+  sudokuState.solution = result.solution.slice();
+  sudokuState.board    = result.puzzle.slice();
+
+  // Show game panel, hide menu
+  document.getElementById('sudoku-home').style.display = 'none';
+  document.getElementById('sudoku-game').style.display = 'block';
+
+  var labels = { easy:'😊 Easy', medium:'🤔 Medium', hard:'😤 Hard', expert:'🧠 Expert' };
+  document.getElementById('sudoku-diff-label').textContent = labels[difficulty] || difficulty;
+  document.getElementById('sudoku-mistakes').textContent   = '0';
+  document.getElementById('sudoku-msg').style.display      = 'none';
+
+  renderSudokuBoard();
+
+  // Start timer
+  sudokuState.timerInterval = setInterval(function() {
+    sudokuState.timerSec++;
+    var m = Math.floor(sudokuState.timerSec / 60);
+    var s = sudokuState.timerSec % 60;
+    document.getElementById('sudoku-timer').textContent =
+      String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }, 1000);
+}
+
+function sudokuBackToMenu() {
+  if (sudokuState.timerInterval) clearInterval(sudokuState.timerInterval);
+  document.getElementById('sudoku-home').style.display = 'block';
+  document.getElementById('sudoku-game').style.display = 'none';
+  updateSudokuStats();
+}
+
+function renderSudokuBoard() {
+  var board   = document.getElementById('sudoku-board');
+  board.innerHTML = '';
+  var sel = sudokuState.selected;
+  var selRow = sel >= 0 ? Math.floor(sel / 9) : -1;
+  var selCol = sel >= 0 ? sel % 9 : -1;
+  var selVal = sel >= 0 ? sudokuState.board[sel] : 0;
+  var selBr  = sel >= 0 ? Math.floor(selRow / 3) : -1;
+  var selBc  = sel >= 0 ? Math.floor(selCol / 3) : -1;
+
+  for (var i = 0; i < 81; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'sudoku-cell';
+    cell.dataset.idx = i;
+
+    var row = Math.floor(i / 9), col = i % 9;
+    var val = sudokuState.board[i];
+
+    // Box border accents
+    if (col === 2 || col === 5) cell.classList.add('bb-right');
+    if (row === 2 || row === 5) cell.classList.add('bb-bottom');
+
+    // Given vs player
+    if (sudokuState.given[i] !== 0) {
+      cell.classList.add('given');
+    }
+
+    // Selected / highlight
+    if (i === sel) {
+      cell.classList.add('selected');
+    } else if (sel >= 0) {
+      var sameRow = row === selRow;
+      var sameCol = col === selCol;
+      var sameBox = Math.floor(row/3) === selBr && Math.floor(col/3) === selBc;
+      if (sameRow || sameCol || sameBox) cell.classList.add('highlight');
+    }
+
+    // Error
+    if (val !== 0 && sudokuState.given[i] === 0 && val !== sudokuState.solution[i]) {
+      cell.classList.add('error');
+    }
+
+    // Same number highlight
+    if (selVal && val === selVal && i !== sel) {
+      cell.classList.add('highlight');
+    }
+
+    // Content
+    if (val !== 0) {
+      cell.textContent = val;
+    } else {
+      var notes = sudokuState.notes[i];
+      if (notes.size > 0) {
+        var nd = document.createElement('div');
+        nd.className = 'sudoku-notes';
+        for (var n = 1; n <= 9; n++) {
+          var nd2 = document.createElement('div');
+          nd2.className = 'sudoku-note-digit';
+          nd2.textContent = notes.has(n) ? n : '';
+          nd.appendChild(nd2);
+        }
+        cell.appendChild(nd);
+      }
+    }
+
+    cell.addEventListener('click', (function(idx){ return function(){ selectSudokuCell(idx); }; })(i));
+    board.appendChild(cell);
+  }
+}
+
+function selectSudokuCell(idx) {
+  sudokuState.selected = idx;
+  renderSudokuBoard();
+}
+
+function sudokuInput(num) {
+  var idx = sudokuState.selected;
+  if (idx < 0 || sudokuState.given[idx] !== 0) return;
+  if (sudokuState.board[idx] === num) return; // toggle off handled by erase
+
+  // Save undo state
+  sudokuState.history.push({
+    idx: idx, val: sudokuState.board[idx],
+    notes: sudokuState.notes.map(function(s){ return new Set(s); })
+  });
+
+  if (sudokuState.noteMode) {
+    if (sudokuState.board[idx] !== 0) return; // can't note if filled
+    var notes = sudokuState.notes[idx];
+    if (notes.has(num)) notes.delete(num); else notes.add(num);
+  } else {
+    sudokuState.board[idx] = num;
+    // Clear notes in same row/col/box
+    var row = Math.floor(idx/9), col = idx%9;
+    var br = Math.floor(row/3)*3, bc = Math.floor(col/3)*3;
+    for (var i = 0; i < 81; i++) {
+      var r = Math.floor(i/9), c = i%9;
+      if (r===row || c===col || (Math.floor(r/3)===Math.floor(row/3) && Math.floor(c/3)===Math.floor(col/3))) {
+        sudokuState.notes[i].delete(num);
+      }
+    }
+
+    // Check for mistake
+    if (num !== sudokuState.solution[idx]) {
+      sudokuState.mistakes++;
+      document.getElementById('sudoku-mistakes').textContent = sudokuState.mistakes;
+      if (sudokuState.mistakes >= 3) {
+        clearInterval(sudokuState.timerInterval);
+        sudokuState.stats.played++;
+        saveSudokuStats();
+        var msg = document.getElementById('sudoku-msg');
+        msg.textContent = '💀 Too many mistakes! Game over.';
+        msg.style.color = '#c62828';
+        msg.style.background = '#ffebee';
+        msg.style.display = 'block';
+        updateSudokuStats();
+        return;
+      }
+    }
+
+    // Check win
+    if (sudokuState.board.every(function(v, i){ return v === sudokuState.solution[i]; })) {
+      clearInterval(sudokuState.timerInterval);
+      sudokuState.stats.played++;
+      sudokuState.stats.won++;
+      var diff = sudokuState.difficulty;
+      var best = sudokuState.stats.bestTimes[diff];
+      if (!best || sudokuState.timerSec < best) {
+        sudokuState.stats.bestTimes[diff] = sudokuState.timerSec;
+      }
+      saveSudokuStats();
+      var m = Math.floor(sudokuState.timerSec/60);
+      var s = sudokuState.timerSec%60;
+      var timeStr = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      var msg = document.getElementById('sudoku-msg');
+      msg.textContent = '🎉 Solved in ' + timeStr + '! Well done!';
+      msg.style.color = '#1b5e20';
+      msg.style.background = '#e8f5e9';
+      msg.style.display = 'block';
+      updateSudokuStats();
+    }
+  }
+
+  renderSudokuBoard();
+}
+
+function sudokuErase() {
+  var idx = sudokuState.selected;
+  if (idx < 0 || sudokuState.given[idx] !== 0) return;
+  sudokuState.history.push({
+    idx: idx, val: sudokuState.board[idx],
+    notes: sudokuState.notes.map(function(s){ return new Set(s); })
+  });
+  sudokuState.board[idx] = 0;
+  sudokuState.notes[idx].clear();
+  renderSudokuBoard();
+}
+
+function sudokuUndo() {
+  if (sudokuState.history.length === 0) return;
+  var snap = sudokuState.history.pop();
+  sudokuState.board[snap.idx] = snap.val;
+  sudokuState.notes = snap.notes;
+  renderSudokuBoard();
+}
+
+function sudokuHint() {
+  if (sudokuState.hints <= 0) { alert('No hints remaining!'); return; }
+  // Find an empty cell and fill it
+  var empty = [];
+  for (var i = 0; i < 81; i++) {
+    if (sudokuState.board[i] === 0 && sudokuState.given[i] === 0) empty.push(i);
+  }
+  if (empty.length === 0) return;
+  var idx = empty[Math.floor(Math.random() * empty.length)];
+  sudokuState.hints--;
+  sudokuState.board[idx] = sudokuState.solution[idx];
+  sudokuState.notes[idx].clear();
+  sudokuState.selected = idx;
+  renderSudokuBoard();
+  // Flash hint cell
+  var cell = document.querySelector('[data-idx="'+idx+'"]');
+  if (cell) {
+    cell.classList.add('hint-flash');
+    setTimeout(function(){ cell.classList.remove('hint-flash'); }, 800);
+  }
+}
+
+function saveSudokuStats() {
+  localStorage.setItem('sudokuStats', JSON.stringify(sudokuState.stats));
+}
+
+function updateSudokuStats() {
+  var s = sudokuState.stats;
+  var statsEl = document.getElementById('sudoku-stats');
+  if (statsEl) statsEl.style.display = s.played > 0 ? 'block' : 'none';
+  var bt = document.getElementById('sudoku-best-time');
+  var bp = document.getElementById('sudoku-played');
+  var bw = document.getElementById('sudoku-won');
+  var diff = sudokuState.difficulty;
+  if (bt) {
+    var best = s.bestTimes[diff];
+    if (best) {
+      var m = Math.floor(best/60), sec = best%60;
+      bt.textContent = String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+    } else { bt.textContent = '--:--'; }
+  }
+  if (bp) bp.textContent = s.played;
+  if (bw) bw.textContent = s.won;
 }
 
 </script>
