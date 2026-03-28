@@ -3167,7 +3167,8 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="btn-row">
             <button class="btn btn-submit" onclick="syncProfileFromSheet()" style="flex:1;">&#9660; Pull Config from Cloud</button>
           </div>
-          <div class="config-note" id="syncStatus" style="margin-top:8px;">Enter your Script URL above, then Pull to load your config on this device.</div>
+          <div id="syncReadiness" style="margin-top:8px;margin-bottom:4px;font-size:13px;font-weight:normal;line-height:1.6;"></div>
+          <div class="config-note" id="syncStatus" style="margin-top:4px;">Tap Pull to load your config, or Push to save it to the cloud.</div>
         </div>
 
         <div style="border-top:1px solid var(--dark);padding-top:12px;">
@@ -4962,44 +4963,87 @@ async function silentPushProfile() {
 }
 
 async function syncProfileToSheet(fromProfile) {
-  const url  = localStorage.getItem('sheetUrl') || '';
   const stat = document.getElementById('syncStatus');
-  if (!url) { stat.textContent = '⚠ No Apps Script URL saved.'; stat.style.color='#cc0000'; return; }
-  if (!currentUser) { stat.textContent = '⚠ Not logged in.'; return; }
-  stat.textContent = 'Pushing config to cloud...'; stat.style.color = '#555';
+  const url  = localStorage.getItem('sheetUrl') || '';
+
+  if (!url) {
+    stat.textContent = '⚠ No Apps Script URL saved. Paste your /exec URL above and tap Save URL first.';
+    stat.style.color = '#cc0000'; return;
+  }
+  if (!currentUser) {
+    stat.textContent = '⚠ Not logged in. Please sign in first.';
+    stat.style.color = '#cc0000'; return;
+  }
+
+  // ── Pre-flight check: what do we actually have to push? ──────────────────
+  const cfg = gatherConfig();
+  const missing = [];
+  const present = [];
+  if (cfg.sheetId)  present.push('Sheet ID');  else missing.push('Sheet ID');
+  if (cfg.apiKey)   present.push('API Key');   else missing.push('API Key');
+  if (cfg.sheetUrl) present.push('Script URL');
+  if (cfg.gcalId)   present.push('Calendar ID');
+
+  if (missing.length === 2 && !cfg.gcalId) {
+    // Nothing useful to push
+    stat.innerHTML = '<b>⚠ Nothing to push yet.</b><br>' +
+      'Open the <b>⚙ Config</b> tab and fill in your <b>Google Sheet ID</b> and <b>API Key</b>, ' +
+      'then come back and Push.';
+    stat.style.color = '#cc0000'; return;
+  }
+
+  if (missing.length > 0) {
+    stat.innerHTML = '⚠ Pushing what we have (' + present.join(', ') + '). ' +
+      '<b>Missing: ' + missing.join(', ') + '</b> — go to ⚙ Config to add these, then push again.';
+    stat.style.color = '#cc6600';
+    await new Promise(r => setTimeout(r, 1800));
+  } else {
+    stat.textContent = 'Pushing config to cloud…'; stat.style.color = '#555';
+  }
+
   const pinHash = localStorage.getItem('profile_' + currentUser.toLowerCase() + '_pin') || '';
-  const profile = { ...gatherConfig(), user: currentUser.toLowerCase(), pin: pinHash };
+  const profile = { ...cfg, user: currentUser.toLowerCase(), pin: pinHash };
+
   try {
-    // Fire the push (no-cors since Apps Script blocks CORS reads)
     await fetch(url, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'saveProfile', profile })
     });
 
-    // Wait, then verify by doing a getProfile read
-    stat.textContent = 'Verifying...'; stat.style.color = '#555';
-    await new Promise(r => setTimeout(r, 2000));
+    // Verify after a short wait
+    stat.textContent = 'Verifying…'; stat.style.color = '#555';
+    await new Promise(r => setTimeout(r, 2200));
+
     try {
       const vRes  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(profile.user));
       const vData = await vRes.json();
       const saved = vData && (vData.apiKey || vData.sheetId || vData.sheetUrl);
       if (saved) {
-        stat.textContent = '✅ Pushed and verified — config is live in the cloud.';
+        const loaded = [
+          vData.apiKey   ? 'API Key'     : '',
+          vData.sheetId  ? 'Sheet ID'    : '',
+          vData.sheetUrl ? 'Script URL'  : '',
+          vData.gcalId   ? 'Calendar ID' : ''
+        ].filter(Boolean).join(', ');
+        stat.textContent = '✅ Pushed & verified — ' + loaded + ' saved to cloud.';
         stat.style.color = '#006400';
         const ps = document.getElementById('profSyncStatus');
-        if (ps) { ps.textContent = '✅ Pushed and verified.'; ps.style.color='#006400'; }
+        if (ps) { ps.textContent = '✅ Pushed and verified.'; ps.style.color = '#006400'; }
       } else {
-        stat.textContent = '⚠ Push sent but verification shows config is still empty. Make sure Sheet ID and API Key are filled in Config first.';
+        // Push fired but sheet still empty — likely Apps Script issue
+        stat.innerHTML = '⚠ Push sent but sheet still empty.<br>' +
+          'Check your Apps Script is <b>deployed as a web app</b> (Execute as: Me, Access: Anyone).<br>' +
+          'Also confirm Sheet ID and API Key are filled in ⚙ Config.';
         stat.style.color = '#cc6600';
       }
     } catch(ve) {
-      // Verification failed but push may still have worked
-      stat.textContent = '✅ Push sent. Pull on another device to confirm.';
+      stat.textContent = '✅ Push sent (verification timed out — try Pull on another device to confirm).';
       stat.style.color = '#006400';
     }
   } catch(e) {
-    stat.textContent = '⚠ Error: ' + e.message; stat.style.color = '#cc0000';
+    stat.textContent = '⚠ Network error: ' + e.message;
+    stat.style.color = '#cc0000';
   }
 }
 
@@ -5185,6 +5229,32 @@ function refreshCredentials() {
   });
 }
 
+function updateSyncReadiness() {
+  const el = document.getElementById('syncReadiness');
+  if (!el) return;
+  const url     = localStorage.getItem('sheetUrl') || '';
+  const sheetId = localStorage.getItem('sheetId')  || '';
+  const apiKey  = localStorage.getItem('apiKey')   || '';
+  const gcalId  = localStorage.getItem('gcalId')   || '';
+
+  const row = (ok, label) => '<span style="margin-right:10px;">' + (ok ? '✅' : '❌') + ' ' + label + '</span>';
+  el.innerHTML = row(!!url, 'Script URL') + row(!!sheetId, 'Sheet ID') + row(!!apiKey, 'API Key') + row(!!gcalId, 'Calendar ID');
+
+  const syncStat = document.getElementById('syncStatus');
+  if (syncStat) {
+    if (!url) {
+      syncStat.textContent = '⚠ Paste your /exec Script URL above and tap Save URL to enable sync.';
+      syncStat.style.color = '#cc0000';
+    } else if (!sheetId || !apiKey) {
+      syncStat.innerHTML = '⚠ Script URL is set. Go to <b>⚙ Config</b> and fill in the missing fields above, then Push to Cloud.';
+      syncStat.style.color = '#cc6600';
+    } else {
+      syncStat.textContent = 'All fields ready — Push to save to cloud, or Pull to load from cloud.';
+      syncStat.style.color = '#006400';
+    }
+  }
+}
+
 function copyCredential(valueId, btnId) {
   const el  = document.getElementById(valueId);
   const btn = document.getElementById(btnId);
@@ -5235,6 +5305,7 @@ function loadSavedConfig() {
   }
   document.getElementById('gcalDuration').value = gcalDur;
   refreshCredentials();
+  updateSyncReadiness();
 }
 
 // ══════════════════════════════
@@ -5274,6 +5345,8 @@ function showPage(name) {
 
   // Auto-load viewer when switching to it
   if (isViewer && allItems.length === 0) loadViewerData();
+  // Refresh sync readiness when config page opens
+  if (isConfig) updateSyncReadiness();
   // Load Places API when route tab opens
   if (name === 'route') {
     loadPlacesAPI();
@@ -5328,6 +5401,7 @@ function saveSheetUrl() {
   localStorage.setItem('sheetUrl', url);
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save URL'; }, 2000);
+  updateSyncReadiness();
   silentPushProfile();
 }
 
@@ -5351,6 +5425,8 @@ function saveApiConfig() {
   // Reload Places API with new key if route tab is active
   const old = document.getElementById('gplacesScript');
   if (old) old.remove();
+  // Update sync readiness indicator now that fields are filled
+  updateSyncReadiness();
   // Auto-push to cloud silently
   silentPushProfile();
   // Reset viewer so it reloads fresh
@@ -5459,7 +5535,7 @@ function onSubmitSuccess(payload) {
   updateItemNumberDisplay();
   document.getElementById('itemCountStatus').textContent = 'Logged: ' + sessionItems.length;
   setStatus('✅ #' + payload.itemNumber + ' "' + payload.itemName + '" saved.');
-  document.getElementById('headerStatus').textContent = 'Last: ' + payload.itemName;
+  (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = 'Last: ' + payload.itemName;
   showSuccess('Item #' + payload.itemNumber + '\n"' + payload.itemName + '"\nlogged!\n\nNext: #' + String(itemCounter).padStart(4,'0'));
 
   // Auto-add Pack and Load tasks to the checklist
@@ -5898,7 +5974,7 @@ async function loadViewerData() {
           <b>Google Sheet ID</b> and <b>API Key</b>.
         </span>
       </div>`;
-    document.getElementById('headerStatus').textContent = 'Config needed';
+    (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = 'Config needed';
     return;
   }
 
@@ -5922,7 +5998,7 @@ async function loadViewerData() {
       headers.forEach((h, i) => { obj[h.trim()] = (row[i] || '').trim(); });
       return obj;
     }).filter(item => Object.values(item).some(v => v));
-    document.getElementById('headerStatus').textContent = allItems.length + ' items — live';
+    (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = allItems.length + ' items — live';
     document.getElementById('headerRefreshBtn').textContent = '↺ Refresh';
     applyFilters();
   } catch(err) {
@@ -5936,7 +6012,7 @@ async function loadViewerData() {
         </span>
       </div>`;
     document.getElementById('headerRefreshBtn').textContent = '↺ Refresh';
-    document.getElementById('headerStatus').textContent = 'Load failed';
+    (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = 'Load failed';
   }
 }
 
