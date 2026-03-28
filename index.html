@@ -1683,6 +1683,22 @@
     margin: 0 auto;
   }
 
+  /* ── RAVE RADIO BUTTON PULSE ── */
+  @keyframes raveBtnPulse {
+    0%,100% { box-shadow:0 0 18px #ff00ff88,0 0 8px #00ffff44; color:#ff00ff; border-top-color:#ff00ff; border-left-color:#ff00ff; }
+    50%      { box-shadow:0 0 30px #00ffff99,0 0 12px #ff00ff44; color:#00ffff; border-top-color:#00ffff; border-left-color:#00ffff; }
+  }
+  @keyframes raveMarqueeScroll {
+    0%   { transform: translateX(100vw); }
+    100% { transform: translateX(-200%); }
+  }
+  @keyframes raveVUBar {
+    0%,100% { height: 20%; }
+    50%     { height: 90%; }
+  }
+  body:not(.rave-mode) #raveRadioBtnWrap { display:none !important; }
+  body.rave-mode #raveRadioBtnWrap { display:block !important; }
+
   /* ── RAVE MODE: Radio tiles full neon ── */
   body.rave-mode .radio-tile,
   body.rave-mode .radio-tile.has-url,
@@ -2658,6 +2674,11 @@ function setColorMode(mode) {
   if (mode === 'rave') document.body.classList.add('rave-mode');
   localStorage.setItem('colorMode', mode);
   updateColorModeUI(mode);
+  // Show/hide rave radio button
+  var raveBtn = document.getElementById('raveRadioBtnWrap');
+  if (raveBtn) raveBtn.style.display = (mode === 'rave') ? 'block' : 'none';
+  // Close player if leaving rave mode
+  if (mode !== 'rave' && typeof closeRavePlayer === 'function') closeRavePlayer();
 }
 
 function updateColorModeUI(mode) {
@@ -4304,6 +4325,27 @@ document.addEventListener('DOMContentLoaded', function() {
           <button class="btn btn-submit" onclick="saveRadioConfig()" style="width:100%;font-size:18px;">💾 Save Radio Playlists</button>
         </div>
         <div id="radioConfigStatus" class="config-note" style="margin-top:8px;display:none;"></div>
+
+        <!-- RAVE RADIO URL -->
+        <div style="margin-top:16px;border-top:2px solid #ff00ff44;padding-top:14px;">
+          <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:#ff00ff;margin-bottom:6px;">
+            📡 Rave Radio (Rave Mode Only)
+          </div>
+          <div style="font-size:13px;font-weight:normal;color:var(--darker);margin-bottom:10px;">
+            Paste a Cloudflare or direct audio URL to your 8-hour rave mix. Only shows up when Rave Mode is active.
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="text" id="raveRadioUrl"
+              placeholder="https://your-cloudflare-url.com/rave-mix.mp3"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+              style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:36px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 8px;color:#ff00ff;letter-spacing:0;"
+              onchange="saveRaveRadioUrl()">
+            <span id="raveRadioUrlStatus" style="font-size:18px;flex-shrink:0;width:24px;text-align:center;"></span>
+          </div>
+          <button class="btn" onclick="saveRaveRadioUrl()" style="width:100%;margin-top:8px;font-size:16px;background:#000;color:#ff00ff;border-color:#ff00ff;">
+            💾 Save Rave Radio URL
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -5779,6 +5821,64 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="padding:10px 12px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:normal;color:var(--darker);">
     Tap a genre to open in Spotify · Tap ✏️ to set the playlist URL
   </div>
+
+  <!-- RAVE RADIO BUTTON - only visible in rave mode -->
+  <div id="raveRadioBtnWrap" style="display:none;padding:12px 14px 4px;">
+    <div style="max-width:720px;margin:0 auto;">
+      <button id="raveRadioBtn" onclick="toggleRaveRadio()"
+        style="width:100%;font-family:'VT323',monospace;font-size:26px;font-weight:bold;
+               padding:28px 10px;cursor:pointer;letter-spacing:1px;
+               background:#000;color:#ff00ff;
+               border-top:3px solid #ff00ff;border-left:3px solid #ff00ff;
+               border-right:3px solid #00ffff;border-bottom:3px solid #00ffff;
+               box-shadow:0 0 18px #ff00ff88,0 0 8px #00ffff44;
+               display:flex;align-items:center;justify-content:center;gap:12px;">
+        <span style="font-size:42px;line-height:1;">🦄</span>
+        <span>Listen to Moving &#8217;95 Rave Radio</span>
+        <span style="font-size:42px;line-height:1;">🦄</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- WINAMP-STYLE RAVE PLAYER -->
+  <div id="ravePlayerWrap" style="display:none;padding:10px 14px 4px;">
+    <div id="ravePlayer" style="background:#000;border-top:3px solid #ff00ff;border-left:3px solid #ff00ff;border-right:3px solid #00ffff;border-bottom:3px solid #00ffff;box-shadow:0 0 20px #ff00ff66;font-family:'VT323',monospace;max-width:520px;margin:0 auto;">
+      <div style="background:linear-gradient(90deg,#ff00ff,#00ffff,#ff00ff);padding:3px 8px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:bold;color:#000;letter-spacing:1px;">WINAMP &#8212; MOVING &#8217;95 RAVE RADIO</span>
+        <button onclick="closeRavePlayer()" style="background:none;border:none;color:#000;font-size:16px;font-weight:bold;cursor:pointer;font-family:'VT323',monospace;padding:0 2px;">&#10005;</button>
+      </div>
+      <div style="background:#000;padding:8px 10px 4px;border-bottom:1px solid #ff00ff44;">
+        <div style="overflow:hidden;white-space:nowrap;background:#001100;border:1px solid #00ff0033;padding:4px 6px;">
+          <div id="raveMarquee" style="display:inline-block;font-size:15px;color:#00ff00;letter-spacing:1px;white-space:nowrap;">
+            &#9733; MOVING &#8217;95 RAVE RADIO &#9733; 8 HOURS OF CONTINUOUS MIX &#9733; LIVE FROM THE MOVING TRUCK &#9733; DO NOT TOUCH THE DIAL &#9733; &nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+        </div>
+        <div id="raveVU" style="display:flex;gap:2px;margin-top:6px;height:28px;align-items:flex-end;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <span id="raveTimeElapsed" style="font-size:22px;color:#ff00ff;letter-spacing:2px;">0:00:00</span>
+          <span id="raveShowInfo" style="font-size:13px;color:#ffff00;text-align:center;flex:1;padding:0 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">&#127897;&#65039; LOADING...</span>
+          <span id="raveTimeDuration" style="font-size:22px;color:#00ffff;letter-spacing:2px;">8:00:00</span>
+        </div>
+      </div>
+      <div style="padding:10px;display:flex;flex-direction:column;gap:8px;">
+        <button id="ravePlayBtn" onclick="ravePlayPause()"
+          style="width:100%;font-family:'VT323',monospace;font-size:26px;font-weight:bold;padding:10px;cursor:pointer;letter-spacing:2px;background:#000;color:#ff00ff;border:2px solid #ff00ff;box-shadow:0 0 10px #ff00ff66;">
+          &#9654; PLAY
+        </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;">
+          <button onclick="raveSkip(30)" style="font-family:'VT323',monospace;font-size:16px;padding:8px 4px;cursor:pointer;background:#000;color:#00ffff;border:2px solid #00ffff;">+30s</button>
+          <button onclick="raveSkip(300)" style="font-family:'VT323',monospace;font-size:16px;padding:8px 4px;cursor:pointer;background:#000;color:#00ffff;border:2px solid #00ffff;">+5min</button>
+          <button onclick="raveSkip(1800)" style="font-family:'VT323',monospace;font-size:16px;padding:8px 4px;cursor:pointer;background:#000;color:#00ffff;border:2px solid #00ffff;">+30min</button>
+          <button onclick="raveSkip(3600)" style="font-family:'VT323',monospace;font-size:16px;padding:8px 4px;cursor:pointer;background:#000;color:#ff00ff;border:2px solid #ff00ff;">+1hr</button>
+        </div>
+        <div style="background:#0a0a0a;border:1px solid #ff00ff33;padding:6px 8px;font-size:13px;color:#888;text-align:center;">
+          No seek bar by design &#8212; this is a radio station
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="raveAudio" preload="none"></audio>
 
   <div style="padding:8px 12px 16px;">
     <div class="radio-grid-wrap"><div id="radio-grid"></div></div>
@@ -11197,30 +11297,30 @@ document.addEventListener('DOMContentLoaded', function() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 var RADIO_GENRES = [
-  { id:'punk',       label:'Punk',         icon:'🤘' },
-  { id:'poppunk',    label:'Pop Punk/Emo',  icon:'🖤' },
-  { id:'metal',      label:'Metal',         icon:'🎸' },
-  { id:'hardcore',   label:'Hardcore',      icon:'💢' },
-  { id:'comedy',     label:'Comedy',        icon:'😂' },
-  { id:'pop',        label:'Pop',           icon:'⭐' },
-  { id:'classicrock',label:'Classic Rock',  icon:'🎵' },
-  { id:'hiphop',     label:'Hip Hop',       icon:'🎤' },
-  { id:'electronic', label:'Electronic',    icon:'🎛️' },
-  { id:'idm',        label:'IDM',           icon:'🧠' },
-  { id:'triphop',    label:'Trip Hop',      icon:'🌀' },
-  { id:'ambient',    label:'Ambient',       icon:'🌌' },
-  { id:'dnb',        label:'Drum & Bass',   icon:'🥁' },
-  { id:'jungle',     label:'Jungle',        icon:'🌿' },
-  { id:'ukgarage',   label:'UK Garage',     icon:'🇬🇧' },
-  { id:'intl',       label:'International', icon:'🌍' },
-  { id:'jazz',       label:'Jazz',          icon:'🎷' },
-  { id:'indie',      label:'Indie',         icon:'🎶' },
+  { id:'60s',        label:'60s',           icon:'🌸' },
+  { id:'70s',        label:'70s',           icon:'🪩' },
   { id:'80s',        label:'80s',           icon:'📼' },
   { id:'90s',        label:'90s',           icon:'💿' },
   { id:'2000s',      label:'2000s',         icon:'📀' },
-  { id:'70s',        label:'70s',           icon:'🪩' },
-  { id:'60s',        label:'60s',           icon:'🌸' },
+  { id:'ambient',    label:'Ambient',       icon:'🌌' },
+  { id:'classicrock',label:'Classic Rock',  icon:'🎵' },
+  { id:'comedy',     label:'Comedy',        icon:'😂' },
+  { id:'dnb',        label:'Drum & Bass',   icon:'🥁' },
+  { id:'electronic', label:'Electronic',    icon:'🎛️' },
+  { id:'hardcore',   label:'Hardcore',      icon:'💢' },
+  { id:'hiphop',     label:'Hip Hop',       icon:'🎤' },
+  { id:'idm',        label:'IDM',           icon:'🧠' },
+  { id:'indie',      label:'Indie',         icon:'🎶' },
+  { id:'intl',       label:'International', icon:'🌍' },
+  { id:'jazz',       label:'Jazz',          icon:'🎷' },
+  { id:'jungle',     label:'Jungle',        icon:'🌿' },
+  { id:'metal',      label:'Metal',         icon:'🎸' },
   { id:'oldskool',   label:'Old Skool',     icon:'⏪' },
+  { id:'pop',        label:'Pop',           icon:'⭐' },
+  { id:'poppunk',    label:'Pop Punk/Emo',  icon:'🖤' },
+  { id:'punk',       label:'Punk',          icon:'🤘' },
+  { id:'triphop',    label:'Trip Hop',      icon:'🌀' },
+  { id:'ukgarage',   label:'UK Garage',     icon:'🇬🇧' },
 ];
 
 var radioUrls = {};
@@ -11246,6 +11346,11 @@ function renderRadioGrid() {
   if (!grid) return;
   grid.innerHTML = '';
   var isRave = document.body.classList.contains('rave-mode');
+  // Show/hide rave radio button
+  var raveBtn = document.getElementById('raveRadioBtnWrap');
+  if (raveBtn) raveBtn.style.display = isRave ? 'block' : 'none';
+  // Load saved rave radio URL into config field
+  loadRaveRadioUrl();
 
   RADIO_GENRES.forEach(function(genre) {
     var url = radioUrls[genre.id] || '';
@@ -11357,6 +11462,238 @@ function saveRadioConfig() {
     setTimeout(function(){ st.style.display = 'none'; }, 2500);
   }
 }
+
+// ── RAVE RADIO ──────────────────────────────────────────────────────────────
+
+function saveRaveRadioUrl() {
+  var input = document.getElementById('raveRadioUrl');
+  if (!input) return;
+  var val = input.value.trim();
+  localStorage.setItem('raveRadioUrl', val);
+  var st = document.getElementById('raveRadioUrlStatus');
+  if (st) st.textContent = val ? '✅' : '';
+  // Update audio element if player exists
+  var audio = document.getElementById('raveAudio');
+  if (audio && val) audio.src = val;
+}
+
+function loadRaveRadioUrl() {
+  var val = localStorage.getItem('raveRadioUrl') || '';
+  var input = document.getElementById('raveRadioUrl');
+  if (input) input.value = val;
+  var st = document.getElementById('raveRadioUrlStatus');
+  if (st) st.textContent = val ? '✅' : '';
+  return val;
+}
+
+// Rave radio state
+var _raveVUInterval = null;
+var _raveTimeInterval = null;
+var _ravePlayerOpen = false;
+
+function toggleRaveRadio() {
+  if (_ravePlayerOpen) {
+    closeRavePlayer();
+  } else {
+    openRavePlayer();
+  }
+}
+
+function openRavePlayer() {
+  // Always show the player
+  var wrap = document.getElementById('ravePlayerWrap');
+  if (wrap) wrap.style.display = 'block';
+  _ravePlayerOpen = true;
+
+  // Load URL if set
+  var url = localStorage.getItem('raveRadioUrl') || '';
+  var audio = document.getElementById('raveAudio');
+  if (audio && url) {
+    // Compare stored url to current src (strip trailing stuff for safety)
+    if (!audio.src || audio.getAttribute('src') !== url) {
+      audio.setAttribute('src', url);
+      audio.load();
+    }
+    // Once metadata loads, jump to random point
+    function onMeta() {
+      audio.removeEventListener('loadedmetadata', onMeta);
+      var dur = audio.duration || 28800;
+      var start = Math.random() * (dur * 0.95);
+      audio.currentTime = start;
+      updateRaveShowInfo(start);
+      updateRaveDuration(dur);
+    }
+    if (audio.readyState >= 1 && audio.duration) {
+      var dur = audio.duration;
+      var start = Math.random() * (dur * 0.95);
+      audio.currentTime = start;
+      updateRaveShowInfo(start);
+      updateRaveDuration(dur);
+    } else {
+      audio.addEventListener('loadedmetadata', onMeta);
+    }
+  } else if (!url) {
+    var info = document.getElementById('raveShowInfo');
+    if (info) info.textContent = '⚠️ No URL set — go to Config → Radio Playlists → Rave Radio';
+  }
+
+  startRaveVU();
+  startRaveTime();
+}
+
+function closeRavePlayer() {
+  var audio = document.getElementById('raveAudio');
+  if (audio) { audio.pause(); }
+  document.getElementById('ravePlayerWrap').style.display = 'none';
+  _ravePlayerOpen = false;
+  stopRaveVU();
+  stopRaveTime();
+  var btn = document.getElementById('ravePlayBtn');
+  if (btn) btn.innerHTML = '&#9654; PLAY';
+}
+
+function ravePlayPause() {
+  var url = localStorage.getItem('raveRadioUrl') || '';
+  var audio = document.getElementById('raveAudio');
+  if (!audio) return;
+  var btn = document.getElementById('ravePlayBtn');
+  var info = document.getElementById('raveShowInfo');
+
+  if (!url) {
+    if (info) info.textContent = '⚠️ No URL set — go to Config → Radio Playlists → Rave Radio';
+    return;
+  }
+
+  // Make sure src is set
+  if (!audio.getAttribute('src') || audio.getAttribute('src') !== url) {
+    audio.setAttribute('src', url);
+    audio.load();
+    audio.addEventListener('loadedmetadata', function onMeta() {
+      audio.removeEventListener('loadedmetadata', onMeta);
+      var dur = audio.duration || 28800;
+      var start = Math.random() * (dur * 0.95);
+      audio.currentTime = start;
+      updateRaveShowInfo(start);
+      updateRaveDuration(dur);
+      audio.play().catch(function(e){ console.warn('play error',e); });
+      if (btn) btn.innerHTML = '&#9646;&#9646; PAUSE';
+    });
+    return;
+  }
+
+  if (audio.paused) {
+    audio.play().catch(function(e) {
+      console.warn('Rave radio play error:', e);
+      if (info) info.textContent = '⚠️ Could not play audio. Check URL in Config.';
+    });
+    if (btn) btn.innerHTML = '&#9646;&#9646; PAUSE';
+  } else {
+    audio.pause();
+    if (btn) btn.innerHTML = '&#9654; PLAY';
+  }
+}
+
+function raveSkip(seconds) {
+  var audio = document.getElementById('raveAudio');
+  if (!audio) return;
+  var dur = audio.duration || 28800;
+  audio.currentTime = Math.min(audio.currentTime + seconds, dur - 1);
+  updateRaveShowInfo(audio.currentTime);
+}
+
+// VU meter animation
+function startRaveVU() {
+  var vu = document.getElementById('raveVU');
+  if (!vu) return;
+  // Build 20 bars
+  vu.innerHTML = '';
+  for (var i = 0; i < 20; i++) {
+    var bar = document.createElement('div');
+    bar.style.cssText = 'flex:1;background:linear-gradient(to top,#ff00ff,#00ffff);border-radius:1px;height:10%;transition:height 0.1s;';
+    bar.className = 'rave-vu-bar';
+    vu.appendChild(bar);
+  }
+  _raveVUInterval = setInterval(function() {
+    var bars = vu.querySelectorAll('.rave-vu-bar');
+    bars.forEach(function(bar) {
+      var h = Math.floor(Math.random() * 85) + 5;
+      bar.style.height = h + '%';
+      // Color based on height
+      if (h > 70) {
+        bar.style.background = 'linear-gradient(to top,#ff0000,#ff6600)';
+      } else if (h > 40) {
+        bar.style.background = 'linear-gradient(to top,#ff00ff,#ffff00)';
+      } else {
+        bar.style.background = 'linear-gradient(to top,#ff00ff,#00ffff)';
+      }
+    });
+  }, 120);
+}
+
+function stopRaveVU() {
+  if (_raveVUInterval) { clearInterval(_raveVUInterval); _raveVUInterval = null; }
+  var vu = document.getElementById('raveVU');
+  if (vu) {
+    var bars = vu.querySelectorAll('.rave-vu-bar');
+    bars.forEach(function(b){ b.style.height='5%'; });
+  }
+}
+
+// Time display
+function startRaveTime() {
+  _raveTimeInterval = setInterval(function() {
+    var audio = document.getElementById('raveAudio');
+    if (!audio) return;
+    updateRaveTimeDisplay(audio.currentTime);
+    updateRaveShowInfo(audio.currentTime);
+  }, 1000);
+}
+
+function stopRaveTime() {
+  if (_raveTimeInterval) { clearInterval(_raveTimeInterval); _raveTimeInterval = null; }
+}
+
+function updateRaveTimeDisplay(secs) {
+  var el = document.getElementById('raveTimeElapsed');
+  if (el) el.textContent = formatRaveTime(secs);
+}
+
+function updateRaveDuration(secs) {
+  var el = document.getElementById('raveTimeDuration');
+  if (el) el.textContent = formatRaveTime(secs);
+}
+
+function formatRaveTime(secs) {
+  secs = Math.floor(secs || 0);
+  var h = Math.floor(secs / 3600);
+  var m = Math.floor((secs % 3600) / 60);
+  var s = secs % 60;
+  return h + ':' + (m<10?'0':'') + m + ':' + (s<10?'0':'') + s;
+}
+
+// Show info — maps hour blocks to show names
+var RAVE_SHOWS = [
+  { hour:0, name:'🎛️ Opening Set — Deep Techno' },
+  { hour:1, name:'🥁 Drum & Bass Hour' },
+  { hour:2, name:'🌀 Trip Hop & Downtempo' },
+  { hour:3, name:'🔊 Peak Time Rave — Hard Techno' },
+  { hour:4, name:'🌌 Ambient Interlude' },
+  { hour:5, name:'🎸 Rave Rock Crossover' },
+  { hour:6, name:'🌈 Classic 90s Rave' },
+  { hour:7, name:'🌅 Closing Set — Progressive House' },
+];
+
+function updateRaveShowInfo(secs) {
+  var hour = Math.floor((secs || 0) / 3600);
+  var show = RAVE_SHOWS[hour] || RAVE_SHOWS[0];
+  var el = document.getElementById('raveShowInfo');
+  if (el) el.textContent = '🎙️ ' + show.name;
+}
+
+// Load saved URL on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadRaveRadioUrl();
+});
 
 </script>
 </html>
