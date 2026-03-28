@@ -135,6 +135,10 @@
   body.rave-mode #secSnake canvas { background: #ff007f !important; }
   body.rave-mode #secSnake canvas + * { display:none; }
   body.rave-mode #secSnake .snake-screen-wrap { background: #ff007f !important; border-color: #ffff00 !important; }
+  /* Sudoku numbers stay black in rave mode for readability */
+  body.rave-mode .sudoku-cell { color: #000 !important; }
+  body.rave-mode .sudoku-cell.given { color: #000 !important; }
+  body.rave-mode .sudoku-note-digit { color: #222 !important; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overscroll-behavior: none; }
@@ -1333,6 +1337,86 @@
   body.dark-mode .sudoku-cell.selected { background: #1565c0 !important; }
   body.dark-mode .sudoku-cell.highlight { background: #0d2a3a; }
 
+
+  /* ── RAVE MODE: Games tab neon icons ── */
+  body.rave-mode .game-icon-card {
+    background: #000 !important;
+    border-top-color:    #ff00ff !important;
+    border-left-color:   #ff00ff !important;
+    border-right-color:  #00ffff !important;
+    border-bottom-color: #00ffff !important;
+    box-shadow: 0 0 12px #ff00ff, 2px 2px 0 #ffff00 !important;
+  }
+  body.rave-mode .game-icon-card span {
+    color: #ffff00 !important;
+    text-shadow: 0 0 8px #ffff00;
+  }
+  body.rave-mode .game-icon-hunt   { background: linear-gradient(135deg,#ff00ff,#ff6600) !important; box-shadow: 0 0 16px #ff00ff !important; border-color: #ffff00 !important; }
+  body.rave-mode .game-icon-snake  { background: #000 !important; border-color: #00ff00 !important; box-shadow: 0 0 16px #00ff00 !important; }
+  body.rave-mode .game-icon-trivia { background: linear-gradient(135deg,#00ffff,#ff00ff) !important; box-shadow: 0 0 16px #00ffff !important; border-color: #ffff00 !important; }
+  body.rave-mode .game-icon-sudoku { background: linear-gradient(135deg,#ffff00,#00ff00) !important; box-shadow: 0 0 16px #00ff00 !important; border-color: #ff00ff !important; }
+
+  /* ── EDM TRIVIA (Rave Mode Only) ── */
+  .edm-icon-card {
+    background: #000 !important;
+    border: 3px solid #ff00ff !important;
+    box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff44 !important;
+    animation: edmPulse 1.8s ease-in-out infinite;
+  }
+  .game-icon-edm {
+    background: linear-gradient(135deg,#ff00ff,#00ffff,#ffff00,#ff00ff) !important;
+    background-size: 300% 300% !important;
+    animation: edmGradient 2s ease infinite !important;
+    box-shadow: 0 0 24px #ff00ff, 0 0 8px #00ffff !important;
+    border: none !important;
+  }
+  @keyframes edmPulse {
+    0%,100% { box-shadow: 0 0 16px #ff00ff, 0 0 32px #ff00ff44; border-color: #ff00ff !important; }
+    33%      { box-shadow: 0 0 16px #00ffff, 0 0 32px #00ffff44; border-color: #00ffff !important; }
+    66%      { box-shadow: 0 0 16px #ffff00, 0 0 32px #ffff0044; border-color: #ffff00 !important; }
+  }
+  @keyframes edmGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── EDM TRIVIA buttons ── */
+  .edm-diff-btn {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 14px 8px;
+    cursor: pointer;
+    background: #000;
+    border: 2px solid;
+    text-align: center;
+    line-height: 1.5;
+    transition: opacity 0.15s;
+  }
+  .edm-diff-btn:active { opacity: 0.7; }
+  .edm-ans-btn {
+    padding: 14px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.35;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
+    border: 2px solid #ff00ff;
+    color: #fff;
+    box-shadow: 0 0 6px #ff00ff44;
+    transition: background 0.12s;
+  }
+  .edm-ans-btn:disabled { cursor: default; }
+  .edm-ans-btn.correct  { background: #003300 !important; border-color: #00ff00 !important; color: #00ff00 !important; box-shadow: 0 0 12px #00ff00 !important; }
+  .edm-ans-btn.wrong    { background: #330000 !important; border-color: #ff0000 !important; color: #ff4444 !important; }
+  .edm-ans-btn.reveal   { background: #111100 !important; border-color: #ffff00 !important; color: #ffff00 !important; }
 </style>
 <script>
 // Address autocomplete — uses Nominatim (OpenStreetMap), no API key needed
@@ -1641,6 +1725,119 @@ function downloadInventoryPDF() {
   </div>
 
   <div class="footer">Moving95 Inventory System · Generated ${now}</div>
+
+<!-- ══════════════════════════════
+     PAGE: EDM TRIVIA (RAVE ONLY)
+══════════════════════════════ -->
+<div class="page" id="page-edm" style="background:#000;min-height:100vh;">
+
+  <div class="win-card" style="background:#000;border-color:#ff00ff;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#ff00ff,#00ffff,#ff00ff);background-size:200% 100%;animation:edmGradient 3s ease infinite;">
+      <span style="color:#000;text-shadow:none;">🎧 EDM Trivia</span>
+      <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(0,0,0,0.5);color:#ffff00;border-color:#ff00ff;font-size:13px;">← Games</button>
+    </div>
+  </div>
+
+  <!-- Home screen -->
+  <div id="edm-home" style="padding:16px;max-width:520px;margin:0 auto;">
+
+    <!-- Score bar -->
+    <div id="edm-scorebar" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;gap:0;border:2px solid #ff00ff;overflow:hidden;box-shadow:0 0 12px #ff00ff;">
+        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;border-right:1px solid #ff00ff;">
+          <div style="font-size:11px;font-weight:normal;color:#00ffff;">SCORE</div>
+          <div id="edm-score-val" style="font-size:26px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">0</div>
+        </div>
+        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;border-right:1px solid #ff00ff;">
+          <div style="font-size:11px;font-weight:normal;color:#00ffff;">STREAK 🔥</div>
+          <div id="edm-streak-val" style="font-size:26px;font-weight:bold;color:#ff00ff;text-shadow:0 0 8px #ff00ff;">0</div>
+        </div>
+        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;">
+          <div style="font-size:11px;font-weight:normal;color:#00ffff;">CORRECT</div>
+          <div id="edm-correct-val" style="font-size:26px;font-weight:bold;color:#00ff00;text-shadow:0 0 8px #00ff00;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'VT323',monospace;font-size:16px;color:#00ffff;text-align:center;margin-bottom:16px;text-shadow:0 0 8px #00ffff;line-height:1.5;">
+      ⚡ RAVE MODE EXCLUSIVE ⚡<br>
+      <span style="font-size:13px;color:#ff00ff;font-weight:normal;">140 questions · Labels · Artists · Genres</span>
+    </div>
+
+    <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:#ffff00;margin-bottom:12px;text-align:center;text-shadow:0 0 8px #ffff00;">Select Difficulty:</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <button onclick="startEdmTrivia('easy')"   class="edm-diff-btn" style="border-color:#00ff00;color:#00ff00;box-shadow:0 0 8px #00ff00;">
+        <span style="font-size:26px;">😊</span><br>Easy<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">1 pt · 35 Qs</span>
+      </button>
+      <button onclick="startEdmTrivia('medium')" class="edm-diff-btn" style="border-color:#ffff00;color:#ffff00;box-shadow:0 0 8px #ffff00;">
+        <span style="font-size:26px;">🤔</span><br>Medium<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">2 pts · 35 Qs</span>
+      </button>
+      <button onclick="startEdmTrivia('hard')"   class="edm-diff-btn" style="border-color:#ff6600;color:#ff6600;box-shadow:0 0 8px #ff6600;">
+        <span style="font-size:26px;">😤</span><br>Hard<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">3 pts · 35 Qs</span>
+      </button>
+      <button onclick="startEdmTrivia('expert')" class="edm-diff-btn" style="border-color:#ff00ff;color:#ff00ff;box-shadow:0 0 8px #ff00ff;">
+        <span style="font-size:26px;">🧠</span><br>Expert<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">5 pts · 35 Qs</span>
+      </button>
+    </div>
+
+    <button onclick="startEdmTrivia('lightning')" class="edm-diff-btn" style="width:100%;border-color:#00ffff;color:#00ffff;box-shadow:0 0 12px #00ffff;padding:14px;">
+      <span style="font-size:26px;">⚡</span> Lightning Round<br>
+      <span style="font-size:12px;font-weight:normal;opacity:0.8;">30 quick-fire · 1 pt each · 15 seconds</span>
+    </button>
+  </div>
+
+  <!-- Quiz screen -->
+  <div id="edm-quiz" style="display:none;padding:12px;">
+    <div style="max-width:600px;margin:0 auto;">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button onclick="endEdmTrivia()" style="font-family:'VT323',monospace;font-size:16px;background:#000;border:2px solid #ff00ff;color:#ff00ff;padding:4px 12px;cursor:pointer;box-shadow:0 0 6px #ff00ff;">← Back</button>
+        <div style="font-family:'VT323',monospace;font-size:16px;color:#00ffff;" id="edm-q-cat"></div>
+        <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">
+          🏆 <span id="edm-q-score">0</span>
+        </div>
+      </div>
+
+      <!-- Timer bar -->
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-family:'VT323',monospace;font-size:14px;color:#00ffff;">⏱ TIME</span>
+          <span id="edm-timer-num" style="font-family:'VT323',monospace;font-size:22px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">30</span>
+        </div>
+        <div style="height:10px;background:#111;border:1px solid #ff00ff;overflow:hidden;">
+          <div id="edm-timer-bar" style="height:100%;width:100%;background:linear-gradient(to right,#ff00ff,#00ffff);transition:width 1s linear;"></div>
+        </div>
+      </div>
+
+      <!-- Difficulty badge -->
+      <div id="edm-difficulty" style="text-align:center;margin-bottom:8px;"></div>
+
+      <!-- Question card -->
+      <div style="background:#0a0a0a;border:2px solid #ff00ff;box-shadow:0 0 16px #ff00ff44;padding:20px 16px;margin-bottom:14px;">
+        <div id="edm-question" style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;line-height:1.5;text-align:center;color:#fff;min-height:60px;display:flex;align-items:center;justify-content:center;"></div>
+      </div>
+
+      <!-- Answers -->
+      <div id="edm-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"></div>
+
+      <!-- Feedback -->
+      <div id="edm-feedback" style="display:none;padding:12px 16px;text-align:center;font-family:'VT323',monospace;font-size:18px;font-weight:bold;margin-bottom:12px;"></div>
+
+      <!-- Loading -->
+      <div id="edm-loading" style="display:none;text-align:center;padding:20px;font-family:'VT323',monospace;font-size:16px;color:#00ffff;">⏳ Loading...</div>
+
+      <!-- Next -->
+      <button id="edm-next-btn" onclick="nextEdmQuestion()" style="display:none;width:100%;font-family:'VT323',monospace;font-size:20px;font-weight:bold;background:linear-gradient(to right,#ff00ff,#00ffff);color:#000;border:none;padding:13px;cursor:pointer;letter-spacing:1px;text-shadow:none;">
+        NEXT ▶
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
 </body>
 </html>`;
 
@@ -1770,7 +1967,7 @@ function toggleCalc() {
   if (sec && sec.style.display === 'none') {
     // Close others, open calc
     const allSections = ['secPersonal','secProfile','secLog','secScript','secViewer',
-      'secCounter','secGcal','secCreds','secCalculator','secColorModes','secDanger','secBackup','secSnake','secRoute'];
+      'secCounter','secGcal','secCreds','secCalculator','secColorModes','secDanger','secBackup','secRoute'];
     allSections.forEach(id => {
       const s = document.getElementById(id);
       if (s && id !== 'secCalculator') s.style.display = 'none';
@@ -2952,7 +3149,6 @@ document.addEventListener('DOMContentLoaded', function() {
   <button class="user-badge" id="userBadge" onclick="goToProfile()" title="My Profile" style="display:none;">&#128100;</button>
   <!-- Wrench / Config button -->
   <button class="header-wrench-btn" onclick="toggleConfigPage()" id="headerConfigBtn" title="Settings">&#128295;</button>
-  <button class="header-wrench-btn" onclick="goToBudget()" id="headerCalcBtn" title="Budget" style="font-size:22px;font-weight:bold;letter-spacing:0;padding:2px 10px;">$</button>
   <!-- Live clock -->
   <!-- Notification bell -->
   <div style="position:relative;flex-shrink:0;">
@@ -3632,45 +3828,6 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
 
-  <!-- 🐍 SECRET SNAKE GAME -->
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secSnake','btnSnake')" style="background:#111;border-bottom:2px solid #333;">
-      <span style="color:#33ff33;font-family:'VT323',monospace;letter-spacing:2px;">&#9632; SNAKE</span>
-      <button class="cal-nav-btn" id="btnSnake" style="background:#111;color:#33ff33;border-color:#33ff33;font-size:12px;">&#9660;</button>
-    </div>
-    <div id="secSnake" style="display:none;background:#000;padding:0;">
-      <div style="background:#111;padding:12px;display:flex;flex-direction:column;align-items:center;gap:10px;">
-
-        <!-- Score bar -->
-        <div style="width:100%;max-width:500px;display:flex;justify-content:space-between;font-family:'VT323',monospace;font-size:22px;color:#33ff33;letter-spacing:2px;padding:4px 8px;">
-          <span>SCORE: <span id="snakeScore">0</span></span>
-          <span>HI: <span id="snakeHi">0</span></span>
-        </div>
-
-        <!-- Screen wrapper — fills width -->
-        <div class="snake-screen-wrap" style="width:100%;max-width:500px;aspect-ratio:1;background:#9bbc0f;border:4px solid #333;box-shadow:0 0 0 2px #555,inset 0 0 12px rgba(0,0,0,0.4);box-sizing:border-box;overflow:hidden;">
-          <canvas id="snakeCanvas"
-            style="display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;background:#9bbc0f;cursor:default;"></canvas>
-        </div>
-
-        <!-- D-pad — 3x3 grid, fills width up to 300px per button row -->
-        <div class="snake-dpad">
-          <div></div>
-          <button class="snake-btn" onclick="snakeDir(0,-1)">&#9650;</button>
-          <div></div>
-          <button class="snake-btn" onclick="snakeDir(-1,0)">&#9668;</button>
-          <button class="snake-btn snake-btn-start" onclick="snakeStart()" id="snakeStartBtn">&#9654;</button>
-          <button class="snake-btn" onclick="snakeDir(1,0)">&#9658;</button>
-          <div></div>
-          <button class="snake-btn" onclick="snakeDir(0,1)">&#9660;</button>
-          <div></div>
-        </div>
-
-        <div id="snakeMsg" style="font-family:'VT323',monospace;font-size:22px;color:#33ff33;letter-spacing:2px;min-height:28px;text-align:center;"></div>
-      </div>
-    </div>
-  </div>
-
   <div style="height:120px;"></div>
 </div>
 
@@ -4080,31 +4237,40 @@ document.addEventListener('DOMContentLoaded', function() {
       <span>🎮 Games</span>
     </div>
   </div>
-  <div style="padding:24px 16px;">
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:360px;margin:0 auto;">
+  <div style="padding:20px 16px;">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:480px;margin:0 auto;">
 
       <!-- Hunt icon -->
-      <div onclick="showGameSection('hunt')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-        <div style="width:72px;height:72px;background:linear-gradient(135deg,#b71c1c,#e53935);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);">🏆</div>
-        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">The Hunt</span>
+      <div onclick="showGameSection('hunt')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#b71c1c,#e53935);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-hunt">🏆</div>
+        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">The Hunt</span>
       </div>
 
       <!-- Snake icon -->
-      <div onclick="showGameSection('snake')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-        <div style="width:72px;height:72px;background:#000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);border:2px solid #33ff33;">🐍</div>
-        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Tapeworm</span>
+      <div onclick="showGameSection('snake')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
+        <div style="width:72px;height:72px;background:#000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);border:2px solid #33ff33;" class="game-icon-bg game-icon-snake">🐍</div>
+        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Tapeworm</span>
       </div>
 
       <!-- Trivia icon -->
-      <div onclick="showGameSection('trivia')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1565c0,#42a5f5);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);">🍺</div>
-        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Bar Trivia</span>
+      <div onclick="showGameSection('trivia')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1565c0,#42a5f5);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-trivia">🍺</div>
+        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Bar Trivia</span>
       </div>
 
       <!-- Sudoku icon -->
-      <div onclick="showGameSection('sudoku')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1b5e20,#43a047);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);">🔢</div>
-        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Sudoku</span>
+      <div onclick="showGameSection('sudoku')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1b5e20,#43a047);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-sudoku">🔢</div>
+        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Sudoku</span>
+      </div>
+
+      <!-- EDM Trivia — RAVE MODE ONLY -->
+      <div id="edmTriviaIcon" onclick="showGameSection('edm')" class="game-icon-card edm-icon-card" style="display:none;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;grid-column:span 2;">
+        <div style="width:80px;height:80px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:40px;" class="game-icon-bg game-icon-edm">🎧</div>
+        <div style="text-align:center;">
+          <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:#ffff00;text-shadow:0 0 10px #ff00ff;">EDM Trivia</div>
+          <div style="font-family:'VT323',monospace;font-size:13px;font-weight:normal;color:#00ffff;text-shadow:0 0 6px #00ffff;">⚡ RAVE MODE EXCLUSIVE ⚡</div>
+        </div>
       </div>
 
     </div>
@@ -5773,12 +5939,10 @@ function showPage(name) {
   // headerItemNum removed — replaced with clock
   document.getElementById('headerRefreshBtn').style.display = isViewer ? 'block' : 'none';
   const wrench  = document.getElementById('headerConfigBtn');
-  const calcBtn = document.getElementById('headerCalcBtn');
-  if (wrench)  wrench.classList.toggle('active-page', isConfig);
-  if (calcBtn) calcBtn.classList.toggle('active-page', isBudget);
+  if (wrench) wrench.classList.toggle('active-page', isConfig);
 
   // Update header subtitle
-  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', profile:'My Profile', budget:'Move Budget' };
+  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', edm:'🎧 EDM Trivia', profile:'My Profile', budget:'Move Budget' };
   // headerStatus removed
 
   // Auto-load viewer when switching to it
@@ -5786,7 +5950,7 @@ function showPage(name) {
   // Refresh sync readiness when config page opens
   if (isConfig) updateSyncReadiness();
   // Keep Games nav-btn lit when on hunt or trivia (sub-pages of Games)
-  if (name === 'hunt' || name === 'trivia' || name === 'sudoku') {
+  if (name === 'hunt' || name === 'trivia' || name === 'sudoku' || name === 'edm') {
     const gamesBtn = document.getElementById('nav-games');
     if (gamesBtn) gamesBtn.classList.add('active');
   }
@@ -6072,7 +6236,7 @@ function toggleSection(sectionId, btnId) {
   // Close all other sections first
   if (!isOpen) {
     const allSections = ['secPersonal','secProfile','secLog','secScript','secViewer',
-                         'secCounter','secGcal','secCreds','secCalculator','secColorModes','secDanger','secBackup','secSnake','secRoute'];
+                         'secCounter','secGcal','secCreds','secCalculator','secColorModes','secDanger','secBackup','secRoute'];
     allSections.forEach(id => {
       if (id === sectionId) return;
       const s = document.getElementById(id);
@@ -8366,7 +8530,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GAMES PAGE ──────────────────────────────────────────────────────────────
 function showGameSection(game) {
-  if (game === 'sudoku') {
+  if (game === 'edm') {
+    showPage('edm');
+  } else if (game === 'sudoku') {
     showPage('sudoku');
     updateSudokuStats();
   } else if (game === 'trivia') {
@@ -9086,6 +9252,435 @@ function updateSudokuStats() {
   }
   if (bp) bp.textContent = s.played;
   if (bw) bw.textContent = s.won;
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  EDM TRIVIA — RAVE MODE EXCLUSIVE
+// ══════════════════════════════════════════════════════════════════════════════
+
+var EDM_QUESTIONS = [
+  // ── EASY (1 pt) ────────────────────────────────────────────────────────────
+  {d:'easy', q:'Which Ninja Tune artist created the album "Endtroducing....."?', a:'DJ Shadow', w:['Bonobo','Amon Tobin','The Cinematic Orchestra']},
+  {d:'easy', q:'Bonobo is known for blending electronic music with what genre?', a:'Downtempo / Ambient', w:['Drum & Bass','Psytrance','Techno']},
+  {d:'easy', q:'Which duo on Ninja Tune is known for "Time to Build"?', a:'Kid Koala & Amon Tobin', w:['Bonobo & DJ Shadow','Cinematic Orchestra & Roots Manuva','Flying Lotus & Thundercat']},
+  {d:'easy', q:'Who founded Mad Decent?', a:'Diplo', w:['Dillon Francis','Major Lazer','DJ Snake']},
+  {d:'easy', q:'Which Mad Decent artist released "Express Yourself"?', a:'Dillon Francis', w:['Major Lazer','Diplo','DJ Snake']},
+  {d:'easy', q:'Major Lazer is primarily associated with which Mad Decent founder?', a:'Diplo', w:['Dillon Francis','DJ Snake','Flosstradamus']},
+  {d:'easy', q:'Which duo founded Deadbeats?', a:'Zeds Dead', w:['Excision & Datsik','Skrillex & Diplo','Ganja White Night & Space Laces']},
+  {d:'easy', q:'What genre are Zeds Dead most known for?', a:'Dubstep / Bass Music', w:['Psytrance','UK Garage','Techno']},
+  {d:'easy', q:'Which Deadbeats artist released "In Your Head"?', a:'Ganja White Night', w:['Space Laces','LICK','Boogie T']},
+  {d:'easy', q:'Who founded Wakaan?', a:'Liquid Stranger', w:['GRiZ','Subtronics','Excision']},
+  {d:'easy', q:'Wakaan artists are most associated with what style of bass music?', a:'Experimental Bass', w:['Riddim','Future Bass','Drum & Bass']},
+  {d:'easy', q:'Which Wakaan artist is known for "Gassed Up"?', a:'Zeke Beats', w:['LSDREAM','CloZee','Yheti']},
+  {d:'easy', q:'Excision is from which country?', a:'Canada', w:['USA','UK','Australia']},
+  {d:'easy', q:'What is Excision\'s festival called?', a:'Lost Lands', w:['Bass Canyon','Electric Forest','Beyond Wonderland']},
+  {d:'easy', q:'Excision is best known for what subgenre?', a:'Dubstep', w:['Psytrance','Drum & Bass','Techno']},
+  {d:'easy', q:'Subtronics is from which U.S. city?', a:'Philadelphia', w:['New York','Los Angeles','Chicago']},
+  {d:'easy', q:'Subtronics is known for what dubstep style?', a:'Riddim / Heavy Dubstep', w:['Melodic Dubstep','Brostep','Future Bass']},
+  {d:'easy', q:"What is Subtronics' real first name?", a:'Jesse', w:['Jake','Jason','Jordan']},
+  {d:'easy', q:'Psytrance is typically around what BPM range?', a:'138–150 BPM', w:['120–128 BPM','160–180 BPM','100–110 BPM']},
+  {d:'easy', q:'UK Garage originated in which country?', a:'United Kingdom', w:['USA','Jamaica','Germany']},
+  {d:'easy', q:'Trip Hop originated in which UK city?', a:'Bristol', w:['London','Manchester','Edinburgh']},
+  {d:'easy', q:'Dubstep originated in which city?', a:'London', w:['Bristol','Manchester','Birmingham']},
+  {d:'easy', q:'Trance music is known for long what?', a:'Builds / Breakdowns', w:['Samples','Vocal drops','Spoken word sections']},
+  {d:'easy', q:'Classic rave music often used what iconic synth?', a:'Roland TB-303', w:['Moog Minimoog','Korg M1','Yamaha DX7']},
+  {d:'easy', q:"Aphex Twin's real name is?", a:'Richard D. James', w:['James Richard Dean','David Richard James','Richard James Thompson']},
+  {d:'easy', q:'Deadmau5 is from which country?', a:'Canada', w:['USA','UK','Sweden']},
+  {d:'easy', q:'Diplo is part of which electronic trio?', a:'Major Lazer', w:['Jack Ü','LSD','Swedish House Mafia']},
+  {d:'easy', q:'What does IDM stand for?', a:'Intelligent Dance Music', w:['International Dance Music','Independent Digital Music','Improvisational Dance Movement']},
+  {d:'easy', q:'Which genre is Burial associated with?', a:'UK Garage / Dubstep', w:['Psytrance','Drum & Bass','Techno']},
+  {d:'easy', q:'What genre is Massive Attack known for?', a:'Trip Hop', w:['Dubstep','IDM','UK Garage']},
+  {d:'easy', q:'What genre is Boards of Canada known for?', a:'IDM / Downtempo', w:['Psytrance','Drum & Bass','UK Garage']},
+  {d:'easy', q:'Which artist wears a mouse helmet?', a:'Deadmau5', w:['Daft Punk','Marshmello','Claptone']},
+  {d:'easy', q:'Who created "Strobe"?', a:'Deadmau5', w:['Tiësto','Above & Beyond','Armin van Buuren']},
+  {d:'easy', q:'Which genre uses wobble bass heavily?', a:'Dubstep', w:['Psytrance','UK Garage','Techno']},
+  {d:'easy', q:'Psytrance is commonly played at what type of festival?', a:'Psytrance Festival', w:['Stadium rave','Arena show','Club night']},
+  // ── MEDIUM (2 pts) ─────────────────────────────────────────────────────────
+  {d:'medium', q:'Which Ninja Tune artist released "Black Sands"?', a:'Bonobo', w:['DJ Shadow','Amon Tobin','Flying Lotus']},
+  {d:'medium', q:'Which Ninja Tune artist blends jazz heavily into electronic music?', a:'The Cinematic Orchestra', w:['Bonobo','DJ Shadow','Kid Koala']},
+  {d:'medium', q:'Which Ninja Tune group created "Days to Come"?', a:'Bonobo', w:['Amon Tobin','DJ Shadow','Four Tet']},
+  {d:'medium', q:'Which Mad Decent artist released "Turn Down for What"?', a:'DJ Snake & Lil Jon', w:['Diplo & Skrillex','Dillon Francis & G-Eazy','Major Lazer & MØ']},
+  {d:'medium', q:'Which Mad Decent artist blends trap and moombahton?', a:'Dillon Francis', w:['Flosstradamus','Baauer','RL Grime']},
+  {d:'medium', q:'Which Mad Decent artist released "Get Free"?', a:'Major Lazer', w:['Diplo','Dillon Francis','DJ Snake']},
+  {d:'medium', q:'Which Deadbeats artist released "Collapse"?', a:'Zeds Dead', w:['Space Laces','Ganja White Night','LICK']},
+  {d:'medium', q:'Which Deadbeats artist is known for melodic bass releases?', a:'Illenium', w:['Space Laces','LICK','Boogie T']},
+  {d:'medium', q:'Which Deadbeats artist collaborated frequently with Zeds Dead?', a:'Ganja White Night', w:['Space Laces','Boogie T','LICK']},
+  {d:'medium', q:'Which Wakaan artist is known for "Griztronics" collaboration?', a:'Subtronics', w:['LSDREAM','Zeke Beats','CloZee']},
+  {d:'medium', q:'Which Wakaan artist uses psychedelic visuals heavily?', a:'LSDREAM', w:['Liquid Stranger','CloZee','Yheti']},
+  {d:'medium', q:'Which Wakaan artist released "Mystic Herbalist"?', a:'Liquid Stranger', w:['LSDREAM','Zeke Beats','CloZee']},
+  {d:'medium', q:"What is Excision's sound system called?", a:'The Paradox', w:['The Catalyst','The Resonator','The Colossus']},
+  {d:'medium', q:'Which Excision album features "Robo Kitty"?', a:'Virus', w:['Shambhala','The Paradox','Apex']},
+  {d:'medium', q:'What Canadian city is Excision from?', a:'Kelowna, British Columbia', w:['Vancouver','Calgary','Toronto']},
+  {d:'medium', q:"What is Subtronics' record label called?", a:'Cyclops Recordings', w:['Deadbeats','Wakaan','OWSLA']},
+  {d:'medium', q:'Subtronics frequently collaborates with which artist?', a:'Boogie T', w:['Space Laces','GRiZ','LSDREAM']},
+  {d:'medium', q:'Psytrance often uses what rolling bass pattern?', a:'Rolling Bassline', w:['Wobble Bass','Sidechained Kick','Amen Break']},
+  {d:'medium', q:'UK Garage evolved into which genre?', a:'Dubstep / Grime', w:['Techno','Drum & Bass','House']},
+  {d:'medium', q:'Trip Hop often features what tempo range?', a:'70–100 BPM', w:['120–130 BPM','140–150 BPM','160–170 BPM']},
+  {d:'medium', q:'Dubstep\'s "drop" emphasizes what bass technique?', a:'Wobble Bass / LFO modulation', w:['Sidechain compression','Arpeggio runs','Pitch shifting']},
+  {d:'medium', q:'Trance often builds using what musical technique?', a:'Filter Sweeps / Layered Builds', w:['Amen Break rolls','Wobble bass','Vocal chops']},
+  {d:'medium', q:'Aphex Twin released music under what alias?', a:'AFX / Polygon Window', w:['The Tuss / Richard D','Caustic Window only','Analogue Bubblebath']},
+  {d:'medium', q:'Deadmau5 created which label?', a:'Mau5trap', w:['Cyclops Recordings','OWSLA','Circus Records']},
+  {d:'medium', q:'Diplo collaborated with Skrillex under what name?', a:'Jack Ü', w:['LSD','Major Lazer','Silk City']},
+  {d:'medium', q:'Which Aphex Twin album is considered iconic?', a:'Selected Ambient Works 85-92', w:['Richard D. James Album','Drukqs','Syro']},
+  {d:'medium', q:'Which artist created "Ghosts n Stuff"?', a:'Deadmau5', w:['Skrillex','Knife Party','Feed Me']},
+  {d:'medium', q:'Boards of Canada are from which country?', a:'Scotland', w:['Canada','USA','Germany']},
+  {d:'medium', q:'Which artist created "Windowlicker"?', a:'Aphex Twin', w:['Boards of Canada','Autechre','Squarepusher']},
+  {d:'medium', q:'Which genre uses amen breaks heavily?', a:'Drum & Bass / Jungle', w:['Psytrance','UK Garage','Techno']},
+  {d:'medium', q:'Which genre is Four Tet associated with?', a:'IDM / Electronica', w:['Psytrance','Drum & Bass','Dubstep']},
+  {d:'medium', q:'IDM is associated with what listening style?', a:'Home Listening / Experimental', w:['Festival bangers','Club anthems','Radio pop']},
+  {d:'medium', q:'What genre is Flying Lotus associated with?', a:'Experimental Bass / IDM', w:['Psytrance','UK Garage','Drum & Bass']},
+  {d:'medium', q:'Which Aphex Twin track features a creepy music video?', a:'Come to Daddy', w:['Windowlicker','Avril 14th','Flim']},
+  {d:'medium', q:'Which Deadmau5 album features "Raise Your Weapon"?', a:'4x4=12', w:['Random Album Title','Album Title Goes Here','While(1<2)']},
+  // ── HARD (3 pts) ───────────────────────────────────────────────────────────
+  {d:'hard', q:'Which Ninja Tune artist released "Migration"?', a:'Bonobo', w:['Amon Tobin','DJ Shadow','Flying Lotus']},
+  {d:'hard', q:'Which Mad Decent artist released "Lean On"?', a:'Major Lazer', w:['DJ Snake','Dillon Francis','Diplo']},
+  {d:'hard', q:'Which Deadbeats artist released "Rescue"?', a:'Zeds Dead', w:['Ganja White Night','Space Laces','LICK']},
+  {d:'hard', q:'Which Wakaan artist is known for downtempo bass?', a:'LSDREAM', w:['Zeke Beats','CloZee','Yheti']},
+  {d:'hard', q:'What year did Excision start his Shambhala performances?', a:'Early 2000s / ~2006', w:['1999','2010','2015']},
+  {d:'hard', q:'Psytrance originated in which country?', a:'India / Goa', w:['Germany','UK','Israel']},
+  {d:'hard', q:'UK Garage influenced which 2010s genre revival?', a:'Future Garage', w:['Drill','Grime 2.0','UK Bass']},
+  {d:'hard', q:'Trip Hop combines hip hop with what other genre?', a:'Ambient / Electronic', w:['Jazz Funk','Reggae','Dub']},
+  {d:'hard', q:'IDM emerged in which decade?', a:'1990s', w:['1980s','2000s','1970s']},
+  {d:'hard', q:'Which Aphex Twin track is known for its creepy music video?', a:'Come to Daddy', w:['Windowlicker','Avril 14th','Flim']},
+  {d:'hard', q:'Diplo co-founded which label?', a:'Mad Decent', w:['OWSLA','Mau5trap','Anjunabeats']},
+  {d:'hard', q:'Which Ninja Tune artist released "Cosmogramma"?', a:'Flying Lotus', w:['Bonobo','Amon Tobin','DJ Shadow']},
+  {d:'hard', q:'Which Wakaan artist released "Jaguar"?', a:'Liquid Stranger', w:['LSDREAM','Zeke Beats','CloZee']},
+  {d:'hard', q:'Which Excision tour features giant visuals?', a:'The Paradox Tour', w:['The Virus Tour','Lost Lands Expedition','The Apex Tour']},
+  {d:'hard', q:'Subtronics gained popularity from which festival circuit?', a:'Lost Lands / Bass Festivals', w:['Electric Daisy Carnival','Coachella','Ultra Music Festival']},
+  {d:'hard', q:'Psytrance festivals often last how many days?', a:'3–7 days', w:['1 day','1–2 days','2 weeks']},
+  {d:'hard', q:'UK Garage often uses what vocal style?', a:'Chopped / Pitch-shifted Vocals', w:['Auto-tuned R&B','Spoken word','Screamed vocals']},
+  {d:'hard', q:'Trance breakdowns often feature what sound?', a:'Pads / Atmospheric Synths', w:['Wobble bass','Amen breaks','808 kicks']},
+  {d:'hard', q:'Classic rave used which drum machine?', a:'Roland 909', w:['Roland 808','LinnDrum','MPC 3000']},
+  {d:'hard', q:'Deadmau5 uses which DAW?', a:'Ableton Live', w:['FL Studio','Logic Pro','Pro Tools']},
+  {d:'hard', q:'Diplo worked with which pop star on "Where Are U Now"?', a:'Justin Bieber', w:['Rihanna','Katy Perry','Ariana Grande']},
+  {d:'hard', q:'Which Ninja Tune artist uses cinematic orchestration?', a:'The Cinematic Orchestra', w:['Bonobo','Amon Tobin','DJ Shadow']},
+  {d:'hard', q:'Which Deadbeats artist released "Bumpy Teeth"?', a:'Ganja White Night', w:['Space Laces','LICK','Boogie T']},
+  {d:'hard', q:'What BPM range is dubstep typically?', a:'140 BPM', w:['128 BPM','150 BPM','174 BPM']},
+  {d:'hard', q:'Which genre influenced dubstep heavily?', a:'UK Garage', w:['Techno','Drum & Bass','Trance']},
+  {d:'hard', q:'Which UK Garage subgenre became grime?', a:'2-Step Garage', w:['Speed Garage','Bassline','Funky House']},
+  {d:'hard', q:'Which trance DJ created the famous "Adagio for Strings" remix?', a:'Tiësto', w:['Armin van Buuren','Above & Beyond','Ferry Corsten']},
+  {d:'hard', q:'Which artist created "Avril 14th"?', a:'Aphex Twin', w:['Boards of Canada','Autechre','Four Tet']},
+  {d:'hard', q:'Which label released early Aphex Twin records?', a:'Warp Records', w:['Rephlex Records','R&S Records','Ninja Tune']},
+  {d:'hard', q:'Which genre is Amon Tobin known for?', a:'IDM / Experimental Bass', w:['Psytrance','UK Garage','Techno']},
+  {d:'hard', q:'Which Aphex Twin alias released "Selected Ambient Works"?', a:'Aphex Twin', w:['AFX','The Tuss','Polygon Window']},
+  {d:'hard', q:'Which Deadbeats artist is from Australia?', a:'LICK', w:['Space Laces','Boogie T','Ganja White Night']},
+  {d:'hard', q:'Which Ninja Tune artist released "Cold Air"?', a:'Bonobo', w:['DJ Shadow','Amon Tobin','The Cinematic Orchestra']},
+  {d:'hard', q:'What BPM range is Trip Hop typically?', a:'70–100 BPM', w:['120–130 BPM','140 BPM','160 BPM']},
+  {d:'hard', q:'Which Wakaan artist uses heavy glitch bass?', a:'LSDREAM', w:['Zeke Beats','CloZee','Yheti']},
+  // ── EXPERT (5 pts) ─────────────────────────────────────────────────────────
+  {d:'expert', q:'Which Ninja Tune artist released "Foley Room"?', a:'Amon Tobin', w:['Bonobo','DJ Shadow','Flying Lotus']},
+  {d:'expert', q:'Which Mad Decent artist pioneered moombahton?', a:'Dave Nada', w:['Dillon Francis','Diplo','Flosstradamus']},
+  {d:'expert', q:'Which Deadbeats artist released "Eyes on Fire Remix"?', a:'Zeds Dead', w:['Ganja White Night','Space Laces','LICK']},
+  {d:'expert', q:'Which year was Excision\'s first Lost Lands?', a:'2017', w:['2015','2019','2016']},
+  {d:'expert', q:'Which Subtronics track features Boogie T?', a:'Scream Saver', w:['Griztronics','Cyclops','Fractals']},
+  {d:'expert', q:'Psytrance derived from which earlier genre?', a:'Goa Trance', w:['Acid House','Techno','Ambient']},
+  {d:'expert', q:'UK Garage borrowed elements from which US genre?', a:'House / Garage House', w:['Hip Hop','R&B','Funk']},
+  {d:'expert', q:'Trip Hop frequently uses what production technique?', a:'Sampling / Vinyl Texture', w:['Live drums only','MIDI sequencing','Auto-tune chains']},
+  {d:'expert', q:'IDM is sometimes called what jokingly?', a:'Braindance', w:['Nerd Rave','Think Music','Noodle Music']},
+  {d:'expert', q:'Which Aphex Twin alias released "Come to Daddy"?', a:'Aphex Twin', w:['AFX','The Tuss','Polygon Window']},
+  {d:'expert', q:'Which Deadmau5 track uses a long progressive build?', a:'Strobe', w:['Ghosts n Stuff','Raise Your Weapon','Faxing Berlin']},
+  {d:'expert', q:'Diplo founded which radio show?', a:'Diplo & Friends', w:['Mad Decent Radio','Bass Music Hour','Diplo in Da House']},
+  {d:'expert', q:'Which Ninja Tune artist released "Animal Magic"?', a:'Bonobo', w:['Amon Tobin','DJ Shadow','Kid Koala']},
+  {d:'expert', q:'Which Wakaan artist released "The Ineffable Truth"?', a:'G Jones', w:['LSDREAM','Liquid Stranger','Zeke Beats']},
+  {d:'expert', q:'Which Deadbeats artist released "Into the Abyss"?', a:'Zeds Dead', w:['Space Laces','Ganja White Night','LICK']},
+  {d:'expert', q:'Which Excision collaboration created "Vault"?', a:'Space Laces', w:['Datsik','Downlink','Bear Grillz']},
+  {d:'expert', q:'Which Subtronics album features "Spacetime"?', a:'Fractals', w:['Cyclops','Griztronics','Scream Saver']},
+  {d:'expert', q:'Psytrance commonly uses what scale?', a:'Minor / Phrygian Dominant', w:['Major','Whole Tone','Blues Scale']},
+  {d:'expert', q:'UK Garage swing rhythm is based on what timing?', a:'Swing / Shuffle Timing', w:['Straight 4/4','Waltz time','Half-step triplets']},
+  {d:'expert', q:'Classic rave emerged from which acid genre?', a:'Acid House', w:['Techno','Trance','Disco']},
+  {d:'expert', q:'Which Aphex Twin track uses prepared piano?', a:'Avril 14th', w:['Flim','Tha','Rhubarb']},
+  {d:'expert', q:'Deadmau5 uses which modular synth brand?', a:'Moog / Modular Eurorack', w:['Korg','Roland','Yamaha']},
+  {d:'expert', q:'Diplo collaborated with which reggaeton artist frequently?', a:'J Balvin', w:['Bad Bunny','Daddy Yankee','Ozuna']},
+  {d:'expert', q:'Which Wakaan artist released "Manic Focus" collaboration?', a:'Liquid Stranger', w:['LSDREAM','Zeke Beats','Yheti']},
+  {d:'expert', q:'Which Deadbeats artist released "The Machines"?', a:'Zeds Dead', w:['Space Laces','Ganja White Night','LICK']},
+  {d:'expert', q:'Which Excision collaborator created "Throwin Elbows"?', a:'Space Laces', w:['Datsik','Downlink','Dion Timmer']},
+  {d:'expert', q:'Psytrance visuals often include what themes?', a:'Psychedelic / Fractal / Cosmic', w:['Industrial / Urban','Minimal / Black','Pop / Neon Grid']},
+  {d:'expert', q:'UK Garage influenced which modern bass genre?', a:'Future Garage', w:['Drill','Afrobeats','Hyperpop']},
+  {d:'expert', q:'Which Trip Hop artist released "Teardrop"?', a:'Massive Attack', w:['Portishead','Tricky','Morcheeba']},
+  {d:'expert', q:'Which IDM artist created "Roygbiv"?', a:'Boards of Canada', w:['Autechre','Aphex Twin','Squarepusher']},
+  {d:'expert', q:'Which Aphex Twin track uses facial morphing video?', a:'Windowlicker', w:['Come to Daddy','Rubber Johnny','Equation']},
+  {d:'expert', q:'Which Deadmau5 album is considered most influential?', a:'Random Album Title', w:['While(1<2)','4x4=12','Album Title Goes Here']},
+  {d:'expert', q:'Which Ninja Tune artist released "Foley Room"?', a:'Amon Tobin', w:['Bonobo','DJ Shadow','Flying Lotus']},
+  {d:'expert', q:'Which Wakaan artist released "Color of Your Soul"?', a:'GRiZ & CloZee', w:['LSDREAM','Liquid Stranger','Zeke Beats']},
+  {d:'expert', q:'Which Subtronics EP name is also a medical device term?', a:'Cyclops', w:['Fractals','Griztronics','Scream Saver']}
+];
+
+// ── Lightning round questions (quick-fire track → artist) ──────────────────
+var EDM_LIGHTNING = [
+  {q:'Who made "Strobe"?',                   a:'Deadmau5'},
+  {q:'Who made "Gassed Up"?',                a:'Zeke Beats'},
+  {q:'Who made "Eyes on Fire Remix"?',        a:'Zeds Dead'},
+  {q:'Who made "Griztronics"?',              a:'GRiZ & Subtronics'},
+  {q:'Who made "Endtroducing"?',             a:'DJ Shadow'},
+  {q:'Who made "Windowlicker"?',             a:'Aphex Twin'},
+  {q:'Who made "Raise Your Weapon"?',        a:'Deadmau5'},
+  {q:'Who made "Get Free"?',                 a:'Major Lazer'},
+  {q:'Who made "Teardrop"?',                 a:'Massive Attack'},
+  {q:'Who made "Roygbiv"?',                  a:'Boards of Canada'},
+  {q:'Who made "Come to Daddy"?',            a:'Aphex Twin'},
+  {q:'Who made "Lean On"?',                  a:'Major Lazer'},
+  {q:'Who made "Turn Down for What"?',       a:'DJ Snake & Lil Jon'},
+  {q:'Who made "Ghosts n Stuff"?',           a:'Deadmau5'},
+  {q:'Who made "Black Sands"?',              a:'Bonobo'},
+  {q:'What label is Liquid Stranger on?',    a:'Wakaan'},
+  {q:'What label is Zeds Dead on?',          a:'Deadbeats'},
+  {q:'What label is Bonobo on?',             a:'Ninja Tune'},
+  {q:'What label is Subtronics on?',         a:'Cyclops Recordings'},
+  {q:'What label is Flying Lotus on?',       a:'Warp Records'},
+  {q:'What label is Deadmau5 on?',           a:'Mau5trap'},
+  {q:'What label is DJ Shadow on?',          a:'Ninja Tune'},
+  {q:'What BPM is psytrance?',               a:'138–150 BPM'},
+  {q:'What BPM is dubstep?',                 a:'140 BPM'},
+  {q:'What BPM is trip hop?',                a:'70–100 BPM'},
+  {q:'Dubstep originated in which city?',    a:'London'},
+  {q:'Trip Hop originated in which city?',   a:'Bristol'},
+  {q:'Excision\'s festival is called?',      a:'Lost Lands'},
+  {q:'Subtronics\' real first name?',        a:'Jesse'},
+  {q:'Diplo co-founded which label?',        a:'Mad Decent'}
+];
+
+var edmState = {
+  score: 0, streak: 0, correct: 0, total: 0,
+  difficulty: 'easy', pool: [], current: null, qNum: 0,
+  timerInterval: null, timerSec: 30,
+  isLightning: false
+};
+
+var EDM_PTS   = { easy: 1, medium: 2, hard: 3, expert: 5, lightning: 1 };
+var EDM_TIME  = { easy: 30, medium: 30, hard: 30, expert: 30, lightning: 15 };
+
+// ── Show / hide EDM icon when rave mode toggles ────────────────────────────
+function updateEdmIconVisibility() {
+  var icon = document.getElementById('edmTriviaIcon');
+  if (!icon) return;
+  var isRave = document.body.classList.contains('rave-mode');
+  icon.style.display = isRave ? 'flex' : 'none';
+}
+
+// Patch setColorMode to update EDM visibility
+(function() {
+  var _orig = window.setColorMode;
+  window.setColorMode = function(mode) {
+    _orig(mode);
+    updateEdmIconVisibility();
+  };
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateEdmIconVisibility();
+});
+
+// ── Start game ──────────────────────────────────────────────────────────────
+function startEdmTrivia(diff) {
+  edmState.difficulty  = diff;
+  edmState.isLightning = diff === 'lightning';
+  edmState.pool        = [];
+  edmState.qNum        = 0;
+
+  document.getElementById('edm-home').style.display = 'none';
+  document.getElementById('edm-quiz').style.display = 'block';
+
+  var catLabel = {easy:'😊 Easy',medium:'🤔 Medium',hard:'😤 Hard',expert:'🧠 Expert',lightning:'⚡ Lightning'}[diff] || diff;
+  document.getElementById('edm-q-cat').textContent = catLabel;
+
+  loadNextEdmQuestion();
+}
+
+function endEdmTrivia() {
+  clearEdmTimer();
+  document.getElementById('edm-home').style.display = 'block';
+  document.getElementById('edm-quiz').style.display = 'none';
+  // Update scorebar
+  if (edmState.total > 0) {
+    var sb = document.getElementById('edm-scorebar');
+    if (sb) sb.style.display = 'block';
+    var sv = document.getElementById('edm-score-val');
+    var sk = document.getElementById('edm-streak-val');
+    var sc = document.getElementById('edm-correct-val');
+    if (sv) sv.textContent = edmState.score;
+    if (sk) sk.textContent = edmState.streak;
+    if (sc) sc.textContent = edmState.correct + '/' + edmState.total;
+  }
+}
+
+// ── Load next question ───────────────────────────────────────────────────────
+function loadNextEdmQuestion() {
+  clearEdmTimer();
+  document.getElementById('edm-loading').style.display   = 'block';
+  document.getElementById('edm-answers').style.display   = 'none';
+  document.getElementById('edm-feedback').style.display  = 'none';
+  document.getElementById('edm-next-btn').style.display  = 'none';
+  document.getElementById('edm-difficulty').innerHTML    = '';
+
+  // Refill pool
+  if (edmState.pool.length === 0) {
+    if (edmState.isLightning) {
+      var lq = EDM_LIGHTNING.slice();
+      for (var i = lq.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=lq[i];lq[i]=lq[j];lq[j]=t; }
+      edmState.pool = lq.slice(0, 30).map(function(q) {
+        return { question: q.q, correct: q.a, answers: [q.a, '—', '—', '—'], difficulty: 'lightning', isLightning: true };
+      });
+    } else {
+      var diff = edmState.difficulty;
+      var src = EDM_QUESTIONS.filter(function(q){ return q.d === diff; });
+      for (var i = src.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=src[i];src[i]=src[j];src[j]=t; }
+      edmState.pool = src.map(function(q) {
+        var ans = [q.a].concat(q.w);
+        for (var i = ans.length-1; i > 0; i--) { var j=Math.floor(Math.random()*(i+1)); var t=ans[i];ans[i]=ans[j];ans[j]=t; }
+        return { question: q.q, correct: q.a, answers: ans, difficulty: q.d, isLightning: false };
+      });
+    }
+  }
+
+  edmState.current = edmState.pool.shift();
+  edmState.qNum++;
+  displayEdmQuestion(edmState.current);
+}
+
+// ── Display question ──────────────────────────────────────────────────────────
+function displayEdmQuestion(q) {
+  document.getElementById('edm-loading').style.display  = 'none';
+  document.getElementById('edm-q-num') && (document.getElementById('edm-q-num').textContent = edmState.qNum);
+  document.getElementById('edm-question').textContent = q.question;
+  document.getElementById('edm-answers').style.display = 'grid';
+
+  var diffEl = document.getElementById('edm-difficulty');
+  var map = { easy:'🟢 EASY', medium:'🟡 MEDIUM', hard:'🔴 HARD', expert:'🟣 EXPERT', lightning:'⚡ LIGHTNING' };
+  var col = { easy:'#00ff00', medium:'#ffff00', hard:'#ff6600', expert:'#ff00ff', lightning:'#00ffff' };
+  var d = q.difficulty;
+  if (diffEl) diffEl.innerHTML = '<span style="font-family:\'VT323\',monospace;font-size:14px;color:'+col[d]+';text-shadow:0 0 6px '+col[d]+';">'+(map[d]||d)+'</span>';
+
+  var container = document.getElementById('edm-answers');
+  container.innerHTML = '';
+
+  if (q.isLightning) {
+    // Lightning: free-type-style but show the answer as a single "Reveal" button
+    var revBtn = document.createElement('button');
+    revBtn.className = 'edm-ans-btn';
+    revBtn.style.gridColumn = 'span 2';
+    revBtn.style.fontSize   = '16px';
+    revBtn.textContent = '⚡ Tap to reveal answer';
+    revBtn.onclick = function() {
+      revBtn.textContent = '✅ ' + q.correct;
+      revBtn.classList.add('correct');
+      revBtn.disabled = true;
+      edmState.score   += 1;
+      edmState.streak  += 1;
+      edmState.correct += 1;
+      edmState.total   += 1;
+      document.getElementById('edm-q-score').textContent = edmState.score;
+      showEdmFeedback(true, null, 1);
+      document.getElementById('edm-next-btn').style.display = 'block';
+    };
+    container.appendChild(revBtn);
+  } else {
+    q.answers.forEach(function(ans) {
+      var btn = document.createElement('button');
+      btn.className = 'edm-ans-btn';
+      btn.textContent = ans;
+      btn.onclick = function() { handleEdmAnswer(ans, btn); };
+      container.appendChild(btn);
+    });
+  }
+
+  // Start timer
+  var timeLimit = edmState.isLightning ? 15 : 30;
+  startEdmTimer(timeLimit);
+}
+
+// ── Timer ────────────────────────────────────────────────────────────────────
+function startEdmTimer(seconds) {
+  clearEdmTimer();
+  edmState.timerSec = seconds;
+  var bar = document.getElementById('edm-timer-bar');
+  var num = document.getElementById('edm-timer-num');
+  if (bar) bar.style.width = '100%';
+  if (num) { num.textContent = seconds; num.style.color = '#ffff00'; }
+
+  edmState.timerInterval = setInterval(function() {
+    edmState.timerSec--;
+    var pct = (edmState.timerSec / seconds) * 100;
+    if (bar) bar.style.width = pct + '%';
+    if (num) {
+      num.textContent = edmState.timerSec;
+      num.style.color = edmState.timerSec <= 5 ? '#ff0000' : edmState.timerSec <= 10 ? '#ff6600' : '#ffff00';
+      num.style.textShadow = edmState.timerSec <= 5 ? '0 0 12px #ff0000' : '0 0 8px #ffff00';
+    }
+    if (edmState.timerSec <= 0) {
+      clearEdmTimer();
+      timeOutEdm();
+    }
+  }, 1000);
+}
+
+function clearEdmTimer() {
+  if (edmState.timerInterval) { clearInterval(edmState.timerInterval); edmState.timerInterval = null; }
+}
+
+function timeOutEdm() {
+  var q = edmState.current;
+  document.getElementById('edm-answers').querySelectorAll('.edm-ans-btn').forEach(function(b) {
+    b.disabled = true;
+    if (b.textContent === q.correct) b.classList.add('correct');
+  });
+  edmState.streak = 0;
+  edmState.total++;
+  var fb = document.getElementById('edm-feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = '⏰ Time\'s up! Answer: <b style="color:#ffff00;">' + q.correct + '</b>';
+  fb.style.color = '#ff4444';
+  fb.style.background = '#1a0000';
+  document.getElementById('edm-next-btn').style.display = 'block';
+  document.getElementById('edm-q-score').textContent = edmState.score;
+}
+
+// ── Handle answer ────────────────────────────────────────────────────────────
+function handleEdmAnswer(chosen, btn) {
+  clearEdmTimer();
+  var q = edmState.current;
+  document.getElementById('edm-answers').querySelectorAll('.edm-ans-btn').forEach(function(b) {
+    b.disabled = true;
+    if (b.textContent === q.correct) b.classList.add('correct');
+  });
+
+  var pts = EDM_PTS[q.difficulty] || 1;
+  var correct = chosen === q.correct;
+
+  if (correct) {
+    btn.classList.add('correct');
+    edmState.score   += pts;
+    edmState.streak  += 1;
+    edmState.correct += 1;
+  } else {
+    btn.classList.add('wrong');
+    edmState.streak = 0;
+  }
+  edmState.total++;
+  document.getElementById('edm-q-score').textContent = edmState.score;
+  showEdmFeedback(correct, q.correct, pts);
+  document.getElementById('edm-next-btn').style.display = 'block';
+}
+
+function showEdmFeedback(correct, correctAns, pts) {
+  var fb = document.getElementById('edm-feedback');
+  fb.style.display = 'block';
+  if (correct) {
+    var bonus = edmState.streak >= 3 ? ' 🔥' + edmState.streak + ' streak!' : '';
+    fb.innerHTML = '✅ Correct! +' + pts + ' pt' + (pts !== 1 ? 's' : '') + bonus;
+    fb.style.color = '#00ff00';
+    fb.style.background = '#001a00';
+    fb.style.textShadow = '0 0 8px #00ff00';
+  } else {
+    fb.innerHTML = '❌ Nope! Answer: <b style="color:#ffff00;">' + correctAns + '</b>';
+    fb.style.color = '#ff4444';
+    fb.style.background = '#1a0000';
+    fb.style.textShadow = 'none';
+  }
+}
+
+function nextEdmQuestion() {
+  loadNextEdmQuestion();
 }
 
 </script>
