@@ -5531,14 +5531,16 @@ function saveScriptUrlFromProfile() {
   const url   = input ? input.value.trim() : '';
   if (!url) return;
   localStorage.setItem('sheetUrl', url);
-  // Also update the main config field
+  // Update the main config field
   const mainInput = document.getElementById('sheetUrl');
   if (mainInput) mainInput.value = url;
+  // Also update the login screen Script URL field immediately
+  const loginInput = document.getElementById('loginScriptUrl');
+  if (loginInput) loginInput.value = url;
   updateProfileScriptStatus();
   silentPushProfile();
-  const stat = fromProfile ? document.getElementById('profSyncStatus') : document.getElementById('syncStatus');
-  stat.textContent = '✅ Script URL saved. Tap Pull Config to load your credentials.';
-  stat.style.color = '#006400';
+  const stat = document.getElementById('syncStatus');
+  if (stat) { stat.textContent = '✅ Script URL saved.'; stat.style.color = '#006400'; }
 }
 
 function updateProfileScriptStatus() {
@@ -6008,6 +6010,11 @@ function saveSheetUrl() {
     status.style.borderLeftColor = '#006400'; status.style.color = '#006400';
   }
   localStorage.setItem('sheetUrl', url);
+  // Keep login screen and profile sync URL fields in sync
+  const loginInput   = document.getElementById('loginScriptUrl');
+  const profileInput = document.getElementById('profileScriptUrl');
+  if (loginInput)   loginInput.value   = url;
+  if (profileInput) profileInput.value = url;
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save URL'; }, 2000);
   updateSyncReadiness();
@@ -9692,59 +9699,162 @@ async function testScriptConnection() {
   const stat = document.getElementById('syncStatus');
   const diag = document.getElementById('syncDiag');
   if (!url) {
-    stat.textContent = '⚠ No Script URL saved — paste it above first.';
+    stat.textContent = 'No Script URL saved — paste it above first.';
     stat.style.color = '#cc0000';
     return;
   }
-  stat.textContent = '🔌 Testing connection...';
+
+  stat.textContent = 'Step 1/3: Testing GET (live check)...';
   stat.style.color = '#555';
   diag.style.display = 'none';
 
-  // Step 1: Basic GET ping
-  let pingOk = false, pingText = '', pingStatus = 0;
+  let lines = [];
+  let overallOk = true;
+
+  // STEP 1: GET live-check
+  let getOk = false, getText = '', getStatus = 0;
   try {
-    const r = await fetch(url + '?action=ping', { method: 'GET' });
-    pingStatus = r.status;
-    pingText   = await r.text();
-    pingOk     = r.ok;
+    const r = await fetch(url + '?action=getProfile&user=__test__', { method: 'GET' });
+    getStatus = r.status;
+    getText   = await r.text();
+    getOk     = r.ok;
   } catch(e) {
-    pingText = 'NETWORK ERROR: ' + e.message;
+    getText = 'NETWORK ERROR: ' + e.message;
   }
 
-  // Step 2: Analyse response
-  let diagnosis = '';
-  let colour    = '#006400';
-
-  if (!pingOk && pingStatus === 0) {
-    diagnosis = '❌ NETWORK ERROR\n\nCannot reach the Script URL at all.\n→ Check your internet connection.\n→ Make sure the URL starts with https://script.google.com/macros/s/';
-    colour = '#cc0000';
-  } else if (pingStatus === 302 || pingText.includes('accounts.google.com') || pingText.includes('signin')) {
-    diagnosis = '🔒 REDIRECTED TO GOOGLE LOGIN\n\nYour script is NOT deployed as a public web app.\n\n→ In Apps Script: Deploy → Manage deployments\n→ Click the pencil (edit) on your deployment\n→ Set "Who has access" to: Anyone\n→ Click Deploy, then copy the NEW /exec URL';
-    colour = '#cc0000';
-  } else if (pingStatus === 404) {
-    diagnosis = '❌ 404 NOT FOUND\n\nThe Script URL is wrong or the deployment was deleted.\n→ Go to Apps Script → Deploy → Manage deployments\n→ Copy the correct Web App URL ending in /exec\n→ Paste it above and save.';
-    colour = '#cc0000';
-  } else if (pingStatus === 403) {
-    diagnosis = '🚫 403 FORBIDDEN\n\nScript access is restricted.\n→ Deploy → Manage deployments → Edit\n→ Set "Who has access" to: Anyone (not "Anyone with Google account")\n→ Redeploy with a NEW version';
-    colour = '#cc0000';
-  } else if (pingText.includes('<!DOCTYPE') || pingText.includes('<html')) {
-    diagnosis = '⚠ SCRIPT RETURNED HTML INSTEAD OF JSON\n\nThe script URL may point to the editor, not the web app.\n→ Make sure URL ends with /exec not /edit\n→ Or the script has an unhandled error — check Apps Script logs';
-    colour = '#cc6600';
-  } else if (pingText.toLowerCase().includes('error')) {
-    diagnosis = '⚠ SCRIPT RETURNED AN ERROR:\n\n' + pingText.substring(0, 300) + '\n\n→ Open Apps Script → View → Logs to see what went wrong';
-    colour = '#cc6600';
+  if (!getOk && getStatus === 0) {
+    lines.push('STEP 1 GET — NETWORK ERROR');
+    lines.push('  Cannot reach the script at all.');
+    lines.push('  Check internet connection.');
+    lines.push('  URL must start with https://script.google.com/macros/s/');
+    overallOk = false;
+  } else if (getText.includes('accounts.google.com') || getText.includes('ServiceLogin') || getStatus === 302) {
+    lines.push('STEP 1 GET — REDIRECTED TO GOOGLE LOGIN');
+    lines.push('  Script is NOT deployed as "Anyone" access.');
+    lines.push('  Fix: Apps Script -> Deploy -> Manage deployments -> Edit');
+    lines.push('  Set "Who has access" = Anyone (NOT "Anyone with a Google account")');
+    lines.push('  Choose "New version" then Deploy -> copy new /exec URL');
+    overallOk = false;
+  } else if (getStatus === 403 || getStatus === 401) {
+    lines.push('STEP 1 GET — ' + getStatus + ' ACCESS DENIED');
+    lines.push('  Redeploy with "Who has access = Anyone"');
+    overallOk = false;
+  } else if (getStatus === 404) {
+    lines.push('STEP 1 GET — 404 NOT FOUND');
+    lines.push('  URL is wrong or deployment was deleted.');
+    lines.push('  Apps Script -> Deploy -> Manage deployments -> copy /exec URL');
+    overallOk = false;
+  } else if (getText.includes('<html') || getText.includes('<!DOCTYPE')) {
+    lines.push('STEP 1 GET — GOT HTML INSTEAD OF JSON');
+    lines.push('  URL must end with /exec (not /edit or /dev)');
+    lines.push('  Response preview: ' + getText.substring(0, 120));
+    overallOk = false;
   } else {
-    diagnosis = '✅ CONNECTION OK — Script is reachable!\n\nResponse: ' + pingText.substring(0, 200) + '\n\nIf Push still fails, make sure your Apps Script handles the saveProfile action.\nYou may need to redeploy after any script changes.';
-    colour = '#006400';
+    let parsed = null;
+    try { parsed = JSON.parse(getText); } catch(e2) {}
+    if (parsed && (parsed.status === 'live' || parsed.found !== undefined || parsed.user)) {
+      lines.push('STEP 1 GET — OK: Script is live and responding correctly');
+      lines.push('  Response: ' + getText.substring(0, 100));
+    } else {
+      lines.push('STEP 1 GET — Unexpected response (HTTP ' + getStatus + ')');
+      lines.push('  Response: ' + getText.substring(0, 150));
+    }
   }
 
-  diagnosis += '\n\nURL tested: ' + url.substring(0, 80) + '...\nHTTP status: ' + (pingStatus || 'N/A');
+  lines.push('');
 
-  stat.textContent = pingOk ? '✅ Script reachable — see details below.' : '❌ Connection issue — see details below.';
-  stat.style.color = colour;
+  // STEP 2: POST saveProfile
+  stat.textContent = 'Step 2/3: Testing POST (saveProfile)...';
+  if (overallOk) {
+    const user = (localStorage.getItem('loggedInUser') || 'testuser').toLowerCase();
+    const testProfile = {
+      action: 'saveProfile',
+      profile: {
+        user:     user,
+        sheetUrl: localStorage.getItem('sheetUrl')      || '',
+        sheetId:  localStorage.getItem('sheetId')       || '',
+        apiKey:   localStorage.getItem('apiKey')        || '',
+        tabName:  localStorage.getItem('tabName')       || 'Inventory',
+        gcalId:   localStorage.getItem('gcalId')        || '',
+        gcalDur:  localStorage.getItem('gcalDuration')  || '2',
+        personal: localStorage.getItem('personalInfo')  || '{}',
+        pin: ''
+      }
+    };
+    let postText = '';
+    try {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testProfile)
+      });
+      postText = 'POST sent OK (no-cors mode — response body not readable, this is normal)';
+    } catch(e) {
+      postText = 'POST ERROR: ' + e.message;
+      overallOk = false;
+    }
+    lines.push('STEP 2 POST — Sent saveProfile for user "' + user + '"');
+    lines.push('  ' + postText);
+    lines.push('  Waiting 4s then verifying...');
+    lines.push('');
+  } else {
+    lines.push('STEP 2 POST — Skipped (fix GET first)');
+    lines.push('');
+  }
+
+  // STEP 3: Verify
+  stat.textContent = 'Step 3/3: Verifying data was saved...';
+  await new Promise(function(resolve) { setTimeout(resolve, 4000); });
+
+  if (overallOk) {
+    const user = (localStorage.getItem('loggedInUser') || 'testuser').toLowerCase();
+    let verText = '', verParsed = null;
+    try {
+      const r2 = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(user));
+      verText = await r2.text();
+      verParsed = JSON.parse(verText);
+    } catch(e) {
+      verText = 'Error: ' + e.message;
+    }
+
+    if (verParsed && (verParsed.sheetId || verParsed.apiKey || verParsed.sheetUrl)) {
+      lines.push('STEP 3 VERIFY — Profile found in sheet!');
+      const saved = [
+        verParsed.sheetId  ? 'Sheet ID'   : '',
+        verParsed.apiKey   ? 'API Key'    : '',
+        verParsed.sheetUrl ? 'Script URL' : '',
+        verParsed.gcalId   ? 'Calendar ID': ''
+      ].filter(Boolean).join(', ');
+      lines.push('  Saved: ' + saved);
+      lines.push('  Sync is working! You can Pull on other devices.');
+    } else if (verParsed && verParsed.found === false) {
+      lines.push('STEP 3 VERIFY — Profile NOT in sheet after POST.');
+      lines.push('  Script received the POST but did NOT write to the sheet.');
+      lines.push('');
+      lines.push('  MOST LIKELY CAUSE: Script not redeployed as new version.');
+      lines.push('  Fix: Apps Script -> Deploy -> Manage deployments -> Edit');
+      lines.push('  -> Change version to "New version" -> Deploy');
+      lines.push('  -> Copy new /exec URL -> paste here -> Save -> Push again');
+      lines.push('');
+      lines.push('  Also check: Apps Script -> Executions tab for error details.');
+      overallOk = false;
+    } else {
+      lines.push('STEP 3 VERIFY — Unexpected: ' + verText.substring(0, 200));
+      overallOk = false;
+    }
+  } else {
+    lines.push('STEP 3 VERIFY — Skipped.');
+  }
+
+  lines.push('');
+  lines.push('URL: ' + url.substring(0, 90));
+
+  stat.textContent = overallOk ? 'All tests passed — sync is working!' : 'Problem found — see details below';
+  stat.style.color  = overallOk ? '#006400' : '#cc0000';
   diag.style.display = 'block';
-  diag.style.borderLeftColor = colour;
-  diag.textContent = diagnosis;
+  diag.style.borderLeftColor = overallOk ? '#006400' : '#cc0000';
+  diag.textContent = lines.join('\n');
 }
 
 </script>
