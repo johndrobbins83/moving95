@@ -5484,11 +5484,9 @@ function applyLogin(user) {
   renderDeliveryList();
   updateProfileScriptStatus();
   populateProfileTab(user);
-  // Auto-pull config from cloud if Script URL is set but Sheet ID / API Key are missing
-  const _url     = localStorage.getItem('sheetUrl') || '';
-  const _sheetId = localStorage.getItem('sheetId')  || '';
-  const _apiKey  = localStorage.getItem('apiKey')   || '';
-  if (_url && (!_sheetId || !_apiKey)) {
+  // Always auto-pull from cloud on sign-in if Script URL is set
+  const _url = localStorage.getItem('sheetUrl') || '';
+  if (_url) {
     setTimeout(function() {
       syncProfileFromSheet(false);
     }, 800);
