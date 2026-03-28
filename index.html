@@ -8505,9 +8505,10 @@ function downloadMasterPDF() {
 </script>
 <script>
 // ── SCRIPT URL POPUP ─────────────────────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzP24HKryQ2DVOWeffRFMU3GVsPNu2fS3sO467VCUYAGT1O-j3eWxyvFziM_B7gSLcv/exec';
 function showScriptUrlPopup() {
-  document.getElementById('scriptUrlDisplay').textContent = SCRIPT_URL;
+  var url = localStorage.getItem('sheetUrl') || '';
+  var display = document.getElementById('scriptUrlDisplay');
+  if (display) display.textContent = url || 'No Script URL saved yet. Save one in Profile & Sync first.';
   document.getElementById('scriptUrlCopyMsg').textContent = '';
   document.getElementById('scriptUrlOverlay').style.display = 'flex';
 }
@@ -8515,7 +8516,8 @@ function hideScriptUrlPopup() {
   document.getElementById('scriptUrlOverlay').style.display = 'none';
 }
 function copyScriptUrl() {
-  navigator.clipboard.writeText(SCRIPT_URL).then(function() {
+  var url = localStorage.getItem('sheetUrl') || '';
+  navigator.clipboard.writeText(url).then(function() {
     document.getElementById('scriptUrlCopyBtn').textContent = '\u2705';
     document.getElementById('scriptUrlCopyMsg').textContent = 'Copied to clipboard!';
     setTimeout(function() {
@@ -8524,7 +8526,7 @@ function copyScriptUrl() {
     }, 2000);
   }).catch(function() {
     var ta = document.createElement('textarea');
-    ta.value = SCRIPT_URL;
+    ta.value = localStorage.getItem('sheetUrl') || '';
     document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); document.body.removeChild(ta);
     document.getElementById('scriptUrlCopyMsg').textContent = 'Copied!';
