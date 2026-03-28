@@ -5542,14 +5542,7 @@ function saveScriptUrlFromProfile() {
     if (stat) { stat.textContent = "⚠ That doesn't look like a valid Apps Script /exec URL."; stat.style.color = "#cc0000"; }
     return;
   }
-  localStorage.setItem('sheetUrl', url);
-  // Update all URL fields in sync
-  const mainInput  = document.getElementById('sheetUrl');
-  const loginInput = document.getElementById('loginScriptUrl');
-  if (mainInput)  mainInput.value  = url;
-  if (loginInput) loginInput.value = url;
-  // Refresh the login display box
-  initLoginUrlDisplay();
+  setSheetUrl(url);
   updateProfileScriptStatus();
   silentPushProfile();
   const stat = document.getElementById('syncStatus');
@@ -5741,13 +5734,7 @@ async function syncProfileFromSheet(fromProfile) {
     // Always write sheetUrl even if sheetId/apiKey are missing — at minimum
     // the other device needs the Script URL to do anything.
     if (data.sheetUrl) {
-      localStorage.setItem('sheetUrl', data.sheetUrl);
-      const loginInput   = document.getElementById('loginScriptUrl');
-      const profileInput = document.getElementById('profileScriptUrl');
-      const cfgInput     = document.getElementById('sheetUrl');
-      if (loginInput)   loginInput.value   = data.sheetUrl;
-      if (profileInput) profileInput.value = data.sheetUrl;
-      if (cfgInput)     cfgInput.value     = data.sheetUrl;
+      setSheetUrl(data.sheetUrl);
     }
 
     const hasConfig   = data.apiKey || data.sheetId || data.sheetUrl || data.gcalId || data.tabName;
@@ -5794,26 +5781,50 @@ async function syncProfileFromSheet(fromProfile) {
 }
 
 function initLoginUrlDisplay() {
-  const saved      = localStorage.getItem('sheetUrl') || '';
-  const displayDiv = document.getElementById('loginUrlDisplay');
-  const inputDiv   = document.getElementById('loginUrlInput');
-  const urlText    = document.getElementById('loginUrlText');
-  const urlInput   = document.getElementById('loginScriptUrl');
-  const hint       = document.getElementById('loginUrlHint');
+  // Always read fresh from localStorage and validate
+  var raw   = localStorage.getItem('sheetUrl') || '';
+  // If stored value is clearly not a real URL, discard it
+  var saved = raw.startsWith('https://script.google.com/macros/s/') ? raw : '';
+  if (raw && !saved) {
+    // Wipe the bad value so it can't keep causing issues
+    localStorage.removeItem('sheetUrl');
+    console.warn('initLoginUrlDisplay: cleared invalid sheetUrl:', raw);
+  }
+
+  var displayDiv = document.getElementById('loginUrlDisplay');
+  var inputDiv   = document.getElementById('loginUrlInput');
+  var urlText    = document.getElementById('loginUrlText');
+  var urlInput   = document.getElementById('loginScriptUrl');
+  var hint       = document.getElementById('loginUrlHint');
   if (!inputDiv) return;
-  // Always show the input field
+
   inputDiv.style.display = 'block';
+
   if (saved) {
-    // Show saved URL display above input
     if (displayDiv) displayDiv.style.display = 'block';
     if (urlText)    urlText.textContent = saved;
-    // Pre-fill input with saved URL so user can see/edit it
-    if (urlInput)   urlInput.value = saved;
-    if (hint)       hint.textContent = 'URL loaded from device. Paste a new one to update.';
+    if (urlInput)   urlInput.value      = saved;
+    if (hint)       hint.textContent    = 'URL loaded from device. Paste a new one to update.';
   } else {
     if (displayDiv) displayDiv.style.display = 'none';
-    if (hint)       hint.textContent = 'Paste your Apps Script /exec URL to sync config on sign in.';
+    if (urlInput)   urlInput.value      = '';
+    if (hint)       hint.textContent    = 'Paste your Apps Script /exec URL to sync config on sign in.';
   }
+}
+
+// Wrapper: call this every time sheetUrl is written to localStorage
+// so login display is always in sync without manually calling initLoginUrlDisplay
+function setSheetUrl(url) {
+  if (!url || !url.startsWith('https://script.google.com/macros/s/')) return false;
+  localStorage.setItem('sheetUrl', url);
+  // Push to all URL fields immediately
+  var fields = ['loginScriptUrl','profileScriptUrl','sheetUrl'];
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = url;
+  });
+  initLoginUrlDisplay();
+  return true;
 }
 
 function loginUrlEdit() {
@@ -6070,14 +6081,7 @@ function saveSheetUrl() {
     status.textContent = 'Saved: ' + url.substring(0,55) + '...';
     status.style.borderLeftColor = '#006400'; status.style.color = '#006400';
   }
-  localStorage.setItem('sheetUrl', url);
-  // Keep login screen and profile sync URL fields in sync
-  const loginInput2   = document.getElementById('loginScriptUrl');
-  const profileInput2 = document.getElementById('profileScriptUrl');
-  if (loginInput2)   loginInput2.value   = url;
-  if (profileInput2) profileInput2.value = url;
-  // Refresh login display
-  if (typeof initLoginUrlDisplay === 'function') initLoginUrlDisplay();
+  setSheetUrl(url);
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save URL'; }, 2000);
   updateSyncReadiness();
