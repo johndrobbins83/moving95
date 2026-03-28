@@ -5484,6 +5484,15 @@ function applyLogin(user) {
   renderDeliveryList();
   updateProfileScriptStatus();
   populateProfileTab(user);
+  // Auto-pull config from cloud if Script URL is set but Sheet ID / API Key are missing
+  const _url     = localStorage.getItem('sheetUrl') || '';
+  const _sheetId = localStorage.getItem('sheetId')  || '';
+  const _apiKey  = localStorage.getItem('apiKey')   || '';
+  if (_url && (!_sheetId || !_apiKey)) {
+    setTimeout(function() {
+      syncProfileFromSheet(false);
+    }, 800);
+  }
 }
 
 function applyProfileData(data, user) {
@@ -5700,6 +5709,12 @@ async function syncProfileFromSheet(fromProfile) {
       stat.style.color = '#cc0000'; return;
     }
 
+    // Show raw response in diag panel for debugging
+    const diagEl = document.getElementById('syncDiag');
+    if (diagEl) {
+      diagEl.style.display = 'block';
+      diagEl.textContent = 'Raw response (' + (text||'').length + ' chars): ' + (text||'').substring(0, 300);
+    }
     try { data = JSON.parse(text); } catch(e) {
       stat.innerHTML = '<b>Could not parse script response:</b> ' + (text || '').substring(0, 100) +
         '<br>→ Make sure the new MovingInventory.gs is saved and deployed.';
@@ -5763,6 +5778,7 @@ async function syncProfileFromSheet(fromProfile) {
       ].filter(Boolean).join(', ');
       stat.textContent = '✅ Pulled: ' + (loaded || 'profile found') + ' — saved to this device!';
       stat.style.color = '#006400';
+      if (diagEl) diagEl.style.display = 'none'; // hide raw diag on success
       // If sheetId or apiKey still missing, prompt but don't block
       if (!data.sheetId || !data.apiKey) {
         stat.textContent += ' (Sheet ID / API Key not yet pushed — go to Config on master device to add them)';
