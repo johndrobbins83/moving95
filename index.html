@@ -1424,7 +1424,8 @@
   body.rave-mode .game-icon-hunt   { background: linear-gradient(135deg,#ff00ff,#ff6600) !important; box-shadow: 0 0 16px #ff00ff !important; border-color: #ffff00 !important; }
   body.rave-mode .game-icon-snake  { background: #000 !important; border-color: #00ff00 !important; box-shadow: 0 0 16px #00ff00 !important; }
   body.rave-mode .game-icon-trivia { background: linear-gradient(135deg,#00ffff,#ff00ff) !important; box-shadow: 0 0 16px #00ffff !important; border-color: #ffff00 !important; }
-  body.rave-mode .game-icon-sudoku { background: linear-gradient(135deg,#ffff00,#00ff00) !important; box-shadow: 0 0 16px #00ff00 !important; border-color: #ff00ff !important; }
+  body.rave-mode .game-icon-sudoku    { background: linear-gradient(135deg,#ffff00,#00ff00) !important; box-shadow: 0 0 16px #00ff00 !important; border-color: #ff00ff !important; }
+  body.rave-mode .game-icon-solitaire { background: linear-gradient(135deg,#ff00ff,#00ffff) !important; box-shadow: 0 0 16px #ff00ff !important; border-color: #ffff00 !important; }
 
   /* ── EDM TRIVIA (Rave Mode Only) ── */
   .edm-icon-card {
@@ -1504,6 +1505,67 @@
     0%,100% { color: #ff00ff; text-shadow: 0 0 8px #ff00ff; box-shadow: 0 0 8px #ff00ff44; }
     50%      { color: #ff4444; text-shadow: 0 0 12px #ff4444; box-shadow: 0 0 14px #ff444444; }
   }
+
+  /* ── SOLITAIRE ── */
+  .sol-card {
+    width: 52px; height: 74px;
+    border-radius: 4px;
+    border: 1px solid #888;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'VT323', monospace;
+    font-size: 13px; font-weight: bold;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    position: relative;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sol-card.face-down {
+    background: linear-gradient(135deg,#1a237e 25%,#283593 25%,#283593 50%,#1a237e 50%,#1a237e 75%,#283593 75%);
+    background-size: 12px 12px;
+    cursor: default;
+  }
+  .sol-card.red { color: #c62828; }
+  .sol-card.black { color: #111; }
+  .sol-card.selected { outline: 3px solid #1565c0; outline-offset: 1px; }
+  .sol-card .sol-rank { position:absolute; top:2px; left:4px; font-size:14px; line-height:1; }
+  .sol-card .sol-suit { position:absolute; bottom:2px; right:4px; font-size:14px; line-height:1; }
+  .sol-card .sol-center { font-size:24px; }
+  .sol-empty-slot {
+    width: 52px; height: 74px;
+    border-radius: 4px;
+    border: 2px dashed #aaa;
+    background: rgba(0,0,0,0.04);
+    flex-shrink: 0;
+  }
+  .sol-foundation {
+    width: 52px; height: 74px;
+    border-radius: 4px;
+    border: 2px dashed #888;
+    background: rgba(0,100,0,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #aaa;
+    flex-shrink: 0;
+  }
+  .sol-col {
+    display: flex; flex-direction: column;
+    position: relative; min-width: 52px;
+    flex: 1; max-width: 60px;
+  }
+  .sol-col-card {
+    position: relative; margin-top: -52px;
+  }
+  .sol-col-card:first-child { margin-top: 0; }
+  .sol-col-card.face-up-card { margin-top: -44px; }
+  .sol-col-card.face-up-card:first-child { margin-top: 0; }
+  #sol-stock .sol-card { cursor: pointer; }
+  body.rave-mode .sol-card.face-down {
+    background: linear-gradient(135deg,#ff00ff 25%,#cc00cc 25%,#cc00cc 50%,#ff00ff 50%,#ff00ff 75%,#cc00cc 75%) !important;
+    background-size: 12px 12px !important;
+  }
+  body.rave-mode .sol-empty-slot { border-color: #ff00ff !important; }
+  body.rave-mode .sol-foundation  { border-color: #00ffff !important; background: rgba(0,255,255,0.05) !important; }
 </style>
 <script>
 // Address autocomplete — uses Nominatim (OpenStreetMap), no API key needed
@@ -4233,6 +4295,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Sudoku</span>
       </div>
 
+      <!-- Solitaire icon -->
+      <div onclick="showGameSection('solitaire')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1a237e,#7b1fa2);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-solitaire">🃏</div>
+        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Solitaire</span>
+      </div>
+
       <!-- EDM Trivia — RAVE MODE ONLY -->
       <div id="edmTriviaIcon" onclick="showGameSection('edm')" class="game-icon-card edm-icon-card" style="display:none;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;grid-column:span 2;">
         <div style="width:80px;height:80px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:40px;" class="game-icon-bg game-icon-edm">🎧</div>
@@ -5056,6 +5124,84 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- ══════════════════════════════
+     PAGE: SOLITAIRE
+══════════════════════════════ -->
+<div class="page" id="page-solitaire">
+
+  <div class="win-card">
+    <div class="win-card-title" style="background:linear-gradient(to right,#1a237e,#7b1fa2);">
+      <span>🃏 Solitaire</span>
+      <button class="cal-nav-btn" onclick="showPage('games')" style="font-size:13px;">← Games</button>
+    </div>
+  </div>
+
+  <!-- Mode select screen -->
+  <div id="sol-home" style="padding:16px;max-width:480px;margin:0 auto;">
+    <div style="font-family:'VT323',monospace;font-size:16px;color:var(--darker);text-align:center;margin-bottom:16px;">
+      Classic Klondike Solitaire — new shuffle every game
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <button onclick="startSolitaire(1)" class="btn btn-submit" style="font-size:20px;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:32px;">🂠</span>
+        <span>1-Card Draw</span>
+        <span style="font-size:12px;font-weight:normal;opacity:0.8;">Draw one at a time</span>
+      </button>
+      <button onclick="startSolitaire(3)" class="btn btn-submit" style="font-size:20px;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span style="font-size:32px;">🂠🂠🂠</span>
+        <span>3-Card Draw</span>
+        <span style="font-size:12px;font-weight:normal;opacity:0.8;">Draw three at a time</span>
+      </button>
+    </div>
+    <div id="sol-best-times" style="font-family:'VT323',monospace;font-size:14px;color:var(--darker);text-align:center;"></div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="sol-game" style="display:none;padding:8px;">
+    <!-- Toolbar -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+      <button onclick="endSolitaire()" class="btn" style="font-size:14px;padding:4px 10px;">← Menu</button>
+      <button onclick="newSolitaireDeal()" class="btn" style="font-size:14px;padding:4px 10px;">🔀 New Game</button>
+      <span id="sol-mode-label" style="font-family:'VT323',monospace;font-size:16px;color:var(--darker);"></span>
+      <span style="flex:1;"></span>
+      <span id="sol-moves" style="font-family:'VT323',monospace;font-size:16px;color:var(--darker);">Moves: 0</span>
+      <span id="sol-timer" style="font-family:'VT323',monospace;font-size:16px;color:var(--blue);font-weight:bold;">0:00</span>
+    </div>
+
+    <!-- Board -->
+    <div id="sol-board" style="user-select:none;-webkit-user-select:none;touch-action:none;">
+
+      <!-- Stock + Waste + Foundations row -->
+      <div id="sol-top-row" style="display:flex;gap:6px;margin-bottom:8px;align-items:flex-start;flex-wrap:nowrap;">
+        <!-- Stock pile -->
+        <div id="sol-stock" onclick="solDrawFromStock()" style="cursor:pointer;flex-shrink:0;"></div>
+        <!-- Waste pile -->
+        <div id="sol-waste" style="flex-shrink:0;position:relative;min-width:52px;"></div>
+        <div style="flex:1;"></div>
+        <!-- Four foundations -->
+        <div id="sol-found-0" class="sol-foundation" data-suit="0" ondragover="event.preventDefault()" ondrop="solDropOnFoundation(event,0)"></div>
+        <div id="sol-found-1" class="sol-foundation" data-suit="1" ondragover="event.preventDefault()" ondrop="solDropOnFoundation(event,1)"></div>
+        <div id="sol-found-2" class="sol-foundation" data-suit="2" ondragover="event.preventDefault()" ondrop="solDropOnFoundation(event,2)"></div>
+        <div id="sol-found-3" class="sol-foundation" data-suit="3" ondragover="event.preventDefault()" ondrop="solDropOnFoundation(event,3)"></div>
+      </div>
+
+      <!-- 7 Tableau columns -->
+      <div id="sol-tableau" style="display:flex;gap:5px;align-items:flex-start;"></div>
+
+    </div>
+
+    <!-- Win banner -->
+    <div id="sol-win" style="display:none;text-align:center;padding:20px;font-family:'VT323',monospace;">
+      <div style="font-size:32px;margin-bottom:8px;">🎉 You Win! 🎉</div>
+      <div id="sol-win-msg" style="font-size:20px;margin-bottom:16px;"></div>
+      <button onclick="newSolitaireDeal()" class="btn btn-submit" style="font-size:20px;padding:10px 24px;">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+
+
+<!-- ══════════════════════════════
      PAGE: EDM TRIVIA (RAVE ONLY)
 ══════════════════════════════ -->
 <div class="page" id="page-edm" style="background:#000;min-height:100vh;">
@@ -5579,7 +5725,12 @@ function applyProfileData(data, user) {
     }
   });
   console.log('Profile applied:', applied, 'fields for user:', user);
-  applyLogin(user);
+  // Do NOT call applyLogin here — user is already logged in and on a page.
+  // Just refresh the config UI without redirecting.
+  loadSavedConfig();
+  updateSyncReadiness();
+  populateProfileTab(user);
+  updateProfileScriptStatus();
 }
 
 function gatherConfig() {
@@ -6097,7 +6248,7 @@ function showPage(name) {
   if (wrench) wrench.classList.toggle('active-page', isConfig);
 
   // Update header subtitle
-  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', edm:'🎧 EDM Trivia', profile:'My Profile', budget:'Move Budget' };
+  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', solitaire:'🃏 Solitaire', edm:'🎧 EDM Trivia', profile:'My Profile', budget:'Move Budget' };
   // headerStatus removed
 
   // Auto-load viewer when switching to it
@@ -6105,7 +6256,7 @@ function showPage(name) {
   // Refresh sync readiness when config page opens
   if (isConfig) updateSyncReadiness();
   // Keep Games nav-btn lit when on hunt or trivia (sub-pages of Games)
-  if (name === 'hunt' || name === 'trivia' || name === 'sudoku' || name === 'edm') {
+  if (name === 'hunt' || name === 'trivia' || name === 'sudoku' || name === 'edm' || name === 'solitaire') {
     const gamesBtn = document.getElementById('nav-games');
     if (gamesBtn) gamesBtn.classList.add('active');
   }
@@ -8653,7 +8804,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GAMES PAGE ──────────────────────────────────────────────────────────────
 function showGameSection(game) {
-  if (game === 'edm') {
+  if (game === 'solitaire') {
+    showPage('solitaire');
+  } else if (game === 'edm') {
     showPage('edm');
   } else if (game === 'sudoku') {
     showPage('sudoku');
@@ -9970,6 +10123,497 @@ async function testScriptConnection() {
   diag.style.borderLeftColor = overallOk ? '#006400' : '#cc0000';
   diag.textContent = lines.join('\n');
 }
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SOLITAIRE — Klondike, 1-card and 3-card draw
+// ══════════════════════════════════════════════════════════════════════════════
+var SOL_SUITS  = ['♠','♥','♦','♣']; // 0=spades,1=hearts,2=diamonds,3=clubs
+var SOL_RANKS  = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+var SOL_RED    = [1,2]; // hearts, diamonds
+var solState   = null;
+var solTimer   = null;
+var solSeconds = 0;
+var solDraw    = 1; // 1 or 3
+var solMoves   = 0;
+var solSelected = null; // {source, cardIdx} for tap-to-move
+
+function solIsRed(suit) { return SOL_RED.indexOf(suit) >= 0; }
+
+// ── Fisher-Yates shuffle ──────────────────────────────────────────────────────
+function solShuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+
+function solNewDeck() {
+  var deck = [];
+  for (var s = 0; s < 4; s++)
+    for (var r = 0; r < 13; r++)
+      deck.push({ suit: s, rank: r, faceUp: false });
+  return solShuffle(deck);
+}
+
+function startSolitaire(drawMode) {
+  solDraw = drawMode;
+  document.getElementById('sol-home').style.display = 'none';
+  document.getElementById('sol-game').style.display = 'block';
+  document.getElementById('sol-win').style.display  = 'none';
+  document.getElementById('sol-mode-label').textContent = drawMode === 1 ? '1-Card Draw' : '3-Card Draw';
+  newSolitaireDeal();
+}
+
+function endSolitaire() {
+  solStopTimer();
+  document.getElementById('sol-home').style.display = 'block';
+  document.getElementById('sol-game').style.display = 'none';
+  solRenderBestTimes();
+}
+
+function newSolitaireDeal() {
+  solStopTimer();
+  solSelected = null;
+  solMoves   = 0;
+  solSeconds = 0;
+  document.getElementById('sol-moves').textContent = 'Moves: 0';
+  document.getElementById('sol-timer').textContent = '0:00';
+  document.getElementById('sol-win').style.display = 'none';
+
+  var deck = solNewDeck();
+
+  // Deal tableau: col i gets i+1 cards, last is face up
+  var tableau = [];
+  for (var c = 0; c < 7; c++) {
+    var col = [];
+    for (var r = 0; r <= c; r++) {
+      var card = deck.pop();
+      card.faceUp = (r === c);
+      col.push(card);
+    }
+    tableau.push(col);
+  }
+
+  solState = {
+    stock:      deck.map(function(c){ return c; }),  // remaining cards, face down
+    waste:      [],
+    foundations:[[], [], [], []],  // indexed by suit
+    tableau:    tableau,
+    drawMode:   solDraw
+  };
+
+  solRenderAll();
+  solStartTimer();
+}
+
+// ── Timer ────────────────────────────────────────────────────────────────────
+function solStartTimer() {
+  solStopTimer();
+  solTimer = setInterval(function() {
+    solSeconds++;
+    var m = Math.floor(solSeconds / 60);
+    var s = solSeconds % 60;
+    var el = document.getElementById('sol-timer');
+    if (el) el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
+}
+function solStopTimer() {
+  if (solTimer) { clearInterval(solTimer); solTimer = null; }
+}
+
+// ── Draw from stock ──────────────────────────────────────────────────────────
+function solDrawFromStock() {
+  if (!solState) return;
+  solSelected = null;
+  if (solState.stock.length === 0) {
+    // Recycle waste back to stock
+    solState.stock = solState.waste.reverse().map(function(c){ c.faceUp = false; return c; });
+    solState.waste = [];
+  } else {
+    var count = solState.drawMode === 3 ? 3 : 1;
+    for (var i = 0; i < count && solState.stock.length > 0; i++) {
+      var card = solState.stock.pop();
+      card.faceUp = true;
+      solState.waste.push(card);
+    }
+    solMoves++;
+    solUpdateMoves();
+  }
+  solRenderAll();
+}
+
+// ── Move validation ──────────────────────────────────────────────────────────
+function solCanPlaceOnTableau(card, col) {
+  if (col.length === 0) return card.rank === 12; // Only King on empty
+  var top = col[col.length - 1];
+  if (!top.faceUp) return false;
+  return (top.rank === card.rank + 1) && (solIsRed(top.suit) !== solIsRed(card.suit));
+}
+
+function solCanPlaceOnFoundation(card, foundIdx) {
+  var f = solState.foundations[foundIdx];
+  if (f.length === 0) return card.rank === 0; // Ace starts foundation
+  var top = f[f.length - 1];
+  return top.suit === card.suit && card.rank === top.rank + 1;
+}
+
+function solFindFoundationForCard(card) {
+  for (var i = 0; i < 4; i++) {
+    if (solCanPlaceOnFoundation(card, i)) return i;
+  }
+  return -1;
+}
+
+// ── Auto-complete check ───────────────────────────────────────────────────────
+function solCheckWin() {
+  for (var i = 0; i < 4; i++)
+    if (solState.foundations[i].length < 13) return false;
+  return true;
+}
+
+function solAutoComplete() {
+  // Try to move all remaining face-up cards to foundations
+  var moved = true;
+  while (moved) {
+    moved = false;
+    // From waste
+    if (solState.waste.length > 0) {
+      var top = solState.waste[solState.waste.length - 1];
+      var fi = solFindFoundationForCard(top);
+      if (fi >= 0) {
+        solState.foundations[fi].push(solState.waste.pop());
+        moved = true; solMoves++; solUpdateMoves();
+      }
+    }
+    // From tableau tops
+    for (var c = 0; c < 7; c++) {
+      var col = solState.tableau[c];
+      if (col.length > 0) {
+        var tc = col[col.length - 1];
+        if (tc.faceUp) {
+          var fi2 = solFindFoundationForCard(tc);
+          if (fi2 >= 0) {
+            solState.foundations[fi2].push(col.pop());
+            if (col.length > 0 && !col[col.length-1].faceUp)
+              col[col.length-1].faceUp = true;
+            moved = true; solMoves++; solUpdateMoves();
+          }
+        }
+      }
+    }
+  }
+  solRenderAll();
+  if (solCheckWin()) solWin();
+}
+
+function solWin() {
+  solStopTimer();
+  var m = Math.floor(solSeconds / 60);
+  var s = solSeconds % 60;
+  var timeStr = m + ':' + (s < 10 ? '0' : '') + s;
+  var key = 'solBest_draw' + solDraw;
+  var prev = localStorage.getItem(key);
+  var msg = 'Time: ' + timeStr + ' · Moves: ' + solMoves;
+  if (!prev || solSeconds < parseInt(prev)) {
+    localStorage.setItem(key, solSeconds);
+    msg += ' 🏆 New best!';
+  }
+  document.getElementById('sol-win-msg').textContent = msg;
+  document.getElementById('sol-win').style.display = 'block';
+  solRenderBestTimes();
+}
+
+function solRenderBestTimes() {
+  var el = document.getElementById('sol-best-times');
+  if (!el) return;
+  var b1 = localStorage.getItem('solBest_draw1');
+  var b3 = localStorage.getItem('solBest_draw3');
+  var lines = [];
+  if (b1) { var s=parseInt(b1); lines.push('1-Card best: ' + Math.floor(s/60) + ':' + (s%60<10?'0':'') + (s%60)); }
+  if (b3) { var s3=parseInt(b3); lines.push('3-Card best: ' + Math.floor(s3/60) + ':' + (s3%60<10?'0':'') + (s3%60)); }
+  el.textContent = lines.join('  |  ');
+}
+
+function solUpdateMoves() {
+  var el = document.getElementById('sol-moves');
+  if (el) el.textContent = 'Moves: ' + solMoves;
+}
+
+// ── Tap-to-move selection system ─────────────────────────────────────────────
+function solSelectCard(source, cardIdx) {
+  // source: 'waste', 'found_N', 'tab_N'
+  if (solSelected) {
+    // Try to move selected card to this source
+    if (solTryMove(solSelected.source, solSelected.cardIdx, source)) {
+      solSelected = null;
+      solMoves++; solUpdateMoves();
+      solRenderAll();
+      solAutoComplete();
+      return;
+    }
+  }
+  // Select this card
+  solSelected = { source: source, cardIdx: cardIdx };
+  solRenderAll();
+}
+
+function solTryMove(fromSource, fromCardIdx, toSource) {
+  if (!solState) return false;
+  var cards = solGetCards(fromSource, fromCardIdx);
+  if (!cards || cards.length === 0) return false;
+
+  if (toSource.startsWith('found_')) {
+    var fi = parseInt(toSource.split('_')[1]);
+    if (cards.length === 1 && solCanPlaceOnFoundation(cards[0], fi)) {
+      solRemoveCards(fromSource, fromCardIdx);
+      solState.foundations[fi].push(cards[0]);
+      return true;
+    }
+    return false;
+  }
+
+  if (toSource.startsWith('tab_')) {
+    var tc = parseInt(toSource.split('_')[1]);
+    var col = solState.tableau[tc];
+    if (solCanPlaceOnTableau(cards[0], col)) {
+      solRemoveCards(fromSource, fromCardIdx);
+      for (var i = 0; i < cards.length; i++) col.push(cards[i]);
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
+function solGetCards(source, cardIdx) {
+  if (!solState) return [];
+  if (source === 'waste') {
+    if (solState.waste.length === 0) return [];
+    return [solState.waste[solState.waste.length - 1]];
+  }
+  if (source.startsWith('found_')) {
+    var fi = parseInt(source.split('_')[1]);
+    var f = solState.foundations[fi];
+    if (f.length === 0) return [];
+    return [f[f.length - 1]];
+  }
+  if (source.startsWith('tab_')) {
+    var tc = parseInt(source.split('_')[1]);
+    var col = solState.tableau[tc];
+    return col.slice(cardIdx);
+  }
+  return [];
+}
+
+function solRemoveCards(source, cardIdx) {
+  if (!solState) return;
+  if (source === 'waste') {
+    solState.waste.pop();
+  } else if (source.startsWith('found_')) {
+    var fi = parseInt(source.split('_')[1]);
+    solState.foundations[fi].pop();
+  } else if (source.startsWith('tab_')) {
+    var tc = parseInt(source.split('_')[1]);
+    solState.tableau[tc].splice(cardIdx);
+    // Flip top card if needed
+    var col = solState.tableau[tc];
+    if (col.length > 0 && !col[col.length-1].faceUp)
+      col[col.length-1].faceUp = true;
+  }
+}
+
+// ── Auto-move to foundation on double-tap ────────────────────────────────────
+var solLastTap = { source: null, time: 0 };
+function solDoubleTap(source, cardIdx) {
+  var now = Date.now();
+  if (solLastTap.source === source && now - solLastTap.time < 400) {
+    // Double tap — move to foundation if possible
+    var cards = solGetCards(source, cardIdx);
+    if (cards.length === 1) {
+      var fi = solFindFoundationForCard(cards[0]);
+      if (fi >= 0) {
+        solRemoveCards(source, cardIdx);
+        solState.foundations[fi].push(cards[0]);
+        solSelected = null; solMoves++; solUpdateMoves();
+        solRenderAll(); solAutoComplete(); return;
+      }
+    }
+  }
+  solLastTap = { source: source, time: now };
+  solSelectCard(source, cardIdx);
+}
+
+// ── Drag and drop ─────────────────────────────────────────────────────────────
+var solDragSrc = null; var solDragIdx = null;
+function solDragStart(e, source, cardIdx) {
+  solDragSrc = source; solDragIdx = cardIdx;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text', source + '|' + cardIdx);
+}
+function solDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function solDropOnFoundation(e, fi) {
+  e.preventDefault();
+  if (!solState) return;
+  var src = solDragSrc; var idx = solDragIdx;
+  solDragSrc = null; solDragIdx = null;
+  if (!src) return;
+  var cards = solGetCards(src, idx);
+  if (cards.length === 1 && solCanPlaceOnFoundation(cards[0], fi)) {
+    solRemoveCards(src, idx); solState.foundations[fi].push(cards[0]);
+    solSelected = null; solMoves++; solUpdateMoves(); solRenderAll(); solAutoComplete();
+  }
+}
+function solDropOnTableau(e, tc) {
+  e.preventDefault();
+  if (!solState) return;
+  var src = solDragSrc; var idx = solDragIdx;
+  solDragSrc = null; solDragIdx = null;
+  if (!src) return;
+  var cards = solGetCards(src, idx);
+  if (cards.length > 0 && solCanPlaceOnTableau(cards[0], solState.tableau[tc])) {
+    solRemoveCards(src, idx);
+    for (var i = 0; i < cards.length; i++) solState.tableau[tc].push(cards[i]);
+    solSelected = null; solMoves++; solUpdateMoves(); solRenderAll(); solAutoComplete();
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function solMakeCard(card, source, cardIdx, isTop) {
+  var div = document.createElement('div');
+  div.className = 'sol-card' + (card.faceUp ? (solIsRed(card.suit) ? ' red' : ' black') : ' face-down');
+  if (solSelected && solSelected.source === source && solSelected.cardIdx === cardIdx)
+    div.classList.add('selected');
+
+  if (card.faceUp) {
+    var rank = document.createElement('span'); rank.className = 'sol-rank';
+    rank.textContent = SOL_RANKS[card.rank] + SOL_SUITS[card.suit];
+    var center = document.createElement('span'); center.className = 'sol-center';
+    center.textContent = SOL_SUITS[card.suit];
+    var suitBot = document.createElement('span'); suitBot.className = 'sol-suit';
+    suitBot.textContent = SOL_RANKS[card.rank] + SOL_SUITS[card.suit];
+    div.appendChild(rank); div.appendChild(center); div.appendChild(suitBot);
+
+    if (isTop) {
+      div.setAttribute('draggable', 'true');
+      div.addEventListener('dragstart', function(e){ solDragStart(e, source, cardIdx); });
+    }
+    div.addEventListener('click', function(e){ e.stopPropagation(); solDoubleTap(source, cardIdx); });
+  }
+  return div;
+}
+
+function solEmptySlot() {
+  var div = document.createElement('div'); div.className = 'sol-empty-slot'; return div;
+}
+
+function solRenderAll() {
+  if (!solState) return;
+  var s = solState;
+
+  // Stock
+  var stockEl = document.getElementById('sol-stock');
+  stockEl.innerHTML = '';
+  if (s.stock.length > 0) {
+    var sc = document.createElement('div');
+    sc.className = 'sol-card face-down';
+    sc.style.cursor = 'pointer';
+    sc.onclick = solDrawFromStock;
+    var cnt = document.createElement('span');
+    cnt.style.cssText = 'font-size:10px;position:absolute;top:2px;right:4px;font-family:VT323,monospace;';
+    cnt.textContent = s.stock.length;
+    sc.appendChild(cnt);
+    stockEl.appendChild(sc);
+  } else {
+    var recycleDiv = document.createElement('div');
+    recycleDiv.className = 'sol-empty-slot';
+    recycleDiv.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;';
+    recycleDiv.textContent = '↺';
+    recycleDiv.onclick = solDrawFromStock;
+    stockEl.appendChild(recycleDiv);
+  }
+
+  // Waste — show up to 3 cards fanned, only top is interactive
+  var wasteEl = document.getElementById('sol-waste');
+  wasteEl.innerHTML = '';
+  wasteEl.style.position = 'relative';
+  wasteEl.style.minWidth = '52px';
+  wasteEl.style.height = '74px';
+  if (s.waste.length === 0) {
+    wasteEl.appendChild(solEmptySlot());
+  } else {
+    var show = solDraw === 3 ? Math.min(3, s.waste.length) : 1;
+    var startIdx = s.waste.length - show;
+    for (var wi = 0; wi < show; wi++) {
+      var wcard = s.waste[startIdx + wi];
+      var isTopW = (wi === show - 1);
+      var wdiv = solMakeCard(wcard, 'waste', 0, isTopW);
+      wdiv.style.position = 'absolute';
+      wdiv.style.left = (wi * 16) + 'px';
+      wdiv.style.top = '0';
+      wdiv.style.zIndex = wi;
+      if (!isTopW) { wdiv.style.pointerEvents = 'none'; }
+      wasteEl.appendChild(wdiv);
+    }
+    wasteEl.style.width = ((show-1)*16 + 52) + 'px';
+  }
+
+  // Foundations
+  var foundSuitSymbols = ['♠','♥','♦','♣'];
+  for (var fi = 0; fi < 4; fi++) {
+    var fEl = document.getElementById('sol-found-' + fi);
+    fEl.innerHTML = '';
+    fEl.ondragover = (function(idx){ return function(e){ e.preventDefault(); }; })(fi);
+    fEl.ondrop     = (function(idx){ return function(e){ solDropOnFoundation(e,idx); }; })(fi);
+    fEl.onclick    = (function(idx){ return function(){ if(solSelected){ solTryMove(solSelected.source, solSelected.cardIdx, 'found_'+idx) && (solSelected=null,solMoves++,solUpdateMoves(),solRenderAll(),solAutoComplete()); } }; })(fi);
+    if (s.foundations[fi].length === 0) {
+      fEl.textContent = foundSuitSymbols[fi];
+    } else {
+      var topF = s.foundations[fi][s.foundations[fi].length - 1];
+      var fdiv = solMakeCard(topF, 'found_' + fi, 0, true);
+      fEl.appendChild(fdiv);
+    }
+  }
+
+  // Tableau
+  var tabEl = document.getElementById('sol-tableau');
+  tabEl.innerHTML = '';
+  for (var tc = 0; tc < 7; tc++) {
+    var col = document.createElement('div');
+    col.className = 'sol-col';
+    col.style.cssText = 'display:flex;flex-direction:column;flex:1;max-width:60px;min-width:48px;';
+    col.ondragover = (function(c){ return function(e){ e.preventDefault(); }; })(tc);
+    col.ondrop     = (function(c){ return function(e){ solDropOnTableau(e,c); }; })(tc);
+    col.onclick    = (function(c){ return function(){ if(solSelected){ var moved=solTryMove(solSelected.source,solSelected.cardIdx,'tab_'+c); if(moved){ solSelected=null;solMoves++;solUpdateMoves();solRenderAll();solAutoComplete(); } } }; })(tc);
+
+    var colCards = s.tableau[tc];
+    if (colCards.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'sol-empty-slot';
+      col.appendChild(empty);
+    } else {
+      for (var ci = 0; ci < colCards.length; ci++) {
+        var cc = colCards[ci];
+        var isTopC = (ci === colCards.length - 1);
+        var cdiv = solMakeCard(cc, 'tab_' + tc, ci, isTopC);
+        // Stack cards with negative margin
+        if (ci > 0) {
+          cdiv.style.marginTop = cc.faceUp ? '-44px' : '-58px';
+        }
+        cdiv.style.zIndex = ci;
+        col.appendChild(cdiv);
+      }
+    }
+    tabEl.appendChild(col);
+  }
+}
+
+// Show best times on home load
+document.addEventListener('DOMContentLoaded', function() {
+  solRenderBestTimes();
+});
 
 </script>
 </html>
