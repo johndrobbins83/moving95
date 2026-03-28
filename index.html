@@ -1507,8 +1507,29 @@
   }
 
   /* ── SOLITAIRE ── */
+  /* ── Solitaire layout — uses CSS variables for responsive scaling ── */
+  :root {
+    --sol-cw: 62px;   /* card width */
+    --sol-ch: 88px;   /* card height */
+    --sol-gap: 8px;
+    --sol-overlap-down: -68px;  /* face-down overlap */
+    --sol-overlap-up:   -52px;  /* face-up overlap */
+    --sol-font-corner:  15px;
+    --sol-font-center:  28px;
+  }
+  @media (max-width: 480px) {
+    :root {
+      --sol-cw: 44px;
+      --sol-ch: 62px;
+      --sol-gap: 4px;
+      --sol-overlap-down: -50px;
+      --sol-overlap-up:   -38px;
+      --sol-font-corner:  11px;
+      --sol-font-center:  20px;
+    }
+  }
   .sol-card {
-    width: 52px; height: 74px;
+    width: var(--sol-cw); height: var(--sol-ch);
     border-radius: 4px;
     border: 1px solid #888;
     background: white;
@@ -1520,6 +1541,7 @@
     position: relative;
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
   .sol-card.face-down {
     background: linear-gradient(135deg,#1a237e 25%,#283593 25%,#283593 50%,#1a237e 50%,#1a237e 75%,#283593 75%);
@@ -1529,37 +1551,43 @@
   .sol-card.red { color: #c62828; }
   .sol-card.black { color: #111; }
   .sol-card.selected { outline: 3px solid #1565c0; outline-offset: 1px; }
-  .sol-card .sol-rank { position:absolute; top:2px; left:4px; font-size:14px; line-height:1; }
-  .sol-card .sol-suit { position:absolute; bottom:2px; right:4px; font-size:14px; line-height:1; }
-  .sol-card .sol-center { font-size:24px; }
+  .sol-card .sol-rank { position:absolute; top:2px; left:4px; font-size:var(--sol-font-corner); line-height:1; }
+  .sol-card .sol-suit { position:absolute; bottom:2px; right:4px; font-size:var(--sol-font-corner); line-height:1; }
+  .sol-card .sol-center { font-size:var(--sol-font-center); }
   .sol-empty-slot {
-    width: 52px; height: 74px;
+    width: var(--sol-cw); height: var(--sol-ch);
     border-radius: 4px;
     border: 2px dashed #aaa;
     background: rgba(0,0,0,0.04);
     flex-shrink: 0;
+    box-sizing: border-box;
   }
   .sol-foundation {
-    width: 52px; height: 74px;
+    width: var(--sol-cw); height: var(--sol-ch);
     border-radius: 4px;
     border: 2px dashed #888;
     background: rgba(0,100,0,0.08);
     display: flex; align-items: center; justify-content: center;
-    font-size: 22px; color: #aaa;
+    font-size: var(--sol-font-center); color: #aaa;
     flex-shrink: 0;
+    box-sizing: border-box;
   }
   .sol-col {
     display: flex; flex-direction: column;
-    position: relative; min-width: 52px;
-    flex: 1; max-width: 60px;
+    position: relative;
+    flex: 1;
+    min-width: var(--sol-cw);
+    max-width: calc(var(--sol-cw) + 16px);
   }
-  .sol-col-card {
-    position: relative; margin-top: -52px;
-  }
+  .sol-col-card { position: relative; margin-top: var(--sol-overlap-down); }
   .sol-col-card:first-child { margin-top: 0; }
-  .sol-col-card.face-up-card { margin-top: -44px; }
+  .sol-col-card.face-up-card { margin-top: var(--sol-overlap-up); }
   .sol-col-card.face-up-card:first-child { margin-top: 0; }
   #sol-stock .sol-card { cursor: pointer; }
+  /* Board container */
+  #sol-board { max-width: 720px; margin: 0 auto; }
+  #sol-top-row { gap: var(--sol-gap) !important; }
+  #sol-tableau { gap: var(--sol-gap) !important; }
   .sol-rave-card.selected { outline: 3px solid #ffff00 !important; outline-offset: 2px; box-shadow: 0 0 12px #ffff00 !important; }
   .sol-rave-card .sol-rank, .sol-rave-card .sol-suit { font-size: 13px; }
   body.rave-mode .sol-card.face-down {
@@ -4282,7 +4310,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <!-- Snake icon -->
       <div onclick="showGameSection('snake')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
         <div style="width:72px;height:72px;background:#000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);border:2px solid #33ff33;" class="game-icon-bg game-icon-snake">🪱</div>
-        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Tapeworm</span>
+        <span id="gameLabelTapeworm" style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Tapeworm</span>
       </div>
 
       <!-- Trivia icon -->
@@ -4300,14 +4328,14 @@ document.addEventListener('DOMContentLoaded', function() {
       <!-- Solitaire icon -->
       <div onclick="showGameSection('solitaire')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
         <div style="width:72px;height:72px;background:linear-gradient(135deg,#1a237e,#7b1fa2);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-solitaire">🃏</div>
-        <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Solitaire</span>
+        <span id="gameLabelSolitaire" style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Solitaire</span>
       </div>
 
-      <!-- EDM Trivia — RAVE MODE ONLY -->
+      <!-- Rave Trivia — RAVE MODE ONLY -->
       <div id="edmTriviaIcon" onclick="showGameSection('edm')" class="game-icon-card edm-icon-card" style="display:none;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;grid-column:span 2;">
         <div style="width:80px;height:80px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:40px;" class="game-icon-bg game-icon-edm">🎧</div>
         <div style="text-align:center;">
-          <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:#ffff00;text-shadow:0 0 10px #ff00ff;">EDM Trivia</div>
+          <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:#ffff00;text-shadow:0 0 10px #ff00ff;">Rave Trivia</div>
           <div style="font-family:'VT323',monospace;font-size:13px;font-weight:normal;color:#00ffff;text-shadow:0 0 6px #00ffff;">⚡ RAVE MODE EXCLUSIVE ⚡</div>
         </div>
       </div>
@@ -5210,7 +5238,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div class="win-card" style="background:#000;border-color:#ff00ff;">
     <div class="win-card-title" style="background:linear-gradient(to right,#ff00ff,#00ffff,#ff00ff);background-size:200% 100%;animation:edmGradient 3s ease infinite;">
-      <span style="color:#000;text-shadow:none;">🎧 EDM Trivia</span>
+      <span style="color:#000;text-shadow:none;">🎧 Rave Trivia</span>
       <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(0,0,0,0.5);color:#ffff00;border-color:#ff00ff;font-size:13px;">← Games</button>
     </div>
   </div>
@@ -6250,7 +6278,7 @@ function showPage(name) {
   if (wrench) wrench.classList.toggle('active-page', isConfig);
 
   // Update header subtitle
-  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', solitaire:'🃏 Solitaire', edm:'🎧 EDM Trivia', profile:'My Profile', budget:'Move Budget' };
+  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', solitaire:'🃏 Solitaire', edm:'🎧 Rave Trivia', profile:'My Profile', budget:'Move Budget' };
   // headerStatus removed
 
   // Auto-load viewer when switching to it
@@ -9734,6 +9762,18 @@ function updateEdmIconVisibility() {
   if (!icon) return;
   var isRave = document.body.classList.contains('rave-mode');
   icon.style.display = isRave ? 'flex' : 'none';
+  // Rename game labels in rave mode
+  var tapewormLabel  = document.getElementById('gameLabelTapeworm');
+  var solitaireLabel = document.getElementById('gameLabelSolitaire');
+  if (tapewormLabel)  tapewormLabel.textContent  = isRave ? 'Raveworm'        : 'Tapeworm';
+  if (solitaireLabel) solitaireLabel.textContent = isRave ? 'Trippy Solitaire' : 'Solitaire';
+  // Also rename the Solitaire page header
+  var solHeader = document.querySelector('#page-solitaire .win-card-title span');
+  if (solHeader) solHeader.textContent = isRave ? '🃏 Trippy Solitaire' : '🃏 Solitaire';
+  var solSubtitle = document.querySelector('#sol-home div[style*="color:var"]');
+  if (solSubtitle) solSubtitle.textContent = isRave
+    ? 'Trippy Solitaire — rave shuffle every game 🍄'
+    : 'Classic Klondike Solitaire — new shuffle every game';
 }
 
 // Patch setColorMode to update EDM visibility
@@ -10591,7 +10631,8 @@ function solRenderAll() {
       if (!isTopW) { wdiv.style.pointerEvents = 'none'; }
       wasteEl.appendChild(wdiv);
     }
-    wasteEl.style.width = ((show-1)*16 + 52) + 'px';
+    var solCW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sol-cw')) || 62;
+    wasteEl.style.width = ((show-1)*16 + solCW) + 'px';
   }
 
   // Foundations
@@ -10624,7 +10665,7 @@ function solRenderAll() {
   for (var tc = 0; tc < 7; tc++) {
     var col = document.createElement('div');
     col.className = 'sol-col';
-    col.style.cssText = 'display:flex;flex-direction:column;flex:1;max-width:60px;min-width:48px;';
+    col.className = 'sol-col';
     col.ondragover = (function(c){ return function(e){ e.preventDefault(); }; })(tc);
     col.ondrop     = (function(c){ return function(e){ solDropOnTableau(e,c); }; })(tc);
     col.onclick    = (function(c){ return function(){ if(solSelected){ var moved=solTryMove(solSelected.source,solSelected.cardIdx,'tab_'+c); if(moved){ solSelected=null;solMoves++;solUpdateMoves();solRenderAll();solAutoComplete(); } } }; })(tc);
@@ -10641,7 +10682,10 @@ function solRenderAll() {
         var cdiv = solMakeCard(cc, 'tab_' + tc, ci, isTopC);
         // Stack cards with negative margin
         if (ci > 0) {
-          cdiv.style.marginTop = cc.faceUp ? '-44px' : '-58px';
+          var _st = getComputedStyle(document.documentElement);
+          var _ou = (_st.getPropertyValue('--sol-overlap-up') || '-52px').trim();
+          var _od = (_st.getPropertyValue('--sol-overlap-down') || '-68px').trim();
+          cdiv.style.marginTop = cc.faceUp ? _ou : _od;
         }
         cdiv.style.zIndex = ci;
         col.appendChild(cdiv);
