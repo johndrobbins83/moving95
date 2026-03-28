@@ -1201,6 +1201,48 @@
   }
   #headerWeather:hover { opacity: 1; }
   #headerWeather .weather-icon { font-size: 16px; }
+
+  /* ── TRIVIA GAME ── */
+  .trivia-cat-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 8px;
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    background: var(--face);
+    border-top: 2px solid var(--light);
+    border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker);
+    border-bottom: 2px solid var(--darker);
+    color: var(--black);
+    transition: opacity 0.15s;
+  }
+  .trivia-cat-btn:active { opacity: 0.7; }
+  .trivia-ans-btn {
+    padding: 12px 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
+    background: var(--face);
+    border-top: 2px solid var(--light);
+    border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker);
+    border-bottom: 2px solid var(--darker);
+    color: var(--black);
+    transition: background 0.15s;
+  }
+  .trivia-ans-btn:disabled { cursor: default; }
+  .trivia-ans-btn.correct  { background: #c8e6c9 !important; border-color: #2e7d32 !important; color: #1b5e20 !important; }
+  .trivia-ans-btn.wrong    { background: #ffcdd2 !important; border-color: #c62828 !important; color: #7f0000 !important; }
+  .trivia-ans-btn.reveal   { background: #fff9c4 !important; border-color: #f9a825 !important; }
+
 </style>
 <script>
 // Address autocomplete — uses Nominatim (OpenStreetMap), no API key needed
@@ -3954,13 +3996,19 @@ document.addEventListener('DOMContentLoaded', function() {
       <!-- Hunt icon -->
       <div onclick="showGameSection('hunt')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
         <div style="width:72px;height:72px;background:linear-gradient(135deg,#b71c1c,#e53935);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);">🏆</div>
-        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Scavenger Hunt</span>
+        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">The Hunt</span>
       </div>
 
       <!-- Snake icon -->
       <div onclick="showGameSection('snake')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
         <div style="width:72px;height:72px;background:#000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);border:2px solid #33ff33;">🐍</div>
-        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Snake</span>
+        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Tapeworm</span>
+      </div>
+
+      <!-- Trivia icon -->
+      <div onclick="showGameSection('trivia')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#1565c0,#42a5f5);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);">🍺</div>
+        <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;text-align:center;color:var(--black);">Bar Trivia</span>
       </div>
 
     </div>
@@ -3971,12 +4019,135 @@ document.addEventListener('DOMContentLoaded', function() {
   <div id="gamePanel-snake" style="display:none;"></div>
 </div>
 
+
+<!-- ══════════════════════════════
+     PAGE: TRIVIA
+══════════════════════════════ -->
+<div class="page" id="page-trivia">
+
+  <div class="win-card">
+    <div class="win-card-title" style="background:linear-gradient(to right,#1565c0,#1e88e5);">
+      <span>🍺 Bar Trivia</span>
+      <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(255,255,255,0.2);color:white;border-color:rgba(255,255,255,0.4);font-size:13px;">← Games</button>
+    </div>
+  </div>
+
+  <!-- Home screen: category picker -->
+  <div id="trivia-home" style="padding:16px;">
+
+    <!-- Score bar (shown after first question) -->
+    <div id="trivia-scorebar" style="display:none;margin-bottom:14px;">
+      <div style="display:flex;gap:0;border:2px solid var(--darker);overflow:hidden;">
+        <div style="flex:1;background:var(--face);padding:8px 12px;text-align:center;border-right:1px solid var(--darker);">
+          <div style="font-size:11px;font-weight:normal;color:#555;">SCORE</div>
+          <div id="trivia-score-val" style="font-size:26px;font-weight:bold;color:var(--blue);">0</div>
+        </div>
+        <div style="flex:1;background:var(--face);padding:8px 12px;text-align:center;border-right:1px solid var(--darker);">
+          <div style="font-size:11px;font-weight:normal;color:#555;">STREAK 🔥</div>
+          <div id="trivia-streak-val" style="font-size:26px;font-weight:bold;color:#e53935;">0</div>
+        </div>
+        <div style="flex:1;background:var(--face);padding:8px 12px;text-align:center;">
+          <div style="font-size:11px;font-weight:normal;color:#555;">CORRECT</div>
+          <div id="trivia-correct-val" style="font-size:26px;font-weight:bold;color:#2e7d32;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:var(--black);margin-bottom:12px;text-align:center;">Pick a category:</div>
+
+    <!-- Category grid -->
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:480px;margin:0 auto;">
+
+      <button onclick="startTrivia('music')" class="trivia-cat-btn">
+        <span style="font-size:32px;">🎵</span>
+        <span>Music</span>
+      </button>
+
+      <button onclick="startTrivia('movies')" class="trivia-cat-btn">
+        <span style="font-size:32px;">🎬</span>
+        <span>Movies</span>
+      </button>
+
+      <button onclick="startTrivia('history')" class="trivia-cat-btn">
+        <span style="font-size:32px;">📜</span>
+        <span>History</span>
+      </button>
+
+      <button onclick="startTrivia('literature')" class="trivia-cat-btn">
+        <span style="font-size:32px;">📚</span>
+        <span>Literature</span>
+      </button>
+
+      <button onclick="startTrivia('popculture')" class="trivia-cat-btn">
+        <span style="font-size:32px;">⭐</span>
+        <span>Pop Culture</span>
+      </button>
+
+      <button onclick="startTrivia('states')" class="trivia-cat-btn" id="trivia-states-btn" style="position:relative;">
+        <span style="font-size:32px;">🗺️</span>
+        <span>Route States</span>
+        <span id="trivia-states-badge" style="display:none;position:absolute;top:6px;right:6px;background:#e53935;color:white;font-size:10px;font-family:Arial,sans-serif;padding:1px 5px;border-radius:8px;">LIVE</span>
+      </button>
+
+      <button onclick="startTrivia('random')" class="trivia-cat-btn" style="grid-column:span 2;background:linear-gradient(to right,var(--blue),var(--blue2));color:white;border-color:var(--blue);">
+        <span style="font-size:32px;">🎲</span>
+        <span>Random Mix</span>
+      </button>
+
+    </div>
+
+    <div id="trivia-route-status" style="margin-top:12px;font-size:13px;font-weight:normal;color:#888;text-align:center;"></div>
+  </div>
+
+  <!-- Question screen -->
+  <div id="trivia-quiz" style="display:none;padding:16px;">
+
+    <!-- Header bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <button onclick="endTrivia()" style="font-family:'VT323',monospace;font-size:16px;background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);padding:4px 12px;cursor:pointer;color:var(--black);">← Back</button>
+      <div style="font-family:'VT323',monospace;font-size:16px;color:var(--black);">
+        <span id="trivia-q-cat" style="opacity:0.7;"></span>
+        &nbsp;|&nbsp;Q&nbsp;<span id="trivia-q-num">1</span>
+      </div>
+      <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:var(--blue);">
+        🏆&nbsp;<span id="trivia-q-score">0</span>
+      </div>
+    </div>
+
+    <!-- Difficulty badge -->
+    <div id="trivia-difficulty" style="text-align:center;margin-bottom:8px;"></div>
+
+    <!-- Question card -->
+    <div class="win-card" style="margin-bottom:12px;">
+      <div class="win-card-body" style="padding:16px;">
+        <div id="trivia-question" style="font-size:18px;font-weight:bold;line-height:1.4;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;"></div>
+      </div>
+    </div>
+
+    <!-- Answer buttons -->
+    <div id="trivia-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"></div>
+
+    <!-- Feedback -->
+    <div id="trivia-feedback" style="display:none;padding:12px;text-align:center;font-size:17px;font-weight:bold;margin-bottom:12px;"></div>
+
+    <!-- Loading spinner -->
+    <div id="trivia-loading" style="display:none;text-align:center;padding:20px;font-size:16px;font-weight:normal;color:#555;">⏳ Loading question...</div>
+
+    <!-- Next button -->
+    <button id="trivia-next-btn" onclick="nextTriviaQuestion()" style="display:none;width:100%;font-family:'VT323',monospace;font-size:20px;font-weight:bold;background:var(--blue);color:white;border:none;padding:12px;cursor:pointer;letter-spacing:1px;">
+      NEXT QUESTION ▶
+    </button>
+
+  </div>
+
+</div>
+
 <div class="page" id="page-hunt">
 
   <!-- Header card -->
   <div class="win-card">
     <div class="win-card-title" style="background:linear-gradient(to right,#b71c1c,#e53935);">
-      <span>🏆 Road Trip Scavenger Hunt</span>
+      <span>🏆 The Hunt</span>
       <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(255,255,255,0.2);color:white;border-color:rgba(255,255,255,0.4);font-size:13px;">← Games</button>
       <button class="cal-nav-btn" onclick="resetHunt()" style="background:rgba(255,255,255,0.2);color:white;border-color:rgba(255,255,255,0.4);font-size:13px;">↺ Reset</button>
     </div>
@@ -5397,15 +5568,15 @@ function showPage(name) {
   if (calcBtn) calcBtn.classList.toggle('active-page', isBudget);
 
   // Update header subtitle
-  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', profile:'My Profile', budget:'Move Budget' };
+  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', profile:'My Profile', budget:'Move Budget' };
   // headerStatus removed
 
   // Auto-load viewer when switching to it
   if (isViewer && allItems.length === 0) loadViewerData();
   // Refresh sync readiness when config page opens
   if (isConfig) updateSyncReadiness();
-  // Keep Games nav-btn lit when on hunt (hunt is a sub-page of Games)
-  if (name === 'hunt') {
+  // Keep Games nav-btn lit when on hunt or trivia (sub-pages of Games)
+  if (name === 'hunt' || name === 'trivia') {
     const gamesBtn = document.getElementById('nav-games');
     if (gamesBtn) gamesBtn.classList.add('active');
   }
@@ -7985,7 +8156,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GAMES PAGE ──────────────────────────────────────────────────────────────
 function showGameSection(game) {
-  if (game === 'hunt') {
+  if (game === 'trivia') {
+    showPage('trivia');
+    updateTriviaRouteStatus();
+  } else if (game === 'hunt') {
     showPage('hunt');
   } else if (game === 'snake') {
     // Snake lives in Config → navigate there and open the snake section
@@ -8002,5 +8176,244 @@ function showGameSection(game) {
     }, 150);
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  TRIVIA GAME
+// ══════════════════════════════════════════════════════════════════════════════
+var triviaState = {
+  score: 0, streak: 0, correct: 0, total: 0,
+  category: null, qNum: 0,
+  pool: [],       // buffered questions
+  current: null
+};
+
+// Open Trivia DB category IDs
+var OTDB_CATS = {
+  music:       12,
+  movies:      11,
+  history:     23,
+  literature:  10,
+  popculture:  14   // TV (good proxy for pop culture)
+};
+
+function showPage_trivia() { showPage('trivia'); updateTriviaRouteStatus(); }
+
+function updateTriviaRouteStatus() {
+  var rd = typeof currentRouteData !== 'undefined' ? currentRouteData : null;
+  var el = document.getElementById('trivia-route-status');
+  var badge = document.getElementById('trivia-states-badge');
+  if (!el) return;
+  if (rd && (rd.origin || rd.dest)) {
+    var places = [rd.origin, rd.dest].filter(Boolean).join(' → ');
+    el.textContent = '🗺️ Route detected: ' + places + ' — state trivia will be tailored to your trip!';
+    el.style.color = '#2e7d32';
+    if (badge) badge.style.display = 'inline-block';
+  } else {
+    el.textContent = 'Plan a route first for tailored state trivia. Other categories work anytime!';
+    el.style.color = '#888';
+    if (badge) badge.style.display = 'none';
+  }
+}
+
+// ── Fetch questions from Open Trivia DB ──────────────────────────────────────
+async function fetchOTDB(catId, amount) {
+  amount = amount || 10;
+  var url = 'https://opentdb.com/api.php?amount=' + amount +
+            '&category=' + catId + '&type=multiple&encode=url3986';
+  var res = await fetch(url);
+  var data = await res.json();
+  if (data.response_code !== 0) throw new Error('OTDB error ' + data.response_code);
+  return data.results.map(function(q) {
+    var answers = q.incorrect_answers.map(decodeURIComponent).concat([decodeURIComponent(q.correct_answer)]);
+    // shuffle
+    for (var i = answers.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = answers[i]; answers[i] = answers[j]; answers[j] = tmp;
+    }
+    return {
+      question:   decodeURIComponent(q.question),
+      correct:    decodeURIComponent(q.correct_answer),
+      answers:    answers,
+      difficulty: q.difficulty,
+      source:     'otdb'
+    };
+  });
+}
+
+// ── Fetch route state trivia via Anthropic API ───────────────────────────────
+async function fetchStateTrivia() {
+  var rd = typeof currentRouteData !== 'undefined' ? currentRouteData : null;
+  var places = [];
+  if (rd) {
+    if (rd.origin) places.push(rd.origin);
+    if (rd.stops)  places = places.concat(rd.stops);
+    if (rd.dest)   places.push(rd.dest);
+  }
+  var locationText = places.length
+    ? 'The route travels through or near: ' + places.join(', ') + '.'
+    : 'No specific route is set — generate trivia about interesting US states in general.';
+
+  var prompt = 'Generate 8 multiple-choice trivia questions about US states relevant to a road trip.\n' +
+    locationText + '\n\n' +
+    'Mix questions about history, geography, famous people, state symbols, landmarks, and fun facts.\n' +
+    'Return ONLY a JSON array, no markdown. Each object:\n' +
+    '{"question":"...","correct":"...","answers":["correct","wrong1","wrong2","wrong3"],"difficulty":"easy|medium|hard"}\n' +
+    'Shuffle the answers array so correct is not always first.';
+
+  var res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  var data = await res.json();
+  var raw = (data.content || []).map(function(b){ return b.text || ''; }).join('');
+  var clean = raw.replace(/```json|```/g, '').trim();
+  var items = JSON.parse(clean);
+  return items.map(function(q) {
+    return {
+      question:   q.question,
+      correct:    q.correct,
+      answers:    q.answers,
+      difficulty: q.difficulty || 'medium',
+      source:     'states'
+    };
+  });
+}
+
+// ── Start a trivia session ────────────────────────────────────────────────────
+async function startTrivia(category) {
+  triviaState.category = category;
+  triviaState.qNum     = 0;
+  triviaState.pool     = [];
+
+  document.getElementById('trivia-home').style.display = 'none';
+  document.getElementById('trivia-quiz').style.display = 'block';
+  document.getElementById('trivia-q-cat').textContent  =
+    { music:'🎵 Music', movies:'🎬 Movies', history:'📜 History',
+      literature:'📚 Literature', popculture:'⭐ Pop Culture',
+      states:'🗺️ Route States', random:'🎲 Random' }[category] || category;
+
+  await loadNextQuestion();
+}
+
+function endTrivia() {
+  document.getElementById('trivia-home').style.display = 'block';
+  document.getElementById('trivia-quiz').style.display = 'none';
+  // Update scorebar
+  var sb = document.getElementById('trivia-scorebar');
+  if (triviaState.total > 0 && sb) {
+    sb.style.display = 'block';
+    document.getElementById('trivia-score-val').textContent   = triviaState.score;
+    document.getElementById('trivia-streak-val').textContent  = triviaState.streak;
+    document.getElementById('trivia-correct-val').textContent = triviaState.correct + '/' + triviaState.total;
+  }
+}
+
+// ── Load / buffer questions ───────────────────────────────────────────────────
+async function loadNextQuestion() {
+  document.getElementById('trivia-loading').style.display   = 'block';
+  document.getElementById('trivia-answers').style.display   = 'none';
+  document.getElementById('trivia-question').textContent    = '';
+  document.getElementById('trivia-feedback').style.display  = 'none';
+  document.getElementById('trivia-next-btn').style.display  = 'none';
+  document.getElementById('trivia-difficulty').innerHTML    = '';
+
+  // Refill pool if empty
+  if (triviaState.pool.length === 0) {
+    try {
+      var newQs;
+      var cat = triviaState.category;
+      if (cat === 'states') {
+        newQs = await fetchStateTrivia();
+      } else if (cat === 'random') {
+        var cats = Object.values(OTDB_CATS);
+        var picked = cats[Math.floor(Math.random() * cats.length)];
+        newQs = await fetchOTDB(picked, 10);
+      } else {
+        newQs = await fetchOTDB(OTDB_CATS[cat], 10);
+      }
+      triviaState.pool = newQs;
+    } catch(e) {
+      document.getElementById('trivia-loading').style.display = 'none';
+      document.getElementById('trivia-question').textContent  = '⚠ Could not load questions: ' + e.message + '. Check your internet connection.';
+      return;
+    }
+  }
+
+  triviaState.current = triviaState.pool.shift();
+  triviaState.qNum++;
+
+  displayQuestion(triviaState.current);
+}
+
+// ── Display a question ────────────────────────────────────────────────────────
+function displayQuestion(q) {
+  document.getElementById('trivia-loading').style.display  = 'none';
+  document.getElementById('trivia-q-num').textContent      = triviaState.qNum;
+  document.getElementById('trivia-question').innerHTML     = q.question;
+  document.getElementById('trivia-answers').style.display  = 'grid';
+
+  // Difficulty badge
+  var diffEl = document.getElementById('trivia-difficulty');
+  var diffMap = { easy: ['🟢', '#2e7d32'], medium: ['🟡', '#f57f17'], hard: ['🔴', '#c62828'] };
+  var dm = diffMap[q.difficulty] || ['⚪', '#555'];
+  diffEl.innerHTML = '<span style="font-size:13px;font-weight:normal;color:' + dm[1] + ';">' + dm[0] + ' ' + q.difficulty.toUpperCase() + '</span>';
+
+  // Answer buttons
+  var container = document.getElementById('trivia-answers');
+  container.innerHTML = '';
+  q.answers.forEach(function(ans) {
+    var btn = document.createElement('button');
+    btn.className   = 'trivia-ans-btn';
+    btn.innerHTML   = ans;
+    btn.onclick     = function() { handleAnswer(ans, btn); };
+    container.appendChild(btn);
+  });
+}
+
+// ── Handle answer selection ───────────────────────────────────────────────────
+function handleAnswer(chosen, btn) {
+  var q = triviaState.current;
+  // Disable all buttons
+  var allBtns = document.getElementById('trivia-answers').querySelectorAll('.trivia-ans-btn');
+  allBtns.forEach(function(b) {
+    b.disabled = true;
+    if (b.innerHTML === q.correct) b.classList.add('correct');
+  });
+
+  var pts = { easy: 1, medium: 2, hard: 3 }[q.difficulty] || 2;
+  var fb  = document.getElementById('trivia-feedback');
+  fb.style.display = 'block';
+
+  if (chosen === q.correct) {
+    btn.classList.add('correct');
+    triviaState.score   += pts;
+    triviaState.streak  += 1;
+    triviaState.correct += 1;
+    var bonus = triviaState.streak >= 3 ? ' 🔥 ' + triviaState.streak + ' streak! +' + pts : ' +' + pts;
+    fb.textContent  = '✅ Correct!' + bonus + ' point' + (pts !== 1 ? 's' : '') + '!';
+    fb.style.color  = '#2e7d32';
+    fb.style.background = '#e8f5e9';
+  } else {
+    btn.classList.add('wrong');
+    triviaState.streak = 0;
+    fb.innerHTML   = '❌ Nope! Correct: <b>' + q.correct + '</b>';
+    fb.style.color = '#c62828';
+    fb.style.background = '#ffebee';
+  }
+
+  triviaState.total += 1;
+  document.getElementById('trivia-q-score').textContent = triviaState.score;
+  document.getElementById('trivia-next-btn').style.display = 'block';
+}
+
+function nextTriviaQuestion() {
+  loadNextQuestion();
+}
+
 </script>
 </html>
