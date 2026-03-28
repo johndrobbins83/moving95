@@ -1560,6 +1560,8 @@
   .sol-col-card.face-up-card { margin-top: -44px; }
   .sol-col-card.face-up-card:first-child { margin-top: 0; }
   #sol-stock .sol-card { cursor: pointer; }
+  .sol-rave-card.selected { outline: 3px solid #ffff00 !important; outline-offset: 2px; box-shadow: 0 0 12px #ffff00 !important; }
+  .sol-rave-card .sol-rank, .sol-rave-card .sol-suit { font-size: 13px; }
   body.rave-mode .sol-card.face-down {
     background: linear-gradient(135deg,#ff00ff 25%,#cc00cc 25%,#cc00cc 50%,#ff00ff 50%,#ff00ff 75%,#cc00cc 75%) !important;
     background-size: 12px 12px !important;
@@ -10481,19 +10483,51 @@ function solDropOnTableau(e, tc) {
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
+// Rave suit symbols: 0=spades(🪩disco) 1=hearts(💊pill) 2=diamonds(🍄shroom) 3=clubs(🌿weed)
+var SOL_RAVE_SUITS = ['🪩','💊','🍄','🌿'];
+// Rave neon colors per suit
+var SOL_RAVE_COLORS = ['#00ffff','#ff00ff','#ff4444','#00ff00'];
+
+function solIsRave() {
+  return document.body.classList.contains('rave-mode');
+}
+
+function solGetSuitSymbol(suit) {
+  return solIsRave() ? SOL_RAVE_SUITS[suit] : SOL_SUITS[suit];
+}
+
 function solMakeCard(card, source, cardIdx, isTop) {
   var div = document.createElement('div');
-  div.className = 'sol-card' + (card.faceUp ? (solIsRed(card.suit) ? ' red' : ' black') : ' face-down');
+  var rave = solIsRave();
+
+  if (card.faceUp) {
+    if (rave) {
+      // In rave mode: black background, neon color per suit, no red/black class
+      div.className = 'sol-card sol-rave-card';
+      div.style.color = SOL_RAVE_COLORS[card.suit];
+      div.style.background = '#0a0a0a';
+      div.style.border = '1px solid ' + SOL_RAVE_COLORS[card.suit];
+      div.style.boxShadow = '0 0 6px ' + SOL_RAVE_COLORS[card.suit] + '88';
+      div.style.textShadow = '0 0 4px ' + SOL_RAVE_COLORS[card.suit];
+    } else {
+      div.className = 'sol-card' + (solIsRed(card.suit) ? ' red' : ' black');
+    }
+  } else {
+    div.className = 'sol-card face-down';
+  }
+
   if (solSelected && solSelected.source === source && solSelected.cardIdx === cardIdx)
     div.classList.add('selected');
 
   if (card.faceUp) {
+    var sym = solGetSuitSymbol(card.suit);
     var rank = document.createElement('span'); rank.className = 'sol-rank';
-    rank.textContent = SOL_RANKS[card.rank] + SOL_SUITS[card.suit];
+    rank.textContent = SOL_RANKS[card.rank] + (rave ? '' : sym);
     var center = document.createElement('span'); center.className = 'sol-center';
-    center.textContent = SOL_SUITS[card.suit];
+    center.style.fontSize = rave ? '26px' : '24px';
+    center.textContent = sym;
     var suitBot = document.createElement('span'); suitBot.className = 'sol-suit';
-    suitBot.textContent = SOL_RANKS[card.rank] + SOL_SUITS[card.suit];
+    suitBot.textContent = SOL_RANKS[card.rank] + (rave ? '' : sym);
     div.appendChild(rank); div.appendChild(center); div.appendChild(suitBot);
 
     if (isTop) {
@@ -10561,7 +10595,7 @@ function solRenderAll() {
   }
 
   // Foundations
-  var foundSuitSymbols = ['♠','♥','♦','♣'];
+  var foundSuitSymbols = solIsRave() ? SOL_RAVE_SUITS : ['♠','♥','♦','♣'];
   for (var fi = 0; fi < 4; fi++) {
     var fEl = document.getElementById('sol-found-' + fi);
     fEl.innerHTML = '';
@@ -10570,6 +10604,13 @@ function solRenderAll() {
     fEl.onclick    = (function(idx){ return function(){ if(solSelected){ solTryMove(solSelected.source, solSelected.cardIdx, 'found_'+idx) && (solSelected=null,solMoves++,solUpdateMoves(),solRenderAll(),solAutoComplete()); } }; })(fi);
     if (s.foundations[fi].length === 0) {
       fEl.textContent = foundSuitSymbols[fi];
+      if (solIsRave()) {
+        fEl.style.color = SOL_RAVE_COLORS[fi];
+        fEl.style.textShadow = '0 0 8px ' + SOL_RAVE_COLORS[fi];
+        fEl.style.borderColor = SOL_RAVE_COLORS[fi];
+      } else {
+        fEl.style.color = ''; fEl.style.textShadow = ''; fEl.style.borderColor = '';
+      }
     } else {
       var topF = s.foundations[fi][s.foundations[fi].length - 1];
       var fdiv = solMakeCard(topF, 'found_' + fi, 0, true);
