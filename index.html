@@ -1841,6 +1841,12 @@ function resetHunt() {
 
 // Init on page load and when switching to hunt tab
 document.addEventListener('DOMContentLoaded', () => {
+  // Guard: if sheetUrl in localStorage is clearly not a real URL, wipe it
+  const _savedUrl = localStorage.getItem('sheetUrl') || '';
+  if (_savedUrl && !_savedUrl.startsWith('https://')) {
+    localStorage.removeItem('sheetUrl');
+    console.warn('Cleared invalid sheetUrl from localStorage:', _savedUrl);
+  }
   initHuntUI();
 });
 
@@ -5530,13 +5536,20 @@ function saveScriptUrlFromProfile() {
   const input = document.getElementById('profileScriptUrl');
   const url   = input ? input.value.trim() : '';
   if (!url) return;
+  // Only save if it looks like a real Apps Script URL
+  if (!url.startsWith('https://script.google.com/macros/s/')) {
+    const stat = document.getElementById('syncStatus');
+    if (stat) { stat.textContent = "⚠ That doesn't look like a valid Apps Script /exec URL."; stat.style.color = "#cc0000"; }
+    return;
+  }
   localStorage.setItem('sheetUrl', url);
-  // Update the main config field
-  const mainInput = document.getElementById('sheetUrl');
-  if (mainInput) mainInput.value = url;
-  // Also update the login screen Script URL field immediately
+  // Update all URL fields in sync
+  const mainInput  = document.getElementById('sheetUrl');
   const loginInput = document.getElementById('loginScriptUrl');
+  if (mainInput)  mainInput.value  = url;
   if (loginInput) loginInput.value = url;
+  // Refresh the login display box
+  initLoginUrlDisplay();
   updateProfileScriptStatus();
   silentPushProfile();
   const stat = document.getElementById('syncStatus');
@@ -5665,22 +5678,43 @@ async function syncProfileFromSheet(fromProfile) {
 
   stat.textContent = 'Pulling config from cloud...'; stat.style.color = '#555';
   try {
-    const res  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
-    let data = null;
-    if (res.ok) {
-      const text = await res.text();
-      try { data = JSON.parse(text); } catch(e) {
-        const stat = document.getElementById('syncStatus');
-        if (stat) {
-          stat.textContent = '⚠ Script returned non-JSON: "' + text.substring(0,80) + '..." — Make sure your Script URL ends with /exec and is deployed correctly.';
-          stat.style.color = '#cc0000';
-        }
-        return;
-      }
+    let res, text, data = null, fetchError = null;
+    try {
+      res  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(user.toLowerCase()));
+      text = await res.text();
+    } catch(netErr) {
+      fetchError = netErr.message;
+    }
+
+    if (fetchError) {
+      stat.innerHTML = '<b>Network error pulling profile:</b> ' + fetchError +
+        '<br>→ Check internet connection and Script URL.';
+      stat.style.color = '#cc0000'; return;
+    }
+
+    if (!res.ok) {
+      stat.innerHTML = '<b>HTTP ' + res.status + ' from script.</b>' +
+        (res.status === 302 || res.status === 401 || res.status === 403
+          ? '<br>→ Script access denied. Redeploy with "Who has access = Anyone".'
+          : '<br>→ Check Script URL ends with /exec.');
+      stat.style.color = '#cc0000'; return;
+    }
+
+    if (text && (text.includes('<html') || text.includes('<!DOCTYPE'))) {
+      stat.innerHTML = '<b>Script returned HTML instead of JSON.</b>' +
+        '<br>→ URL must end with /exec (not /edit or /dev).' +
+        '<br>→ Or the new GS code has not been deployed yet.';
+      stat.style.color = '#cc0000'; return;
+    }
+
+    try { data = JSON.parse(text); } catch(e) {
+      stat.innerHTML = '<b>Could not parse script response:</b> ' + (text || '').substring(0, 100) +
+        '<br>→ Make sure the new MovingInventory.gs is saved and deployed.';
+      stat.style.color = '#cc0000'; return;
     }
 
     if (!data) {
-      stat.textContent = '⚠ No response from sheet. Check your Script URL.';
+      stat.textContent = '⚠ Empty response from script. Redeploy the GS file and try again.';
       stat.style.color = '#cc0000'; return;
     }
 
@@ -6038,10 +6072,12 @@ function saveSheetUrl() {
   }
   localStorage.setItem('sheetUrl', url);
   // Keep login screen and profile sync URL fields in sync
-  const loginInput   = document.getElementById('loginScriptUrl');
-  const profileInput = document.getElementById('profileScriptUrl');
-  if (loginInput)   loginInput.value   = url;
-  if (profileInput) profileInput.value = url;
+  const loginInput2   = document.getElementById('loginScriptUrl');
+  const profileInput2 = document.getElementById('profileScriptUrl');
+  if (loginInput2)   loginInput2.value   = url;
+  if (profileInput2) profileInput2.value = url;
+  // Refresh login display
+  if (typeof initLoginUrlDisplay === 'function') initLoginUrlDisplay();
   btn.textContent = '✅ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save URL'; }, 2000);
   updateSyncReadiness();
