@@ -165,10 +165,11 @@
     background: linear-gradient(to right, var(--blue), var(--blue2));
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    gap: 10px;
+    padding: 0 8px;
+    gap: 4px;
     z-index: 100;
     box-shadow: 0 2px 0 var(--darker);
+    overflow: hidden;
   }
   .app-header-icon { font-size: 24px; }
   .app-header-title { color: white; font-size: 22px; font-weight: bold; flex: 1; line-height: 1; }
@@ -182,10 +183,11 @@
     font-family: 'VT323', monospace;
   }
   .header-refresh-btn {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white; font-family: 'VT323', monospace;
-    font-size: 18px; padding: 4px 10px; cursor: pointer;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.85); font-family: 'VT323', monospace;
+    font-size: 16px; padding: 2px 4px; cursor: pointer;
+    flex-shrink: 0;
   }
 
   /* ── BOTTOM NAV ── */
@@ -762,21 +764,24 @@
     margin-bottom: 14px; line-height: 1.5;
   }
   .header-wrench-btn {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
+    background: none;
+    border: none;
     color: white; font-size: 20px;
-    padding: 4px 8px; cursor: pointer;
+    padding: 2px 5px; cursor: pointer;
     font-family: 'VT323', monospace;
     line-height: 1;
     flex-shrink: 0;
+    opacity: 0.85;
   }
-  .header-wrench-btn:hover { background: rgba(255,255,255,0.28); }
-  .header-wrench-btn.active-page { background: rgba(255,255,255,0.35); border-color: white; }
+  .header-wrench-btn:hover { opacity: 1; }
+  .header-wrench-btn.active-page { opacity: 1; text-shadow: 0 0 6px rgba(255,255,255,0.7); }
   .user-badge {
-    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35);
-    color: white; font-size: 15px; font-weight: normal;
-    padding: 3px 10px; cursor: pointer; font-family: 'VT323', monospace;
+    background: none; border: none;
+    color: white; font-size: 18px; font-weight: normal;
+    padding: 2px 4px; cursor: pointer; font-family: 'VT323', monospace;
+    flex-shrink: 0; opacity: 0.85;
   }
+  .user-badge:hover { opacity: 1; }
 
   /* ── CREDENTIALS ── */
   .cred-row {
@@ -1193,7 +1198,7 @@
   #headerWeather {
     color: white;
     font-family: 'VT323', monospace;
-    font-size: 18px;
+    font-size: 13px;
     font-weight: bold;
     letter-spacing: 1px;
     flex-shrink: 0;
@@ -1726,117 +1731,6 @@ function downloadInventoryPDF() {
 
   <div class="footer">Moving95 Inventory System · Generated ${now}</div>
 
-<!-- ══════════════════════════════
-     PAGE: EDM TRIVIA (RAVE ONLY)
-══════════════════════════════ -->
-<div class="page" id="page-edm" style="background:#000;min-height:100vh;">
-
-  <div class="win-card" style="background:#000;border-color:#ff00ff;">
-    <div class="win-card-title" style="background:linear-gradient(to right,#ff00ff,#00ffff,#ff00ff);background-size:200% 100%;animation:edmGradient 3s ease infinite;">
-      <span style="color:#000;text-shadow:none;">🎧 EDM Trivia</span>
-      <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(0,0,0,0.5);color:#ffff00;border-color:#ff00ff;font-size:13px;">← Games</button>
-    </div>
-  </div>
-
-  <!-- Home screen -->
-  <div id="edm-home" style="padding:16px;max-width:520px;margin:0 auto;">
-
-    <!-- Score bar -->
-    <div id="edm-scorebar" style="display:none;margin-bottom:16px;">
-      <div style="display:flex;gap:0;border:2px solid #ff00ff;overflow:hidden;box-shadow:0 0 12px #ff00ff;">
-        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;border-right:1px solid #ff00ff;">
-          <div style="font-size:11px;font-weight:normal;color:#00ffff;">SCORE</div>
-          <div id="edm-score-val" style="font-size:26px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">0</div>
-        </div>
-        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;border-right:1px solid #ff00ff;">
-          <div style="font-size:11px;font-weight:normal;color:#00ffff;">STREAK 🔥</div>
-          <div id="edm-streak-val" style="font-size:26px;font-weight:bold;color:#ff00ff;text-shadow:0 0 8px #ff00ff;">0</div>
-        </div>
-        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;">
-          <div style="font-size:11px;font-weight:normal;color:#00ffff;">CORRECT</div>
-          <div id="edm-correct-val" style="font-size:26px;font-weight:bold;color:#00ff00;text-shadow:0 0 8px #00ff00;">0</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="font-family:'VT323',monospace;font-size:16px;color:#00ffff;text-align:center;margin-bottom:16px;text-shadow:0 0 8px #00ffff;line-height:1.5;">
-      ⚡ RAVE MODE EXCLUSIVE ⚡<br>
-      <span style="font-size:13px;color:#ff00ff;font-weight:normal;">140 questions · Labels · Artists · Genres</span>
-    </div>
-
-    <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:#ffff00;margin-bottom:12px;text-align:center;text-shadow:0 0 8px #ffff00;">Select Difficulty:</div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-      <button onclick="startEdmTrivia('easy')"   class="edm-diff-btn" style="border-color:#00ff00;color:#00ff00;box-shadow:0 0 8px #00ff00;">
-        <span style="font-size:26px;">😊</span><br>Easy<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">1 pt · 35 Qs</span>
-      </button>
-      <button onclick="startEdmTrivia('medium')" class="edm-diff-btn" style="border-color:#ffff00;color:#ffff00;box-shadow:0 0 8px #ffff00;">
-        <span style="font-size:26px;">🤔</span><br>Medium<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">2 pts · 35 Qs</span>
-      </button>
-      <button onclick="startEdmTrivia('hard')"   class="edm-diff-btn" style="border-color:#ff6600;color:#ff6600;box-shadow:0 0 8px #ff6600;">
-        <span style="font-size:26px;">😤</span><br>Hard<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">3 pts · 35 Qs</span>
-      </button>
-      <button onclick="startEdmTrivia('expert')" class="edm-diff-btn" style="border-color:#ff00ff;color:#ff00ff;box-shadow:0 0 8px #ff00ff;">
-        <span style="font-size:26px;">🧠</span><br>Expert<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">5 pts · 35 Qs</span>
-      </button>
-    </div>
-
-    <button onclick="startEdmTrivia('lightning')" class="edm-diff-btn" style="width:100%;border-color:#00ffff;color:#00ffff;box-shadow:0 0 12px #00ffff;padding:14px;">
-      <span style="font-size:26px;">⚡</span> Lightning Round<br>
-      <span style="font-size:12px;font-weight:normal;opacity:0.8;">30 quick-fire · 1 pt each · 15 seconds</span>
-    </button>
-  </div>
-
-  <!-- Quiz screen -->
-  <div id="edm-quiz" style="display:none;padding:12px;">
-    <div style="max-width:600px;margin:0 auto;">
-
-      <!-- Header -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <button onclick="endEdmTrivia()" style="font-family:'VT323',monospace;font-size:16px;background:#000;border:2px solid #ff00ff;color:#ff00ff;padding:4px 12px;cursor:pointer;box-shadow:0 0 6px #ff00ff;">← Back</button>
-        <div style="font-family:'VT323',monospace;font-size:16px;color:#00ffff;" id="edm-q-cat"></div>
-        <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">
-          🏆 <span id="edm-q-score">0</span>
-        </div>
-      </div>
-
-      <!-- Timer bar -->
-      <div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-          <span style="font-family:'VT323',monospace;font-size:14px;color:#00ffff;">⏱ TIME</span>
-          <span id="edm-timer-num" style="font-family:'VT323',monospace;font-size:22px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">30</span>
-        </div>
-        <div style="height:10px;background:#111;border:1px solid #ff00ff;overflow:hidden;">
-          <div id="edm-timer-bar" style="height:100%;width:100%;background:linear-gradient(to right,#ff00ff,#00ffff);transition:width 1s linear;"></div>
-        </div>
-      </div>
-
-      <!-- Difficulty badge -->
-      <div id="edm-difficulty" style="text-align:center;margin-bottom:8px;"></div>
-
-      <!-- Question card -->
-      <div style="background:#0a0a0a;border:2px solid #ff00ff;box-shadow:0 0 16px #ff00ff44;padding:20px 16px;margin-bottom:14px;">
-        <div id="edm-question" style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;line-height:1.5;text-align:center;color:#fff;min-height:60px;display:flex;align-items:center;justify-content:center;"></div>
-      </div>
-
-      <!-- Answers -->
-      <div id="edm-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"></div>
-
-      <!-- Feedback -->
-      <div id="edm-feedback" style="display:none;padding:12px 16px;text-align:center;font-family:'VT323',monospace;font-size:18px;font-weight:bold;margin-bottom:12px;"></div>
-
-      <!-- Loading -->
-      <div id="edm-loading" style="display:none;text-align:center;padding:20px;font-family:'VT323',monospace;font-size:16px;color:#00ffff;">⏳ Loading...</div>
-
-      <!-- Next -->
-      <button id="edm-next-btn" onclick="nextEdmQuestion()" style="display:none;width:100%;font-family:'VT323',monospace;font-size:20px;font-weight:bold;background:linear-gradient(to right,#ff00ff,#00ffff);color:#000;border:none;padding:13px;cursor:pointer;letter-spacing:1px;text-shadow:none;">
-        NEXT ▶
-      </button>
-
-    </div>
-  </div>
-
-</div>
 
 </body>
 </html>`;
@@ -3156,7 +3050,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <span id="bellBadge" style="display:none;position:absolute;top:2px;right:2px;background:#e53935;color:white;font-size:10px;font-weight:bold;font-family:Arial,sans-serif;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;line-height:16px;text-align:center;"></span>
   </div>
   <div id="headerWeather" title="Click to refresh weather" onclick="fetchWeather()">&#127777;</div>
-  <div id="headerClock" style="color:white;font-family:'VT323',monospace;font-size:18px;font-weight:bold;letter-spacing:1px;flex-shrink:0;padding:0 6px;"></div>
+  <div id="headerClock" style="color:white;font-family:'VT323',monospace;font-size:16px;font-weight:bold;letter-spacing:0px;flex-shrink:0;padding:0 2px;"></div>
   <!-- Refresh shown on viewer tab only -->
   <button class="header-refresh-btn" id="headerRefreshBtn" style="display:none;" onclick="loadViewerData()">↺ Refresh</button>
 </div>
@@ -3515,11 +3409,15 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="btn-row" style="margin-bottom:8px;">
             <button class="btn btn-submit" onclick="syncProfileToSheet()" style="flex:1;">&#9650; Push Config to Cloud</button>
           </div>
-          <div class="btn-row">
+          <div class="btn-row" style="margin-bottom:8px;">
             <button class="btn btn-submit" onclick="syncProfileFromSheet()" style="flex:1;">&#9660; Pull Config from Cloud</button>
+          </div>
+          <div class="btn-row" style="margin-bottom:4px;">
+            <button class="btn" onclick="testScriptConnection()" style="flex:1;font-size:14px;">&#128299; Test Script Connection</button>
           </div>
           <div id="syncReadiness" style="margin-top:8px;margin-bottom:4px;font-size:13px;font-weight:normal;line-height:1.6;"></div>
           <div class="config-note" id="syncStatus" style="margin-top:4px;">Tap Pull to load your config, or Push to save it to the cloud.</div>
+          <div id="syncDiag" style="display:none;margin-top:8px;padding:8px;background:#f5f5f5;border-left:3px solid #888;font-size:12px;font-weight:normal;line-height:1.6;word-break:break-all;font-family:monospace;"></div>
         </div>
 
         <div style="border-top:1px solid var(--dark);padding-top:12px;">
@@ -4242,13 +4140,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
       <!-- Hunt icon -->
       <div onclick="showGameSection('hunt')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
-        <div style="width:72px;height:72px;background:linear-gradient(135deg,#b71c1c,#e53935);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-hunt">🏆</div>
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,#b71c1c,#e53935);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);" class="game-icon-bg game-icon-hunt">👀</div>
         <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">The Hunt</span>
       </div>
 
       <!-- Snake icon -->
       <div onclick="showGameSection('snake')" class="game-icon-card" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:20px 12px;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:2px 2px 0 var(--black);transition:opacity 0.15s;" onmousedown="this.style.borderTopColor='var(--darker)';this.style.borderLeftColor='var(--darker)';this.style.borderRightColor='var(--light)';this.style.borderBottomColor='var(--light)'" onmouseup="this.style.borderTopColor='';this.style.borderLeftColor='';this.style.borderRightColor='';this.style.borderBottomColor=''">
-        <div style="width:72px;height:72px;background:#000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);border:2px solid #33ff33;" class="game-icon-bg game-icon-snake">🐍</div>
+        <div style="width:72px;height:72px;background:#000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 8px rgba(0,0,0,0.3);border:2px solid #33ff33;" class="game-icon-bg game-icon-snake">🪱</div>
         <span style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;text-align:center;color:var(--black);">Tapeworm</span>
       </div>
 
@@ -5086,6 +4984,118 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="height:80px;"></div>
 </div>
 
+<!-- ══════════════════════════════
+     PAGE: EDM TRIVIA (RAVE ONLY)
+══════════════════════════════ -->
+<div class="page" id="page-edm" style="background:#000;min-height:100vh;">
+
+  <div class="win-card" style="background:#000;border-color:#ff00ff;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#ff00ff,#00ffff,#ff00ff);background-size:200% 100%;animation:edmGradient 3s ease infinite;">
+      <span style="color:#000;text-shadow:none;">🎧 EDM Trivia</span>
+      <button class="cal-nav-btn" onclick="showPage('games')" style="background:rgba(0,0,0,0.5);color:#ffff00;border-color:#ff00ff;font-size:13px;">← Games</button>
+    </div>
+  </div>
+
+  <!-- Home screen -->
+  <div id="edm-home" style="padding:16px;max-width:520px;margin:0 auto;">
+
+    <!-- Score bar -->
+    <div id="edm-scorebar" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;gap:0;border:2px solid #ff00ff;overflow:hidden;box-shadow:0 0 12px #ff00ff;">
+        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;border-right:1px solid #ff00ff;">
+          <div style="font-size:11px;font-weight:normal;color:#00ffff;">SCORE</div>
+          <div id="edm-score-val" style="font-size:26px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">0</div>
+        </div>
+        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;border-right:1px solid #ff00ff;">
+          <div style="font-size:11px;font-weight:normal;color:#00ffff;">STREAK 🔥</div>
+          <div id="edm-streak-val" style="font-size:26px;font-weight:bold;color:#ff00ff;text-shadow:0 0 8px #ff00ff;">0</div>
+        </div>
+        <div style="flex:1;background:#000;padding:8px 4px;text-align:center;">
+          <div style="font-size:11px;font-weight:normal;color:#00ffff;">CORRECT</div>
+          <div id="edm-correct-val" style="font-size:26px;font-weight:bold;color:#00ff00;text-shadow:0 0 8px #00ff00;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'VT323',monospace;font-size:16px;color:#00ffff;text-align:center;margin-bottom:16px;text-shadow:0 0 8px #00ffff;line-height:1.5;">
+      ⚡ RAVE MODE EXCLUSIVE ⚡<br>
+      <span style="font-size:13px;color:#ff00ff;font-weight:normal;">140 questions · Labels · Artists · Genres</span>
+    </div>
+
+    <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:#ffff00;margin-bottom:12px;text-align:center;text-shadow:0 0 8px #ffff00;">Select Difficulty:</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <button onclick="startEdmTrivia('easy')"   class="edm-diff-btn" style="border-color:#00ff00;color:#00ff00;box-shadow:0 0 8px #00ff00;">
+        <span style="font-size:26px;">😊</span><br>Easy<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">1 pt · 35 Qs</span>
+      </button>
+      <button onclick="startEdmTrivia('medium')" class="edm-diff-btn" style="border-color:#ffff00;color:#ffff00;box-shadow:0 0 8px #ffff00;">
+        <span style="font-size:26px;">🤔</span><br>Medium<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">2 pts · 35 Qs</span>
+      </button>
+      <button onclick="startEdmTrivia('hard')"   class="edm-diff-btn" style="border-color:#ff6600;color:#ff6600;box-shadow:0 0 8px #ff6600;">
+        <span style="font-size:26px;">😤</span><br>Hard<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">3 pts · 35 Qs</span>
+      </button>
+      <button onclick="startEdmTrivia('expert')" class="edm-diff-btn" style="border-color:#ff00ff;color:#ff00ff;box-shadow:0 0 8px #ff00ff;">
+        <span style="font-size:26px;">🧠</span><br>Expert<br><span style="font-size:12px;font-weight:normal;opacity:0.8;">5 pts · 35 Qs</span>
+      </button>
+    </div>
+
+    <button onclick="startEdmTrivia('lightning')" class="edm-diff-btn" style="width:100%;border-color:#00ffff;color:#00ffff;box-shadow:0 0 12px #00ffff;padding:14px;">
+      <span style="font-size:26px;">⚡</span> Lightning Round<br>
+      <span style="font-size:12px;font-weight:normal;opacity:0.8;">30 quick-fire · 1 pt each · 15 seconds</span>
+    </button>
+  </div>
+
+  <!-- Quiz screen -->
+  <div id="edm-quiz" style="display:none;padding:12px;">
+    <div style="max-width:600px;margin:0 auto;">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button onclick="endEdmTrivia()" style="font-family:'VT323',monospace;font-size:16px;background:#000;border:2px solid #ff00ff;color:#ff00ff;padding:4px 12px;cursor:pointer;box-shadow:0 0 6px #ff00ff;">← Back</button>
+        <div style="font-family:'VT323',monospace;font-size:16px;color:#00ffff;" id="edm-q-cat"></div>
+        <div style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">
+          🏆 <span id="edm-q-score">0</span>
+        </div>
+      </div>
+
+      <!-- Timer bar -->
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-family:'VT323',monospace;font-size:14px;color:#00ffff;">⏱ TIME</span>
+          <span id="edm-timer-num" style="font-family:'VT323',monospace;font-size:22px;font-weight:bold;color:#ffff00;text-shadow:0 0 8px #ffff00;">30</span>
+        </div>
+        <div style="height:10px;background:#111;border:1px solid #ff00ff;overflow:hidden;">
+          <div id="edm-timer-bar" style="height:100%;width:100%;background:linear-gradient(to right,#ff00ff,#00ffff);transition:width 1s linear;"></div>
+        </div>
+      </div>
+
+      <!-- Difficulty badge -->
+      <div id="edm-difficulty" style="text-align:center;margin-bottom:8px;"></div>
+
+      <!-- Question card -->
+      <div style="background:#0a0a0a;border:2px solid #ff00ff;box-shadow:0 0 16px #ff00ff44;padding:20px 16px;margin-bottom:14px;">
+        <div id="edm-question" style="font-family:'VT323',monospace;font-size:20px;font-weight:bold;line-height:1.5;text-align:center;color:#fff;min-height:60px;display:flex;align-items:center;justify-content:center;"></div>
+      </div>
+
+      <!-- Answers -->
+      <div id="edm-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"></div>
+
+      <!-- Feedback -->
+      <div id="edm-feedback" style="display:none;padding:12px 16px;text-align:center;font-family:'VT323',monospace;font-size:18px;font-weight:bold;margin-bottom:12px;"></div>
+
+      <!-- Loading -->
+      <div id="edm-loading" style="display:none;text-align:center;padding:20px;font-family:'VT323',monospace;font-size:16px;color:#00ffff;">⏳ Loading...</div>
+
+      <!-- Next -->
+      <button id="edm-next-btn" onclick="nextEdmQuestion()" style="display:none;width:100%;font-family:'VT323',monospace;font-size:20px;font-weight:bold;background:linear-gradient(to right,#ff00ff,#00ffff);color:#000;border:none;padding:13px;cursor:pointer;letter-spacing:1px;text-shadow:none;">
+        NEXT ▶
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-viewer" onclick="showPage('viewer')">
@@ -5571,7 +5581,7 @@ async function syncProfileToSheet(fromProfile) {
   const url  = localStorage.getItem('sheetUrl') || '';
 
   if (!url) {
-    stat.textContent = '⚠ No Apps Script URL saved. Paste your /exec URL above and tap Save URL first.';
+    stat.textContent = '⚠ No Script URL saved. Paste your /exec URL above and tap Save URL first.';
     stat.style.color = '#cc0000'; return;
   }
   if (!currentUser) {
@@ -5579,31 +5589,16 @@ async function syncProfileToSheet(fromProfile) {
     stat.style.color = '#cc0000'; return;
   }
 
-  // ── Pre-flight check: what do we actually have to push? ──────────────────
+  // Always gather everything from localStorage — push whatever we have
   const cfg = gatherConfig();
-  const missing = [];
-  const present = [];
-  if (cfg.sheetId)  present.push('Sheet ID');  else missing.push('Sheet ID');
-  if (cfg.apiKey)   present.push('API Key');   else missing.push('API Key');
-  if (cfg.sheetUrl) present.push('Script URL');
-  if (cfg.gcalId)   present.push('Calendar ID');
+  const present = [
+    cfg.sheetId  ? 'Sheet ID'    : '',
+    cfg.apiKey   ? 'API Key'     : '',
+    cfg.sheetUrl ? 'Script URL'  : '',
+    cfg.gcalId   ? 'Calendar ID' : ''
+  ].filter(Boolean);
 
-  if (missing.length === 2 && !cfg.gcalId) {
-    // Nothing useful to push
-    stat.innerHTML = '<b>⚠ Nothing to push yet.</b><br>' +
-      'Open the <b>⚙ Config</b> tab and fill in your <b>Google Sheet ID</b> and <b>API Key</b>, ' +
-      'then come back and Push.';
-    stat.style.color = '#cc0000'; return;
-  }
-
-  if (missing.length > 0) {
-    stat.innerHTML = '⚠ Pushing what we have (' + present.join(', ') + '). ' +
-      '<b>Missing: ' + missing.join(', ') + '</b> — go to ⚙ Config to add these, then push again.';
-    stat.style.color = '#cc6600';
-    await new Promise(r => setTimeout(r, 1800));
-  } else {
-    stat.textContent = 'Pushing config to cloud…'; stat.style.color = '#555';
-  }
+  stat.textContent = 'Pushing config to cloud…'; stat.style.color = '#555';
 
   const pinHash = localStorage.getItem('profile_' + currentUser.toLowerCase() + '_pin') || '';
   const profile = { ...cfg, user: currentUser.toLowerCase(), pin: pinHash };
@@ -5615,34 +5610,31 @@ async function syncProfileToSheet(fromProfile) {
       body: JSON.stringify({ action: 'saveProfile', profile })
     });
 
-    // Verify after a short wait
     stat.textContent = 'Verifying…'; stat.style.color = '#555';
-    await new Promise(r => setTimeout(r, 2200));
+    await new Promise(r => setTimeout(r, 2500));
 
     try {
       const vRes  = await fetch(url + '?action=getProfile&user=' + encodeURIComponent(profile.user));
       const vData = await vRes.json();
       const saved = vData && (vData.apiKey || vData.sheetId || vData.sheetUrl);
       if (saved) {
-        const loaded = [
+        const confirmed = [
           vData.apiKey   ? 'API Key'     : '',
           vData.sheetId  ? 'Sheet ID'    : '',
           vData.sheetUrl ? 'Script URL'  : '',
           vData.gcalId   ? 'Calendar ID' : ''
         ].filter(Boolean).join(', ');
-        stat.textContent = '✅ Pushed & verified — ' + loaded + ' saved to cloud.';
+        stat.textContent = '✅ Pushed & verified in cloud: ' + confirmed;
         stat.style.color = '#006400';
         const ps = document.getElementById('profSyncStatus');
         if (ps) { ps.textContent = '✅ Pushed and verified.'; ps.style.color = '#006400'; }
       } else {
-        // Push fired but sheet still empty — likely Apps Script issue
-        stat.innerHTML = '⚠ Push sent but sheet still empty.<br>' +
-          'Check your Apps Script is <b>deployed as a web app</b> (Execute as: Me, Access: Anyone).<br>' +
-          'Also confirm Sheet ID and API Key are filled in ⚙ Config.';
+        stat.innerHTML = '⚠ Push sent but cloud still empty — Apps Script may not be saving data.<br>' +
+          'Tap <b>🔌 Test Script Connection</b> below to diagnose.';
         stat.style.color = '#cc6600';
       }
     } catch(ve) {
-      stat.textContent = '✅ Push sent (verification timed out — try Pull on another device to confirm).';
+      stat.textContent = '✅ Push sent. Verification skipped — try Pull on another device.';
       stat.style.color = '#006400';
     }
   } catch(e) {
@@ -5703,10 +5695,18 @@ async function syncProfileFromSheet(fromProfile) {
     const hasPersonal = data.personal && data.personal !== '{}' && data.personal !== '';
 
     if (hasConfig || hasPersonal) {
+      // Write all config fields directly to localStorage
+      if (data.sheetId)  localStorage.setItem('sheetId',  data.sheetId);
+      if (data.apiKey)   localStorage.setItem('apiKey',   data.apiKey);
+      if (data.sheetUrl) localStorage.setItem('sheetUrl', data.sheetUrl);
+      if (data.gcalId)   localStorage.setItem('gcalId',   data.gcalId);
+      if (data.tabName)  localStorage.setItem('tabName',  data.tabName);
+      if (data.gcalDur)  localStorage.setItem('gcalDuration', data.gcalDur);
       applyProfileData(data, user);
       loadSavedConfig();
       loadPersonalInfo();
       refreshCredentials();
+      updateSyncReadiness();
       const loaded = [
         data.apiKey   ? 'API Key'     : '',
         data.sheetId  ? 'Sheet ID'    : '',
@@ -5714,7 +5714,7 @@ async function syncProfileFromSheet(fromProfile) {
         data.gcalId   ? 'Calendar ID' : '',
         hasPersonal   ? 'Personal Info' : ''
       ].filter(Boolean).join(', ');
-      stat.textContent = '✅ Loaded: ' + loaded;
+      stat.textContent = '✅ Loaded: ' + loaded + ' — all saved to this device!';
       stat.style.color = '#006400';
     } else {
       // Profile row exists but all config fields are blank
@@ -5847,13 +5847,15 @@ function updateSyncReadiness() {
   const syncStat = document.getElementById('syncStatus');
   if (syncStat) {
     if (!url) {
-      syncStat.textContent = '⚠ Paste your /exec Script URL above and tap Save URL to enable sync.';
+      syncStat.innerHTML = '⚠ Paste your Script URL above and tap Save URL to enable sync.';
       syncStat.style.color = '#cc0000';
     } else if (!sheetId || !apiKey) {
-      syncStat.innerHTML = '⚠ Script URL is set. Go to <b>⚙ Config</b> and fill in the missing fields above, then Push to Cloud.';
-      syncStat.style.color = '#cc6600';
+      syncStat.innerHTML =
+        '<b>On your master device:</b> go to ⚙ Config → fill in Sheet ID + API Key → Save → then tap ▲ Push to Cloud here.<br>' +
+        '<b>On this device:</b> once master has pushed, tap ▼ Pull from Cloud to load everything automatically.';
+      syncStat.style.color = '#555';
     } else {
-      syncStat.textContent = 'All fields ready — Push to save to cloud, or Pull to load from cloud.';
+      syncStat.textContent = '✅ All fields ready — Push to save to cloud, or Pull to load from cloud.';
       syncStat.style.color = '#006400';
     }
   }
@@ -9681,6 +9683,68 @@ function showEdmFeedback(correct, correctAns, pts) {
 
 function nextEdmQuestion() {
   loadNextEdmQuestion();
+}
+
+
+// ── SYNC DIAGNOSTIC ──────────────────────────────────────────────────────────
+async function testScriptConnection() {
+  const url  = localStorage.getItem('sheetUrl') || '';
+  const stat = document.getElementById('syncStatus');
+  const diag = document.getElementById('syncDiag');
+  if (!url) {
+    stat.textContent = '⚠ No Script URL saved — paste it above first.';
+    stat.style.color = '#cc0000';
+    return;
+  }
+  stat.textContent = '🔌 Testing connection...';
+  stat.style.color = '#555';
+  diag.style.display = 'none';
+
+  // Step 1: Basic GET ping
+  let pingOk = false, pingText = '', pingStatus = 0;
+  try {
+    const r = await fetch(url + '?action=ping', { method: 'GET' });
+    pingStatus = r.status;
+    pingText   = await r.text();
+    pingOk     = r.ok;
+  } catch(e) {
+    pingText = 'NETWORK ERROR: ' + e.message;
+  }
+
+  // Step 2: Analyse response
+  let diagnosis = '';
+  let colour    = '#006400';
+
+  if (!pingOk && pingStatus === 0) {
+    diagnosis = '❌ NETWORK ERROR\n\nCannot reach the Script URL at all.\n→ Check your internet connection.\n→ Make sure the URL starts with https://script.google.com/macros/s/';
+    colour = '#cc0000';
+  } else if (pingStatus === 302 || pingText.includes('accounts.google.com') || pingText.includes('signin')) {
+    diagnosis = '🔒 REDIRECTED TO GOOGLE LOGIN\n\nYour script is NOT deployed as a public web app.\n\n→ In Apps Script: Deploy → Manage deployments\n→ Click the pencil (edit) on your deployment\n→ Set "Who has access" to: Anyone\n→ Click Deploy, then copy the NEW /exec URL';
+    colour = '#cc0000';
+  } else if (pingStatus === 404) {
+    diagnosis = '❌ 404 NOT FOUND\n\nThe Script URL is wrong or the deployment was deleted.\n→ Go to Apps Script → Deploy → Manage deployments\n→ Copy the correct Web App URL ending in /exec\n→ Paste it above and save.';
+    colour = '#cc0000';
+  } else if (pingStatus === 403) {
+    diagnosis = '🚫 403 FORBIDDEN\n\nScript access is restricted.\n→ Deploy → Manage deployments → Edit\n→ Set "Who has access" to: Anyone (not "Anyone with Google account")\n→ Redeploy with a NEW version';
+    colour = '#cc0000';
+  } else if (pingText.includes('<!DOCTYPE') || pingText.includes('<html')) {
+    diagnosis = '⚠ SCRIPT RETURNED HTML INSTEAD OF JSON\n\nThe script URL may point to the editor, not the web app.\n→ Make sure URL ends with /exec not /edit\n→ Or the script has an unhandled error — check Apps Script logs';
+    colour = '#cc6600';
+  } else if (pingText.toLowerCase().includes('error')) {
+    diagnosis = '⚠ SCRIPT RETURNED AN ERROR:\n\n' + pingText.substring(0, 300) + '\n\n→ Open Apps Script → View → Logs to see what went wrong';
+    colour = '#cc6600';
+  } else {
+    diagnosis = '✅ CONNECTION OK — Script is reachable!\n\nResponse: ' + pingText.substring(0, 200) + '\n\nIf Push still fails, make sure your Apps Script handles the saveProfile action.\nYou may need to redeploy after any script changes.';
+    colour = '#006400';
+  }
+
+  diagnosis += '\n\nURL tested: ' + url.substring(0, 80) + '...\nHTTP status: ' + (pingStatus || 'N/A');
+
+  stat.textContent = pingOk ? '✅ Script reachable — see details below.' : '❌ Connection issue — see details below.';
+  stat.style.color = colour;
+  diag.style.display = 'block';
+  diag.style.borderLeftColor = colour;
+  diag.textContent = diagnosis;
 }
 
 </script>
