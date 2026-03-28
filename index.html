@@ -5692,8 +5692,31 @@ async function syncProfileFromSheet(fromProfile) {
     // Log raw response for debugging
     console.log('Profile raw data:', JSON.stringify(data));
 
-    // Apply whatever fields we got — even partial is better than nothing
-    const hasConfig = data.apiKey || data.sheetId || data.sheetUrl || data.gcalId;
+    // Normalise: GS may return array-indexed object if headers are missing.
+    // Map known column positions if data looks like an array (keys are numeric).
+    const keys0 = Object.keys(data || {});
+    if (keys0.length && !isNaN(keys0[0])) {
+      // Array-style: [user, pin, sheetUrl, sheetId, apiKey, tabName, gcalId, gcalDur, personal, updated]
+      const cols = ['user','pin','sheetUrl','sheetId','apiKey','tabName','gcalId','gcalDur','personal','updated'];
+      const rebuilt = {};
+      cols.forEach(function(col, idx) { rebuilt[col] = String(data[idx] || ''); });
+      data = rebuilt;
+      console.log('Rebuilt from array:', JSON.stringify(data));
+    }
+
+    // Always write sheetUrl even if sheetId/apiKey are missing — at minimum
+    // the other device needs the Script URL to do anything.
+    if (data.sheetUrl) {
+      localStorage.setItem('sheetUrl', data.sheetUrl);
+      const loginInput   = document.getElementById('loginScriptUrl');
+      const profileInput = document.getElementById('profileScriptUrl');
+      const cfgInput     = document.getElementById('sheetUrl');
+      if (loginInput)   loginInput.value   = data.sheetUrl;
+      if (profileInput) profileInput.value = data.sheetUrl;
+      if (cfgInput)     cfgInput.value     = data.sheetUrl;
+    }
+
+    const hasConfig   = data.apiKey || data.sheetId || data.sheetUrl || data.gcalId || data.tabName;
     const hasPersonal = data.personal && data.personal !== '{}' && data.personal !== '';
 
     if (hasConfig || hasPersonal) {
@@ -5704,26 +5727,30 @@ async function syncProfileFromSheet(fromProfile) {
       if (data.gcalId)   localStorage.setItem('gcalId',   data.gcalId);
       if (data.tabName)  localStorage.setItem('tabName',  data.tabName);
       if (data.gcalDur)  localStorage.setItem('gcalDuration', data.gcalDur);
+      if (data.personal && data.personal !== '{}') localStorage.setItem('personalInfo', data.personal);
       applyProfileData(data, user);
       loadSavedConfig();
       loadPersonalInfo();
       refreshCredentials();
       updateSyncReadiness();
       const loaded = [
-        data.apiKey   ? 'API Key'     : '',
-        data.sheetId  ? 'Sheet ID'    : '',
         data.sheetUrl ? 'Script URL'  : '',
+        data.sheetId  ? 'Sheet ID'    : '',
+        data.apiKey   ? 'API Key'     : '',
         data.gcalId   ? 'Calendar ID' : '',
         hasPersonal   ? 'Personal Info' : ''
       ].filter(Boolean).join(', ');
-      stat.textContent = '✅ Loaded: ' + loaded + ' — all saved to this device!';
+      stat.textContent = '✅ Pulled: ' + (loaded || 'profile found') + ' — saved to this device!';
       stat.style.color = '#006400';
+      // If sheetId or apiKey still missing, prompt but don't block
+      if (!data.sheetId || !data.apiKey) {
+        stat.textContent += ' (Sheet ID / API Key not yet pushed — go to Config on master device to add them)';
+      }
     } else {
-      // Profile row exists but all config fields are blank
-      // Show what the sheet actually returned to help debug
-      const keys = Object.keys(data).filter(k => k !== 'pin').join(', ');
-      stat.textContent = '⚠ Profile row found (fields: ' + keys + ') but all config values are empty. ' +
-        'Open Config on your main device, fill in Sheet ID + API Key + Script URL, then tap Push to Cloud.';
+      const rawKeys = Object.keys(data).filter(function(k){ return k !== 'pin' && k !== 'updated'; }).join(', ');
+      stat.textContent = '⚠ Profile row found but all config fields are blank. ' +
+        'On your master device: go to Config, fill in Sheet ID + API Key, then Push to Cloud. ' +
+        '(Raw fields seen: ' + rawKeys + ')';
       stat.style.color = '#cc6600';
     }
   } catch(e) {
