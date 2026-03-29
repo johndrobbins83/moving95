@@ -215,7 +215,7 @@
     font-weight: bold;
     color: var(--black);
     padding-top: var(--header-h);
-    padding-bottom: calc(var(--nav-h) + 160px);
+    padding-bottom: calc(var(--nav-h) + 8px);
     background-image: repeating-linear-gradient(
       45deg, transparent, transparent 2px,
       rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
@@ -311,12 +311,20 @@
     .nav-btn:last-child    { border-right: 1px solid var(--dark); }
     .nav-btn-icon  { font-size: 22px; }
     .nav-btn-label { font-size: 11px; }
-    body { padding-bottom: calc(var(--nav-h) + 160px); }
+    body { padding-bottom: calc(var(--nav-h) + 8px); }
   }
 
   /* ── PAGES ── */
   .page { display: none; }
-  .page.active { display: block; }
+  .page.active {
+    display: block;
+    /* Always give pages enough bottom clearance so the fixed nav can't cover content */
+    padding-bottom: calc(var(--nav-h) + 24px);
+  }
+  /* Extra breathing room on mobile where nav is taller */
+  @media (max-width: 600px) {
+    .page.active { padding-bottom: calc(var(--nav-h) + 32px); }
+  }
 
   /* ── WIN CARD ── */
   .win-card {
@@ -4100,239 +4108,23 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="secRadio" style="display:none;">
       <div class="win-card-body">
         <div class="config-note" style="margin-bottom:10px;">
-          Paste a Spotify playlist URL for each genre. Tap the genre tile in the Radio tab to open it in Spotify.
-          URLs sync with Push/Pull like all other config.
+          Configure each station: paste a Spotify URL, set a custom name, upload an image, and add genre/explicit/description info. Tap ⓘ on any tile to see station details.
         </div>
         <div id="radio-config-list">
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🤘</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Punk</span>
-          <input type="text" id="radio_url_punk" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_punk" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🖤</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Pop Punk/Emo</span>
-          <input type="text" id="radio_url_poppunk" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_poppunk" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🎸</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Metal</span>
-          <input type="text" id="radio_url_metal" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_metal" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">💢</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Hardcore</span>
-          <input type="text" id="radio_url_hardcore" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_hardcore" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">😂</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Comedy</span>
-          <input type="text" id="radio_url_comedy" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_comedy" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">⭐</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Pop</span>
-          <input type="text" id="radio_url_pop" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_pop" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🎵</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Classic Rock</span>
-          <input type="text" id="radio_url_classicrock" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_classicrock" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🎤</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Hip Hop</span>
-          <input type="text" id="radio_url_hiphop" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_hiphop" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🎛️</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Electronic</span>
-          <input type="text" id="radio_url_electronic" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_electronic" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🧠</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">IDM</span>
-          <input type="text" id="radio_url_idm" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_idm" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🌀</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Trip Hop</span>
-          <input type="text" id="radio_url_triphop" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_triphop" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🌌</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Ambient</span>
-          <input type="text" id="radio_url_ambient" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_ambient" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🥁</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Drum & Bass</span>
-          <input type="text" id="radio_url_dnb" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_dnb" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🌿</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Jungle</span>
-          <input type="text" id="radio_url_jungle" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_jungle" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🇬🇧</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">UK Garage</span>
-          <input type="text" id="radio_url_ukgarage" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_ukgarage" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🌍</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">International</span>
-          <input type="text" id="radio_url_intl" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_intl" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🎷</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Jazz</span>
-          <input type="text" id="radio_url_jazz" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_jazz" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🎶</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Indie</span>
-          <input type="text" id="radio_url_indie" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_indie" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">📼</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">80s</span>
-          <input type="text" id="radio_url_80s" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_80s" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">💿</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">90s</span>
-          <input type="text" id="radio_url_90s" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_90s" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">📀</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">2000s</span>
-          <input type="text" id="radio_url_2000s" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_2000s" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🪩</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">70s</span>
-          <input type="text" id="radio_url_70s" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_70s" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">🌸</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">60s</span>
-          <input type="text" id="radio_url_60s" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_60s" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted var(--dark);">
-          <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center;">⏪</span>
-          <span style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex-shrink:0;width:110px;color:var(--black);">Old Skool</span>
-          <input type="text" id="radio_url_oldskool" placeholder="https://open.spotify.com/playlist/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="flex:1;font-family:'VT323',monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;"
-            onchange="radioUrlChanged()">
-          <span id="radio_status_oldskool" style="font-size:14px;flex-shrink:0;width:20px;text-align:center;"></span>
-        </div>
+        <!-- Dynamically rendered by buildRadioConfigList() -->
         </div>
         <div style="margin-top:12px;">
-          <button class="btn btn-submit" onclick="saveRadioConfig()" style="width:100%;font-size:18px;">💾 Save Radio Playlists</button>
+          <button class="btn btn-submit" onclick="saveRadioConfig()" style="width:100%;font-size:18px;">💾 Save Radio Config</button>
         </div>
         <div id="radioConfigStatus" class="config-note" style="margin-top:8px;display:none;"></div>
 
-        <!-- RAVE RADIO URL -->
+        <!-- RAVE RADIO URL + SHOW EDITOR -->
         <div style="margin-top:16px;border-top:2px solid #ff00ff44;padding-top:14px;">
           <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;color:#ff00ff;margin-bottom:6px;">
-            📡 Rave Radio (Rave Mode Only)
+            🦄 Rave Radio (Rave Mode Only)
           </div>
           <div style="font-size:13px;font-weight:normal;color:var(--darker);margin-bottom:10px;">
-            Paste a Cloudflare or direct audio URL to your 8-hour rave mix. Only shows up when Rave Mode is active.
+            Paste a Cloudflare or direct audio URL to your rave mix. Only shows in Rave Mode.
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <input type="text" id="raveRadioUrl"
@@ -4345,6 +4137,24 @@ document.addEventListener('DOMContentLoaded', function() {
           <button class="btn" onclick="saveRaveRadioUrl()" style="width:100%;margin-top:8px;font-size:16px;background:#000;color:#ff00ff;border-color:#ff00ff;">
             💾 Save Rave Radio URL
           </button>
+
+          <!-- SHOW SCHEDULE EDITOR -->
+          <div style="margin-top:18px;border-top:1px solid #ff00ff33;padding-top:14px;">
+            <div style="font-family:'VT323',monospace;font-size:16px;font-weight:bold;color:#ff00ff;margin-bottom:4px;">
+              🎙️ Radio Show Schedule
+            </div>
+            <div style="font-size:12px;font-weight:normal;color:var(--darker);margin-bottom:10px;">
+              Set the timestamp (H:MM:SS) where each show starts and give it a name. The player display updates automatically as the audio plays.
+            </div>
+            <div id="raveShowList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+            <button class="btn" onclick="addRaveShow()" style="width:100%;font-size:15px;background:#0a0a0a;color:#00ffff;border-color:#00ffff;margin-bottom:8px;">
+              + Add Show
+            </button>
+            <button class="btn btn-submit" onclick="saveRaveShows()" style="width:100%;font-size:16px;background:#000;color:#ff00ff;border-color:#ff00ff;">
+              💾 Save Show Schedule
+            </button>
+            <div id="raveShowSaveStatus" style="font-size:13px;font-weight:normal;color:#00ff00;text-align:center;margin-top:6px;display:none;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -11297,31 +11107,60 @@ document.addEventListener('DOMContentLoaded', function() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 var RADIO_GENRES = [
-  { id:'60s',        label:'60s',           icon:'🌸' },
-  { id:'70s',        label:'70s',           icon:'🪩' },
-  { id:'80s',        label:'80s',           icon:'📼' },
-  { id:'90s',        label:'90s',           icon:'💿' },
-  { id:'2000s',      label:'2000s',         icon:'📀' },
-  { id:'ambient',    label:'Ambient',       icon:'🌌' },
-  { id:'classicrock',label:'Classic Rock',  icon:'🎵' },
-  { id:'comedy',     label:'Comedy',        icon:'😂' },
-  { id:'dnb',        label:'Drum & Bass',   icon:'🥁' },
-  { id:'electronic', label:'Electronic',    icon:'🎛️' },
-  { id:'hardcore',   label:'Hardcore',      icon:'💢' },
-  { id:'hiphop',     label:'Hip Hop',       icon:'🎤' },
-  { id:'idm',        label:'IDM',           icon:'🧠' },
-  { id:'indie',      label:'Indie',         icon:'🎶' },
-  { id:'intl',       label:'International', icon:'🌍' },
-  { id:'jazz',       label:'Jazz',          icon:'🎷' },
-  { id:'jungle',     label:'Jungle',        icon:'🌿' },
-  { id:'metal',      label:'Metal',         icon:'🎸' },
-  { id:'oldskool',   label:'Old Skool',     icon:'⏪' },
-  { id:'pop',        label:'Pop',           icon:'⭐' },
-  { id:'poppunk',    label:'Pop Punk/Emo',  icon:'🖤' },
-  { id:'punk',       label:'Punk',          icon:'🤘' },
-  { id:'triphop',    label:'Trip Hop',      icon:'🌀' },
-  { id:'ukgarage',   label:'UK Garage',     icon:'🇬🇧' },
+  { id:'jncoyears',   label:'The JNCO Years',        icon:'💿' },
+  { id:'discofever',  label:'Disco Fever',            icon:'🪩' },
+  { id:'deepend',     label:'The Deep End',           icon:'🌊' },
+  { id:'funkalicious',label:'Funkalicious',           icon:'🎺' },
+  { id:'deltavibes',  label:'Delta Vibes',            icon:'🌿' },
+  { id:'velvetlounge',label:'Velvet Lounge',          icon:'🎷' },
+  { id:'mainstage',   label:'Main Stage Radio',       icon:'🎛️' },
+  { id:'cocktailhour',label:'Cocktail Hour',          icon:'🍸' },
+  { id:'darkroom',    label:'The Dark Room',          icon:'🌑' },
+  { id:'thirdwave',   label:'The 3rd Wave',           icon:'🌀' },
+  { id:'islandsoul',  label:'Island Soul',            icon:'🌺' },
+  { id:'closeedge',   label:'Close to the Edge',      icon:'🔪' },
+  { id:'rapisdead',   label:'Rap Is Dead',            icon:'💀' },
+  { id:'nightmode',   label:'Nightmode Radio',        icon:'🌙' },
+  { id:'chelsea',     label:'Chelsea To the Canyon',  icon:'🏔️' },
+  { id:'totallyrad',  label:'Totally Rad',            icon:'📼' },
+  { id:'rockinyacht', label:'Rockin\' Yacht',          icon:'⛵' },
+  { id:'openmic',     label:'The Open Mic',           icon:'🎤' },
+  { id:'thequad',     label:'The Quad',               icon:'🎓' },
+  { id:'trippydippy', label:'Trippy Dippy',           icon:'🍄' },
+  { id:'candynecklace',label:'Candy Necklace',        icon:'🍬' },
+  { id:'jazzclub',    label:'Jazz Club',              icon:'🎷' },
+  { id:'synapse',     label:'The Synapse',            icon:'🧠' },
+  { id:'bigrewind',   label:'Big Rewind',             icon:'⏪' },
+  { id:'bassment',    label:'The Bassment',           icon:'🔊' },
+  { id:'liquiddrip',  label:'Liquid Drip',            icon:'💧' },
+  { id:'intojungle',  label:'Into the Jungle',        icon:'🌴' },
+  { id:'soundsystem', label:'Sound System Rockers',   icon:'📻' },
+  { id:'swoophead',   label:'Swoophead',              icon:'🦅' },
+  { id:'theloop',     label:'The Loop',               icon:'🔁' },
+  { id:'skatepark',   label:'Skatepark Radio',        icon:'🛹' },
+  { id:'circlepit',   label:'Circle Pit',             icon:'🤘' },
+  { id:'thegutter',   label:'The Gutter',             icon:'💢' },
 ];
+
+// Radio station metadata: name overrides, image, genre, explicit, description
+var radioMeta = {};
+function loadRadioMeta() {
+  try { radioMeta = JSON.parse(localStorage.getItem('radioStationMeta') || '{}'); } catch(e) { radioMeta = {}; }
+}
+function saveRadioMeta() {
+  localStorage.setItem('radioStationMeta', JSON.stringify(radioMeta));
+}
+function getStationMeta(id) {
+  return radioMeta[id] || {};
+}
+function getStationLabel(genre) {
+  var m = getStationMeta(genre.id);
+  return m.name || genre.label;
+}
+function getStationIcon(genre) {
+  var m = getStationMeta(genre.id);
+  return m.image || null; // null = use emoji
+}
 
 var radioUrls = {};
 
@@ -11329,6 +11168,7 @@ function loadRadioUrls() {
   try {
     radioUrls = JSON.parse(localStorage.getItem('radioPlaylistUrls') || '{}');
   } catch(e) { radioUrls = {}; }
+  loadRadioMeta();
 }
 
 function saveRadioPlaylists() {
@@ -11354,23 +11194,23 @@ function renderRadioGrid() {
 
   RADIO_GENRES.forEach(function(genre) {
     var url = radioUrls[genre.id] || '';
+    var meta = getStationMeta(genre.id);
+    var label = meta.name || genre.label;
+    var customImg = meta.image || '';
 
     var tile = document.createElement('div');
 
-    // Solid background — explicit hex, never transparent
     var bg = isRave ? '#111111' : '#c0c0c0';
     var borderT = isRave ? '#ff00ff' : '#ffffff';
     var borderB = isRave ? '#00ffff' : '#404040';
     var shadow  = isRave ? '0 0 10px #ff00ff66' : '3px 3px 0 #000000';
     var labelColor = isRave ? (url ? '#00ff00' : '#ffff00') : (url ? '#15803d' : '#000000');
-    var opacity = '1';
-    // For has-url tiles: green tint background
     if (url && !isRave) bg = '#d4edda';
 
     tile.style.cssText = [
       'display:flex', 'flex-direction:column', 'align-items:center',
-      'gap:8px', 'cursor:pointer', 'position:relative',
-      'padding:16px 8px 14px',
+      'gap:6px', 'cursor:pointer', 'position:relative',
+      'padding:12px 8px 8px',
       'background-color:' + bg + '!important',
       'background-image:none!important',
       'border-top:3px solid ' + borderT,
@@ -11379,23 +11219,55 @@ function renderRadioGrid() {
       'border-bottom:3px solid ' + borderB,
       'box-shadow:' + shadow,
       'min-height:110px', 'justify-content:center',
-      'opacity:' + opacity,
       'isolation:isolate',
       '-webkit-tap-highlight-color:transparent'
     ].join(';');
 
-    // Icon
+    // Icon / Image
     var iconEl = document.createElement('div');
-    iconEl.style.cssText = 'font-size:40px;line-height:1;position:relative;z-index:10;opacity:1;filter:none;';
-    iconEl.textContent = genre.icon;
+    if (customImg) {
+      iconEl.style.cssText = 'width:44px;height:44px;position:relative;z-index:10;flex-shrink:0;';
+      var img = document.createElement('img');
+      img.src = customImg;
+      img.style.cssText = 'width:44px;height:44px;object-fit:cover;border-radius:4px;display:block;';
+      img.onerror = function() { iconEl.textContent = genre.icon; iconEl.style.fontSize = '40px'; };
+      iconEl.appendChild(img);
+    } else {
+      iconEl.style.cssText = 'font-size:36px;line-height:1;position:relative;z-index:10;opacity:1;filter:none;';
+      iconEl.textContent = genre.icon;
+    }
 
     // Label
     var labelEl = document.createElement('div');
-    labelEl.style.cssText = "font-family:'VT323',monospace;font-size:15px;font-weight:bold;text-align:center;color:" + labelColor + ";line-height:1.2;position:relative;z-index:10;opacity:1;";
-    labelEl.textContent = genre.label;
+    labelEl.style.cssText = "font-family:'VT323',monospace;font-size:13px;font-weight:bold;text-align:center;color:" + labelColor + ";line-height:1.2;position:relative;z-index:10;opacity:1;";
+    labelEl.textContent = label;
+
+    // Info button row (only if there's metadata to show)
+    var hasInfo = meta.genre || meta.description || meta.explicit;
+    var infoRow = document.createElement('div');
+    infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;z-index:20;position:relative;';
+
+    if (hasInfo) {
+      var infoBtn = document.createElement('button');
+      infoBtn.textContent = 'ⓘ';
+      infoBtn.title = 'Station info';
+      infoBtn.style.cssText = 'font-size:14px;background:none;border:none;cursor:pointer;color:' + (isRave ? '#00ffff' : '#000080') + ';padding:0 2px;line-height:1;';
+      infoBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        showRadioInfoPopup(genre, meta, label);
+      });
+      infoRow.appendChild(infoBtn);
+    }
+    if (meta.explicit) {
+      var expBadge = document.createElement('span');
+      expBadge.textContent = 'E';
+      expBadge.style.cssText = 'font-family:VT323,monospace;font-size:11px;background:#800000;color:#fff;padding:0 3px;border-radius:2px;font-weight:bold;line-height:1.4;flex-shrink:0;';
+      infoRow.appendChild(expBadge);
+    }
 
     tile.appendChild(iconEl);
     tile.appendChild(labelEl);
+    if (infoRow.childNodes.length) tile.appendChild(infoRow);
 
     tile.addEventListener('click', function() {
       if (url) window.open(url, '_blank');
@@ -11403,6 +11275,69 @@ function renderRadioGrid() {
 
     grid.appendChild(tile);
   });
+}
+
+function showRadioInfoPopup(genre, meta, label) {
+  var existing = document.getElementById('radioInfoPopup');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'radioInfoPopup';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  var box = document.createElement('div');
+  var isRave = document.body.classList.contains('rave-mode');
+  box.style.cssText = 'background:' + (isRave?'#0a0a0a':'#c0c0c0') + ';border-top:3px solid ' + (isRave?'#ff00ff':'#fff') + ';border-left:3px solid ' + (isRave?'#ff00ff':'#fff') + ';border-right:3px solid ' + (isRave?'#00ffff':'#404040') + ';border-bottom:3px solid ' + (isRave?'#00ffff':'#404040') + ';box-shadow:4px 4px 0 #000;max-width:340px;width:100%;font-family:VT323,monospace;';
+
+  // Title bar
+  var titleBar = document.createElement('div');
+  titleBar.style.cssText = 'background:' + (isRave?'#ff00ff':'#000080') + ';color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:bold;';
+  titleBar.innerHTML = '<span>📻 ' + label + '</span>';
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'background:none;border:none;color:#fff;cursor:pointer;font-family:VT323,monospace;font-size:16px;padding:0 4px;';
+  closeBtn.onclick = function() { overlay.remove(); };
+  titleBar.appendChild(closeBtn);
+  box.appendChild(titleBar);
+
+  // Body
+  var body = document.createElement('div');
+  body.style.cssText = 'padding:14px 16px;display:flex;flex-direction:column;gap:10px;';
+
+  // Station image if set
+  if (meta.image) {
+    var imgWrap = document.createElement('div');
+    imgWrap.style.cssText = 'text-align:center;';
+    var img = document.createElement('img');
+    img.src = meta.image;
+    img.style.cssText = 'width:80px;height:80px;object-fit:cover;border:2px solid ' + (isRave?'#ff00ff':'#000') + ';border-radius:4px;';
+    imgWrap.appendChild(img);
+    body.appendChild(imgWrap);
+  }
+
+  function infoRow(lbl, val) {
+    if (!val) return;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;';
+    var lSpan = document.createElement('span');
+    lSpan.style.cssText = 'color:' + (isRave?'#00ffff':'#000080') + ';font-size:15px;font-weight:bold;flex-shrink:0;min-width:80px;';
+    lSpan.textContent = lbl + ':';
+    var vSpan = document.createElement('span');
+    vSpan.style.cssText = 'color:' + (isRave?'#fff':'#000') + ';font-size:15px;line-height:1.3;';
+    vSpan.textContent = val;
+    row.appendChild(lSpan);
+    row.appendChild(vSpan);
+    body.appendChild(row);
+  }
+
+  if (meta.genre) infoRow('Genre', meta.genre);
+  if (meta.explicit !== undefined) infoRow('Explicit', meta.explicit ? '🔞 Yes' : '✅ No');
+  if (meta.description) infoRow('About', meta.description);
+
+  box.appendChild(body);
+  overlay.appendChild(box);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 function _unused() { // placeholder
   newUrl = newUrl.trim();
@@ -11423,40 +11358,187 @@ function _unused() { // placeholder
 
 
 // ── RADIO CONFIG ─────────────────────────────────────────────────────────────
-function loadRadioConfig() {
+var inputStyle = 'font-family:VT323,monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;width:100%;box-sizing:border-box;';
+
+function buildRadioConfigList() {
+  var list = document.getElementById('radio-config-list');
+  if (!list) return;
   loadRadioUrls();
+  list.innerHTML = '';
   RADIO_GENRES.forEach(function(genre) {
-    var input = document.getElementById('radio_url_' + genre.id);
-    var status = document.getElementById('radio_status_' + genre.id);
-    if (input) input.value = radioUrls[genre.id] || '';
-    if (status) status.textContent = radioUrls[genre.id] ? '✅' : '';
+    var meta = getStationMeta(genre.id);
+    var url = radioUrls[genre.id] || '';
+
+    var wrap = document.createElement('details');
+    wrap.style.cssText = 'border-bottom:1px dotted var(--dark);padding:0;';
+
+    var summary = document.createElement('summary');
+    summary.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 4px;cursor:pointer;list-style:none;';
+
+    // Icon preview
+    var iconPrev = document.createElement('div');
+    iconPrev.style.cssText = 'flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;';
+    if (meta.image) {
+      var prevImg = document.createElement('img');
+      prevImg.src = meta.image;
+      prevImg.style.cssText = 'width:28px;height:28px;object-fit:cover;border-radius:3px;';
+      iconPrev.appendChild(prevImg);
+    } else {
+      iconPrev.style.fontSize = '22px';
+      iconPrev.textContent = genre.icon;
+    }
+
+    var nameSpan = document.createElement('span');
+    nameSpan.style.cssText = "font-family:'VT323',monospace;font-size:16px;font-weight:bold;flex:1;color:var(--black);";
+    nameSpan.textContent = meta.name || genre.label;
+
+    var statusDot = document.createElement('span');
+    statusDot.className = 'rcfg-status-' + genre.id;
+    statusDot.style.cssText = 'font-size:14px;flex-shrink:0;width:20px;text-align:center;';
+    statusDot.textContent = url ? '✅' : '';
+
+    summary.appendChild(iconPrev);
+    summary.appendChild(nameSpan);
+    summary.appendChild(statusDot);
+    wrap.appendChild(summary);
+
+    // Expanded config body
+    var body = document.createElement('div');
+    body.style.cssText = 'padding:8px 4px 12px;display:flex;flex-direction:column;gap:8px;';
+
+    function labeledField(labelText, el) {
+      var row = document.createElement('div');
+      var lbl = document.createElement('div');
+      lbl.style.cssText = "font-family:'VT323',monospace;font-size:13px;color:var(--darker);margin-bottom:2px;";
+      lbl.textContent = labelText;
+      row.appendChild(lbl);
+      row.appendChild(el);
+      return row;
+    }
+
+    // Playlist URL
+    var urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.id = 'radio_url_' + genre.id;
+    urlInput.placeholder = 'https://open.spotify.com/playlist/...';
+    urlInput.autocomplete = 'off'; urlInput.autocorrect = 'off'; urlInput.autocapitalize = 'off'; urlInput.spellcheck = false;
+    urlInput.value = url;
+    urlInput.style.cssText = inputStyle;
+    urlInput.addEventListener('input', function() {
+      var dot = document.querySelector('.rcfg-status-' + genre.id);
+      if (dot) dot.textContent = urlInput.value.trim() ? '✅' : '';
+    });
+    body.appendChild(labeledField('🔗 Playlist URL', urlInput));
+
+    // Station Name
+    var nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.id = 'radio_name_' + genre.id;
+    nameInput.placeholder = 'Custom station name (default: ' + genre.label + ')';
+    nameInput.autocomplete = 'off'; nameInput.autocorrect = 'off'; nameInput.spellcheck = false;
+    nameInput.value = meta.name || '';
+    nameInput.style.cssText = inputStyle;
+    body.appendChild(labeledField('✏️ Station Name', nameInput));
+
+    // Image URL
+    var imgInput = document.createElement('input');
+    imgInput.type = 'text';
+    imgInput.id = 'radio_img_' + genre.id;
+    imgInput.placeholder = 'https://... image URL (replaces emoji icon)';
+    imgInput.autocomplete = 'off'; imgInput.autocorrect = 'off'; imgInput.spellcheck = false;
+    imgInput.value = meta.image || '';
+    imgInput.style.cssText = inputStyle;
+    body.appendChild(labeledField('🖼️ Station Image URL', imgInput));
+
+    // Genre
+    var genreInput = document.createElement('input');
+    genreInput.type = 'text';
+    genreInput.id = 'radio_genre_' + genre.id;
+    genreInput.placeholder = 'e.g. Hip-Hop, Electronic, Jazz...';
+    genreInput.autocomplete = 'off'; genreInput.spellcheck = false;
+    genreInput.value = meta.genre || '';
+    genreInput.style.cssText = inputStyle;
+    body.appendChild(labeledField('🎵 Genre', genreInput));
+
+    // Explicit toggle
+    var expRow = document.createElement('div');
+    var expLbl = document.createElement('div');
+    expLbl.style.cssText = "font-family:'VT323',monospace;font-size:13px;color:var(--darker);margin-bottom:2px;";
+    expLbl.textContent = '🔞 Explicit Content';
+    var expToggleWrap = document.createElement('label');
+    expToggleWrap.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;font-family:VT323,monospace;font-size:15px;color:var(--black);';
+    var expCheck = document.createElement('input');
+    expCheck.type = 'checkbox';
+    expCheck.id = 'radio_explicit_' + genre.id;
+    expCheck.checked = meta.explicit || false;
+    expCheck.style.cssText = 'width:18px;height:18px;cursor:pointer;accent-color:#800000;';
+    expToggleWrap.appendChild(expCheck);
+    expToggleWrap.appendChild(document.createTextNode('Mark as explicit'));
+    expRow.appendChild(expLbl);
+    expRow.appendChild(expToggleWrap);
+    body.appendChild(expRow);
+
+    // Description
+    var descInput = document.createElement('textarea');
+    descInput.id = 'radio_desc_' + genre.id;
+    descInput.placeholder = 'Short description shown in the station info popup...';
+    descInput.rows = 2;
+    descInput.autocomplete = 'off'; descInput.spellcheck = false;
+    descInput.value = meta.description || '';
+    descInput.style.cssText = inputStyle + 'resize:vertical;min-height:52px;';
+    body.appendChild(labeledField('📝 Description', descInput));
+
+    wrap.appendChild(body);
+    list.appendChild(wrap);
   });
 }
 
+function loadRadioConfig() {
+  loadRadioUrls();
+  renderRaveShowList();
+  loadRaveRadioUrl();
+  buildRadioConfigList();
+}
+
 function radioUrlChanged() {
-  // Live status dots as user types
   RADIO_GENRES.forEach(function(genre) {
     var input = document.getElementById('radio_url_' + genre.id);
-    var status = document.getElementById('radio_status_' + genre.id);
+    var status = document.querySelector('.rcfg-status-' + genre.id);
     if (input && status) status.textContent = input.value.trim() ? '✅' : '';
   });
 }
 
 function saveRadioConfig() {
+  loadRadioUrls();
   RADIO_GENRES.forEach(function(genre) {
-    var input = document.getElementById('radio_url_' + genre.id);
-    if (!input) return;
-    var val = input.value.trim();
-    if (val) radioUrls[genre.id] = val;
-    else delete radioUrls[genre.id];
+    var urlInput  = document.getElementById('radio_url_' + genre.id);
+    var nameInput = document.getElementById('radio_name_' + genre.id);
+    var imgInput  = document.getElementById('radio_img_' + genre.id);
+    var genreInput= document.getElementById('radio_genre_' + genre.id);
+    var expInput  = document.getElementById('radio_explicit_' + genre.id);
+    var descInput = document.getElementById('radio_desc_' + genre.id);
+    // URL
+    if (urlInput) {
+      var val = urlInput.value.trim();
+      if (val) radioUrls[genre.id] = val; else delete radioUrls[genre.id];
+    }
+    // Meta
+    var m = {};
+    if (nameInput && nameInput.value.trim()) m.name = nameInput.value.trim();
+    if (imgInput  && imgInput.value.trim())  m.image = imgInput.value.trim();
+    if (genreInput && genreInput.value.trim()) m.genre = genreInput.value.trim();
+    if (expInput)  m.explicit = expInput.checked;
+    if (descInput && descInput.value.trim()) m.description = descInput.value.trim();
+    if (Object.keys(m).length) radioMeta[genre.id] = m;
+    else delete radioMeta[genre.id];
   });
   saveRadioPlaylists();
-  // Re-render Radio tab tiles if visible
+  saveRadioMeta();
   if (document.getElementById('radio-grid')) renderRadioGrid();
   var st = document.getElementById('radioConfigStatus');
   if (st) {
     st.style.display = 'block';
-    st.textContent = '✅ Radio playlists saved!';
+    st.textContent = '✅ Radio config saved!';
     st.style.borderLeftColor = '#006400';
     st.style.color = '#006400';
     setTimeout(function(){ st.style.display = 'none'; }, 2500);
@@ -11672,27 +11754,121 @@ function formatRaveTime(secs) {
 }
 
 // Show info — maps hour blocks to show names
-var RAVE_SHOWS = [
-  { hour:0, name:'🎛️ Opening Set — Deep Techno' },
-  { hour:1, name:'🥁 Drum & Bass Hour' },
-  { hour:2, name:'🌀 Trip Hop & Downtempo' },
-  { hour:3, name:'🔊 Peak Time Rave — Hard Techno' },
-  { hour:4, name:'🌌 Ambient Interlude' },
-  { hour:5, name:'🎸 Rave Rock Crossover' },
-  { hour:6, name:'🌈 Classic 90s Rave' },
-  { hour:7, name:'🌅 Closing Set — Progressive House' },
+// ── RAVE SHOW SCHEDULE ──────────────────────────────────────────────────────
+
+var RAVE_SHOWS_DEFAULT = [
+  { start:'0:00:00', name:'🎛️ Opening Set — Deep Techno' },
+  { start:'1:00:00', name:'🥁 Drum & Bass Hour' },
+  { start:'2:00:00', name:'🌀 Trip Hop & Downtempo' },
+  { start:'3:00:00', name:'🔊 Peak Time Rave — Hard Techno' },
+  { start:'4:00:00', name:'🌌 Ambient Interlude' },
+  { start:'5:00:00', name:'🎸 Rave Rock Crossover' },
+  { start:'6:00:00', name:'🌈 Classic 90s Rave' },
+  { start:'7:00:00', name:'🌅 Closing Set — Progressive House' },
 ];
 
-function updateRaveShowInfo(secs) {
-  var hour = Math.floor((secs || 0) / 3600);
-  var show = RAVE_SHOWS[hour] || RAVE_SHOWS[0];
-  var el = document.getElementById('raveShowInfo');
-  if (el) el.textContent = '🎙️ ' + show.name;
+function loadRaveShows() {
+  try {
+    var saved = localStorage.getItem('raveShows');
+    return saved ? JSON.parse(saved) : RAVE_SHOWS_DEFAULT.slice();
+  } catch(e) { return RAVE_SHOWS_DEFAULT.slice(); }
 }
 
-// Load saved URL on page load
+function saveRaveShows() {
+  var rows = document.querySelectorAll('.rave-show-row');
+  var shows = [];
+  rows.forEach(function(row) {
+    var ts = row.querySelector('.rave-show-ts').value.trim();
+    var nm = row.querySelector('.rave-show-name').value.trim();
+    if (ts || nm) shows.push({ start: ts || '0:00:00', name: nm || '(Untitled Show)' });
+  });
+  // Sort by timestamp ascending
+  shows.sort(function(a, b) { return parseRaveTimestamp(a.start) - parseRaveTimestamp(b.start); });
+  localStorage.setItem('raveShows', JSON.stringify(shows));
+  renderRaveShowList();
+  var st = document.getElementById('raveShowSaveStatus');
+  if (st) {
+    st.style.display = 'block';
+    st.textContent = '✅ Show schedule saved!';
+    setTimeout(function(){ st.style.display = 'none'; }, 2200);
+  }
+}
+
+function parseRaveTimestamp(ts) {
+  // Accepts H:MM:SS, M:SS, or plain seconds
+  if (!ts) return 0;
+  var parts = String(ts).split(':').map(Number);
+  if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+  if (parts.length === 2) return parts[0]*60 + parts[1];
+  return parts[0] || 0;
+}
+
+function addRaveShow(ts, nm) {
+  var list = document.getElementById('raveShowList');
+  if (!list) return;
+  var row = document.createElement('div');
+  row.className = 'rave-show-row';
+  row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+
+  var inputStyle = 'font-family:VT323,monospace;font-size:14px;min-height:34px;background:white;' +
+    'border-top:2px solid var(--darker);border-left:2px solid var(--darker);' +
+    'border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:3px 6px;color:#000;';
+
+  var tsInput = document.createElement('input');
+  tsInput.type = 'text';
+  tsInput.className = 'rave-show-ts';
+  tsInput.placeholder = '0:00:00';
+  tsInput.value = ts || '';
+  tsInput.style.cssText = inputStyle + 'width:80px;flex-shrink:0;color:#ff00ff;text-align:center;';
+  tsInput.title = 'Timestamp (H:MM:SS)';
+
+  var nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.className = 'rave-show-name';
+  nameInput.placeholder = 'Show name...';
+  nameInput.value = nm || '';
+  nameInput.style.cssText = inputStyle + 'flex:1;';
+
+  var delBtn = document.createElement('button');
+  delBtn.textContent = '✕';
+  delBtn.style.cssText = 'font-family:VT323,monospace;font-size:16px;padding:4px 8px;cursor:pointer;' +
+    'background:#0a0a0a;color:#ff4444;border:2px solid #ff444466;flex-shrink:0;';
+  delBtn.onclick = function() { row.remove(); };
+
+  row.appendChild(tsInput);
+  row.appendChild(nameInput);
+  row.appendChild(delBtn);
+  list.appendChild(row);
+}
+
+function renderRaveShowList() {
+  var list = document.getElementById('raveShowList');
+  if (!list) return;
+  list.innerHTML = '';
+  var shows = loadRaveShows();
+  shows.forEach(function(s) { addRaveShow(s.start, s.name); });
+}
+
+function updateRaveShowInfo(secs) {
+  var shows = loadRaveShows();
+  // Convert timestamps to seconds and find the last show that has started
+  var current = shows[0] || { name: 'Rave Radio' };
+  for (var i = 0; i < shows.length; i++) {
+    var showStart = parseRaveTimestamp(shows[i].start);
+    if (secs >= showStart) {
+      current = shows[i];
+    } else {
+      break;
+    }
+  }
+  var el = document.getElementById('raveShowInfo');
+  if (el) el.textContent = '🎙️ ' + (current.name || 'Rave Radio');
+}
+
+// Load saved URL and shows on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadRaveRadioUrl();
+  renderRaveShowList();
 });
 
 </script>
