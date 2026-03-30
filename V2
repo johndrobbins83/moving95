@@ -5984,6 +5984,14 @@ let activeChips   = new Set();
 //  INIT
 // ══════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  // Auto-seed the Script URL if not already saved on this device
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyW4rOVEuC_MIaLTzqq2GKx8fPS6RVoyTG9S5frpThIuYQ13y3yR49yjobFw2WFhI/exec';
+  if (!localStorage.getItem('sheetUrl')) {
+    localStorage.setItem('sheetUrl', SCRIPT_URL);
+    const mainInput = document.getElementById('sheetUrl');
+    if (mainInput) mainInput.value = SCRIPT_URL;
+  }
+
   // Check if already logged in on this device
   // Start live clock
   function updateHeaderClock() {
@@ -6404,8 +6412,8 @@ async function syncProfileFromSheet(fromProfile) {
     // Map known column positions if data looks like an array (keys are numeric).
     const keys0 = Object.keys(data || {});
     if (keys0.length && !isNaN(keys0[0])) {
-      // Array-style: [user, pin, sheetUrl, sheetId, apiKey, tabName, gcalId, gcalDur, personal, updated]
-      const cols = ['user','pin','sheetUrl','sheetId','apiKey','tabName','gcalId','gcalDur','personal','updated'];
+      // Array-style: columns must match the GS sheet header order exactly
+      const cols = ['user','pin','sheetUrl','sheetId','apiKey','tabName','gcalId','gcalDur','personal','updated','radioPlaylists','radioMeta'];
       const rebuilt = {};
       cols.forEach(function(col, idx) { rebuilt[col] = String(data[idx] || ''); });
       data = rebuilt;
@@ -6420,8 +6428,10 @@ async function syncProfileFromSheet(fromProfile) {
 
     const hasConfig   = data.apiKey || data.sheetId || data.sheetUrl || data.gcalId || data.tabName;
     const hasPersonal = data.personal && data.personal !== '{}' && data.personal !== '';
+    const hasRadio    = (data.radioPlaylists && data.radioPlaylists !== '{}') ||
+                        (data.radioMeta      && data.radioMeta      !== '{}');
 
-    if (hasConfig || hasPersonal) {
+    if (hasConfig || hasPersonal || hasRadio) {
       // Write all config fields directly to localStorage
       if (data.sheetId)  localStorage.setItem('sheetId',  data.sheetId);
       if (data.apiKey)   localStorage.setItem('apiKey',   data.apiKey);
@@ -6430,17 +6440,28 @@ async function syncProfileFromSheet(fromProfile) {
       if (data.tabName)  localStorage.setItem('tabName',  data.tabName);
       if (data.gcalDur)  localStorage.setItem('gcalDuration', data.gcalDur);
       if (data.personal && data.personal !== '{}') localStorage.setItem('personalInfo', data.personal);
+      // Always explicitly restore radio data
+      if (data.radioPlaylists && data.radioPlaylists !== '{}') {
+        localStorage.setItem('radioPlaylistUrls', data.radioPlaylists);
+      }
+      if (data.radioMeta && data.radioMeta !== '{}') {
+        localStorage.setItem('radioStationMeta', data.radioMeta);
+      }
       applyProfileData(data, user);
       loadSavedConfig();
       loadPersonalInfo();
       refreshCredentials();
       updateSyncReadiness();
+      // Re-render radio grid with freshly pulled data
+      if (typeof renderRadioGrid === 'function') renderRadioGrid();
       const loaded = [
-        data.sheetUrl ? 'Script URL'  : '',
-        data.sheetId  ? 'Sheet ID'    : '',
-        data.apiKey   ? 'API Key'     : '',
-        data.gcalId   ? 'Calendar ID' : '',
-        hasPersonal   ? 'Personal Info' : ''
+        data.sheetUrl      ? 'Script URL'     : '',
+        data.sheetId       ? 'Sheet ID'       : '',
+        data.apiKey        ? 'API Key'        : '',
+        data.gcalId        ? 'Calendar ID'    : '',
+        hasPersonal        ? 'Personal Info'  : '',
+        data.radioPlaylists && data.radioPlaylists !== '{}' ? 'Radio Playlists' : '',
+        data.radioMeta      && data.radioMeta      !== '{}' ? 'Radio Config'    : ''
       ].filter(Boolean).join(', ');
       stat.textContent = '✅ Pulled: ' + (loaded || 'profile found') + ' — saved to this device!';
       stat.style.color = '#006400';
