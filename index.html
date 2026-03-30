@@ -1685,10 +1685,16 @@
   }
   #radio-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
     max-width: 720px;
     margin: 0 auto;
+  }
+  #radio-grid > div {
+    min-height: 130px;
+  }
+  #radio-grid > div .radio-label-text {
+    font-size: 15px !important;
   }
 
   /* ── RAVE RADIO BUTTON PULSE ── */
@@ -11264,10 +11270,8 @@ function renderRadioGrid() {
   if (!grid) return;
   grid.innerHTML = '';
   var isRave = document.body.classList.contains('rave-mode');
-  // Show/hide rave radio button
   var raveBtn = document.getElementById('raveRadioBtnWrap');
   if (raveBtn) raveBtn.style.display = isRave ? 'block' : 'none';
-  // Load saved rave radio URL into config field
   loadRaveRadioUrl();
 
   RADIO_GENRES.forEach(function(genre) {
@@ -11277,99 +11281,87 @@ function renderRadioGrid() {
     var customImg = meta.image || '';
 
     var tile = document.createElement('div');
-
-    var bg = isRave ? '#111111' : '#c0c0c0';
-    var borderT = isRave ? '#ff00ff' : '#ffffff';
-    var borderB = isRave ? '#00ffff' : '#404040';
+    var borderT = isRave ? '#ff00ff' : (url ? '#86efac' : '#ffffff');
+    var borderB = isRave ? '#00ffff' : (url ? '#15803d' : '#404040');
     var shadow  = isRave ? '0 0 10px #ff00ff66' : '3px 3px 0 #000000';
-    var labelColor = isRave ? (url ? '#00ff00' : '#ffff00') : (url ? '#15803d' : '#000000');
-    if (url && !isRave) bg = '#d4edda';
 
     tile.style.cssText = [
-      'display:flex', 'flex-direction:column', 'align-items:center',
-      'gap:0', 'cursor:pointer', 'position:relative', 'overflow:hidden',
-      customImg ? 'padding:0' : 'padding:12px 8px 8px',
-      'background-color:' + bg + '!important',
-      'background-image:none!important',
+      'display:flex', 'flex-direction:column', 'align-items:stretch',
+      'cursor:pointer', 'position:relative', 'overflow:hidden', 'padding:0',
       'border-top:3px solid ' + borderT,
       'border-left:3px solid ' + borderT,
       'border-right:3px solid ' + borderB,
       'border-bottom:3px solid ' + borderB,
       'box-shadow:' + shadow,
-      'min-height:110px', 'justify-content:' + (customImg ? 'flex-end' : 'center'),
+      'min-height:130px',
       'isolation:isolate',
       '-webkit-tap-highlight-color:transparent'
     ].join(';');
 
-    // Icon / Image
-    var iconEl = document.createElement('div');
+    // Background — image or dark gradient
+    var bgEl = document.createElement('div');
+    bgEl.style.cssText = 'position:absolute;inset:0;z-index:1;';
     if (customImg) {
-      // Full-bleed image behind everything
-      iconEl.style.cssText = 'position:absolute;inset:0;z-index:1;';
-      var img = document.createElement('img');
-      img.src = customImg;
-      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-      img.onerror = function() {
-        iconEl.style.cssText = 'font-size:36px;line-height:1;position:relative;z-index:10;';
-        iconEl.textContent = genre.icon;
-      };
-      iconEl.appendChild(img);
+      var bgImg = document.createElement('img');
+      bgImg.src = customImg;
+      bgImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      bgEl.appendChild(bgImg);
     } else {
-      iconEl.style.cssText = 'font-size:36px;line-height:1;position:relative;z-index:10;opacity:1;filter:none;';
-      iconEl.textContent = genre.icon;
+      // Dark gradient placeholder — unique hue per station using its index
+      var idx = RADIO_GENRES.indexOf(genre);
+      var hue = Math.round((idx / RADIO_GENRES.length) * 360);
+      bgEl.style.background = isRave
+        ? 'linear-gradient(160deg,#0a0a0a 0%,#1a0030 100%)'
+        : 'linear-gradient(160deg,hsl(' + hue + ',30%,18%) 0%,hsl(' + hue + ',20%,10%) 100%)';
     }
+    tile.appendChild(bgEl);
 
-    // Label — overlaid at bottom if image, normal flow otherwise
+    // Spacer pushes label to bottom
+    var spacer = document.createElement('div');
+    spacer.style.cssText = 'flex:1;position:relative;z-index:2;';
+    tile.appendChild(spacer);
+
+    // Bottom bar — label + info/explicit
+    var bottomBar = document.createElement('div');
+    bottomBar.style.cssText = 'position:relative;z-index:10;width:100%;display:flex;flex-direction:column;align-items:stretch;';
+
     var labelEl = document.createElement('div');
-    if (customImg) {
-      labelEl.style.cssText = 'font-family:VT323,monospace;font-size:13px;font-weight:bold;text-align:center;' +
-        'color:#fff;line-height:1.2;position:relative;z-index:10;width:100%;' +
-        'padding:3px 4px 4px;background:rgba(0,0,0,0.62);' +
-        'text-shadow:0 1px 3px #000,0 0 6px #000;';
-    } else {
-      labelEl.style.cssText = "font-family:'VT323',monospace;font-size:13px;font-weight:bold;text-align:center;color:" + labelColor + ";line-height:1.2;position:relative;z-index:10;opacity:1;";
-    }
+    labelEl.style.cssText = 'font-family:VT323,monospace;font-size:16px;font-weight:bold;text-align:center;' +
+      'line-height:1.2;width:100%;padding:5px 4px 4px;' +
+      'color:' + (isRave ? (url ? '#00ff00' : '#ffff00') : '#fff') + ';' +
+      'background:rgba(0,0,0,0.72);' +
+      'text-shadow:0 1px 3px #000,0 0 8px #000;';
     labelEl.textContent = label;
+    bottomBar.appendChild(labelEl);
 
-    // Info / explicit badge row
+    // Info / explicit row
     var hasInfo = meta.genre || meta.description || meta.explicit;
-    var infoRow = document.createElement('div');
-    if (customImg) {
-      infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;z-index:20;position:relative;width:100%;padding:2px 4px 4px;background:rgba(0,0,0,0.45);';
-    } else {
-      infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;z-index:20;position:relative;';
+    if (hasInfo || meta.explicit) {
+      var infoRow = document.createElement('div');
+      infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;' +
+        'padding:2px 4px 4px;background:rgba(0,0,0,0.5);position:relative;z-index:10;';
+      if (hasInfo) {
+        var infoBtn = document.createElement('button');
+        infoBtn.textContent = 'ⓘ';
+        infoBtn.title = 'Station info';
+        infoBtn.style.cssText = 'font-size:14px;background:none;border:none;cursor:pointer;' +
+          'color:' + (isRave ? '#00ffff' : '#7df') + ';padding:0 2px;line-height:1;';
+        infoBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          showRadioInfoPopup(genre, meta, label);
+        });
+        infoRow.appendChild(infoBtn);
+      }
+      if (meta.explicit) {
+        var expBadge = document.createElement('span');
+        expBadge.textContent = 'E';
+        expBadge.style.cssText = 'font-family:VT323,monospace;font-size:11px;background:#800000;color:#fff;padding:0 3px;border-radius:2px;font-weight:bold;line-height:1.4;flex-shrink:0;';
+        infoRow.appendChild(expBadge);
+      }
+      bottomBar.appendChild(infoRow);
     }
 
-    if (hasInfo) {
-      var infoBtn = document.createElement('button');
-      infoBtn.textContent = 'ⓘ';
-      infoBtn.title = 'Station info';
-      infoBtn.style.cssText = 'font-size:14px;background:none;border:none;cursor:pointer;color:' + (customImg ? '#7df' : (isRave ? '#00ffff' : '#000080')) + ';padding:0 2px;line-height:1;';
-      infoBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        showRadioInfoPopup(genre, meta, label);
-      });
-      infoRow.appendChild(infoBtn);
-    }
-    if (meta.explicit) {
-      var expBadge = document.createElement('span');
-      expBadge.textContent = 'E';
-      expBadge.style.cssText = 'font-family:VT323,monospace;font-size:11px;background:#800000;color:#fff;padding:0 3px;border-radius:2px;font-weight:bold;line-height:1.4;flex-shrink:0;';
-      infoRow.appendChild(expBadge);
-    }
-
-    tile.appendChild(iconEl);
-    if (!customImg) tile.appendChild(labelEl);
-    if (customImg) {
-      // For image tiles: label + info row stacked at the bottom
-      var bottomBar = document.createElement('div');
-      bottomBar.style.cssText = 'position:relative;z-index:10;width:100%;display:flex;flex-direction:column;align-items:stretch;';
-      bottomBar.appendChild(labelEl);
-      if (infoRow.childNodes.length) bottomBar.appendChild(infoRow);
-      tile.appendChild(bottomBar);
-    } else {
-      if (infoRow.childNodes.length) tile.appendChild(infoRow);
-    }
+    tile.appendChild(bottomBar);
 
     tile.addEventListener('click', function() {
       if (url) window.open(url, '_blank');
@@ -11491,6 +11483,7 @@ function buildRadioConfigList() {
 
     // Icon preview
     var iconPrev = document.createElement('div');
+    iconPrev.id = 'radio_summaryimg_' + genre.id;
     iconPrev.style.cssText = 'flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;';
     if (meta.image) {
       var prevImg = document.createElement('img');
@@ -11554,15 +11547,122 @@ function buildRadioConfigList() {
     nameInput.style.cssText = inputStyle;
     body.appendChild(labeledField('✏️ Station Name', nameInput));
 
-    // Image URL
-    var imgInput = document.createElement('input');
-    imgInput.type = 'text';
-    imgInput.id = 'radio_img_' + genre.id;
-    imgInput.placeholder = 'https://... image URL (replaces emoji icon)';
-    imgInput.autocomplete = 'off'; imgInput.autocorrect = 'off'; imgInput.spellcheck = false;
-    imgInput.value = meta.image || '';
-    imgInput.style.cssText = inputStyle;
-    body.appendChild(labeledField('🖼️ Station Image URL', imgInput));
+    // Station Image — file upload with preview
+    var imgWrap = document.createElement('div');
+    imgWrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+
+    // Preview area
+    var imgPreview = document.createElement('div');
+    imgPreview.id = 'radio_imgpreview_' + genre.id;
+    imgPreview.style.cssText = 'width:100%;height:80px;background:#111;position:relative;overflow:hidden;border:2px solid var(--darker);display:flex;align-items:center;justify-content:center;';
+    if (meta.image) {
+      var prevImgEl = document.createElement('img');
+      prevImgEl.src = meta.image;
+      prevImgEl.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      imgPreview.appendChild(prevImgEl);
+    } else {
+      imgPreview.style.color = 'var(--darker)';
+      imgPreview.style.fontFamily = 'VT323,monospace';
+      imgPreview.style.fontSize = '13px';
+      imgPreview.textContent = 'No image set';
+    }
+
+    // Hidden input to store base64
+    var imgDataInput = document.createElement('input');
+    imgDataInput.type = 'hidden';
+    imgDataInput.id = 'radio_img_' + genre.id;
+    imgDataInput.value = meta.image || '';
+
+    // Upload button row
+    var uploadRow = document.createElement('div');
+    uploadRow.style.cssText = 'display:flex;gap:6px;align-items:center;';
+
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.cssText = 'display:none;';
+    fileInput.id = 'radio_fileInput_' + genre.id;
+
+    var uploadBtn = document.createElement('button');
+    uploadBtn.type = 'button';
+    uploadBtn.textContent = '📁 Upload Image';
+    uploadBtn.style.cssText = 'font-family:VT323,monospace;font-size:15px;cursor:pointer;padding:5px 12px;' +
+      'background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);' +
+      'border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);color:var(--black);flex:1;';
+    uploadBtn.onclick = function() { fileInput.click(); };
+
+    var clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.textContent = '✕';
+    clearBtn.title = 'Remove image';
+    clearBtn.style.cssText = 'font-family:VT323,monospace;font-size:16px;cursor:pointer;padding:5px 10px;' +
+      'background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);' +
+      'border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);color:var(--red);flex-shrink:0;';
+    clearBtn.onclick = function() {
+      imgDataInput.value = '';
+      imgPreview.innerHTML = '';
+      imgPreview.style.color = 'var(--darker)';
+      imgPreview.style.fontFamily = 'VT323,monospace';
+      imgPreview.style.fontSize = '13px';
+      imgPreview.textContent = 'No image set';
+      // Update summary preview
+      var sp = document.getElementById('radio_summaryimg_' + genre.id);
+      if (sp) { sp.innerHTML = ''; sp.style.fontSize = '22px'; sp.textContent = genre.icon; }
+    };
+
+    fileInput.addEventListener('change', function() {
+      var file = fileInput.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        // Compress via canvas
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var MAX = 400;
+          var ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+          canvas.width  = Math.round(img.width  * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          imgDataInput.value = dataUrl;
+          // Update preview
+          imgPreview.innerHTML = '';
+          var newImg = document.createElement('img');
+          newImg.src = dataUrl;
+          newImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+          imgPreview.appendChild(newImg);
+          // Update summary thumbnail
+          var sp = document.getElementById('radio_summaryimg_' + genre.id);
+          if (sp) {
+            sp.innerHTML = '';
+            sp.style.fontSize = '';
+            sp.textContent = '';
+            var thumb = document.createElement('img');
+            thumb.src = dataUrl;
+            thumb.style.cssText = 'width:28px;height:28px;object-fit:cover;border-radius:3px;';
+            sp.appendChild(thumb);
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    uploadRow.appendChild(fileInput);
+    uploadRow.appendChild(uploadBtn);
+    uploadRow.appendChild(clearBtn);
+    imgWrap.appendChild(imgPreview);
+    imgWrap.appendChild(uploadRow);
+    imgWrap.appendChild(imgDataInput);
+
+    var imgLbl = document.createElement('div');
+    imgLbl.style.cssText = "font-family:'VT323',monospace;font-size:13px;color:var(--darker);margin-bottom:2px;";
+    imgLbl.textContent = '🖼️ Station Image';
+    var imgFieldRow = document.createElement('div');
+    imgFieldRow.appendChild(imgLbl);
+    imgFieldRow.appendChild(imgWrap);
+    body.appendChild(imgFieldRow);
 
     // Genre
     var genreInput = document.createElement('input');
@@ -11639,7 +11739,9 @@ function saveRadioConfig() {
     // Meta
     var m = {};
     if (nameInput && nameInput.value.trim()) m.name = nameInput.value.trim();
-    if (imgInput  && imgInput.value.trim())  m.image = imgInput.value.trim();
+    var imgEl = document.getElementById('radio_img_' + genre.id);
+    var imgVal = imgEl ? imgEl.value : '';
+    if (imgVal) m.image = imgVal;
     if (genreInput && genreInput.value.trim()) m.genre = genreInput.value.trim();
     if (expInput)  m.explicit = expInput.checked;
     if (descInput && descInput.value.trim()) m.description = descInput.value.trim();
