@@ -3363,6 +3363,15 @@ document.addEventListener('DOMContentLoaded', function() {
         Enter your username and PIN to sign in. Paste your Script URL below to sync your full config.
       </div>
 
+      <!-- Hardcoded Script URL for easy copy -->
+      <div style="margin-bottom:14px;padding:10px;background:rgba(0,0,128,0.07);border-left:3px solid var(--blue);">
+        <div style="font-size:13px;font-weight:bold;color:var(--blue);margin-bottom:6px;">📋 Your Apps Script URL</div>
+        <div style="display:flex;gap:4px;align-items:stretch;">
+          <div id="hardcodedScriptUrl" style="flex:1;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 8px;font-size:11px;font-weight:normal;font-family:monospace;color:var(--blue);word-break:break-all;line-height:1.4;">https://script.google.com/macros/s/AKfycbxyW4rOVEuC_MIaLTzqq2GKx8fPS6RVoyTG9S5frpThIuYQ13y3yR49yjobFw2WFhI/exec</div>
+          <button onclick="copyHardcodedUrl()" id="hardcodedCopyBtn" title="Copy URL" style="background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);font-family:'VT323',monospace;font-size:18px;cursor:pointer;padding:4px 10px;flex-shrink:0;align-self:flex-start;">📋</button>
+        </div>
+      </div>
+
       <!-- Script URL field -->
       <div class="login-field">
         <label>Apps Script URL</label>
@@ -5975,6 +5984,14 @@ let activeChips   = new Set();
 //  INIT
 // ══════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  // Auto-seed the Script URL if not already saved on this device
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyW4rOVEuC_MIaLTzqq2GKx8fPS6RVoyTG9S5frpThIuYQ13y3yR49yjobFw2WFhI/exec';
+  if (!localStorage.getItem('sheetUrl')) {
+    localStorage.setItem('sheetUrl', SCRIPT_URL);
+    const mainInput = document.getElementById('sheetUrl');
+    if (mainInput) mainInput.value = SCRIPT_URL;
+  }
+
   // Check if already logged in on this device
   // Start live clock
   function updateHeaderClock() {
@@ -6148,7 +6165,8 @@ function applyProfileData(data, user) {
     gcalDur:  'gcalDuration',
     personal: 'personalInfo',
     pin:            'profile_' + user.toLowerCase() + '_pin',
-    radioPlaylists: 'radioPlaylistUrls'
+    radioPlaylists: 'radioPlaylistUrls',
+    radioMeta:      'radioStationMeta'
   };
   let applied = 0;
   Object.entries(fieldMap).forEach(([profileKey, storageKey]) => {
@@ -6159,8 +6177,14 @@ function applyProfileData(data, user) {
     }
   });
   console.log('Profile applied:', applied, 'fields for user:', user);
-  // Do NOT call applyLogin here — user is already logged in and on a page.
-  // Just refresh the config UI without redirecting.
+  // If the login overlay is still showing, this is a login flow — complete it
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay && !overlay.classList.contains('hidden')) {
+    localStorage.setItem('loggedInUser', user);
+    applyLogin(user);
+    return;
+  }
+  // Already logged in (e.g. pull from profile page) — just refresh UI
   loadSavedConfig();
   updateSyncReadiness();
   populateProfileTab(user);
@@ -6186,7 +6210,8 @@ function gatherConfig() {
     gcalId:   getLive('gcalId',       'gcalId',   ''),
     gcalDur:  getLive('gcalDuration', 'gcalDuration', '2'),
     personal: localStorage.getItem('personalInfo') || '{}',
-    radioPlaylists: localStorage.getItem('radioPlaylistUrls') || '{}'
+    radioPlaylists: localStorage.getItem('radioPlaylistUrls') || '{}',
+    radioMeta:      localStorage.getItem('radioStationMeta')  || '{}'
   };
 }
 
@@ -6387,8 +6412,8 @@ async function syncProfileFromSheet(fromProfile) {
     // Map known column positions if data looks like an array (keys are numeric).
     const keys0 = Object.keys(data || {});
     if (keys0.length && !isNaN(keys0[0])) {
-      // Array-style: [user, pin, sheetUrl, sheetId, apiKey, tabName, gcalId, gcalDur, personal, updated]
-      const cols = ['user','pin','sheetUrl','sheetId','apiKey','tabName','gcalId','gcalDur','personal','updated'];
+      // Array-style: columns must match the GS sheet header order exactly
+      const cols = ['user','pin','sheetUrl','sheetId','apiKey','tabName','gcalId','gcalDur','personal','updated','radioPlaylists','radioMeta'];
       const rebuilt = {};
       cols.forEach(function(col, idx) { rebuilt[col] = String(data[idx] || ''); });
       data = rebuilt;
@@ -6403,8 +6428,10 @@ async function syncProfileFromSheet(fromProfile) {
 
     const hasConfig   = data.apiKey || data.sheetId || data.sheetUrl || data.gcalId || data.tabName;
     const hasPersonal = data.personal && data.personal !== '{}' && data.personal !== '';
+    const hasRadio    = (data.radioPlaylists && data.radioPlaylists !== '{}') ||
+                        (data.radioMeta      && data.radioMeta      !== '{}');
 
-    if (hasConfig || hasPersonal) {
+    if (hasConfig || hasPersonal || hasRadio) {
       // Write all config fields directly to localStorage
       if (data.sheetId)  localStorage.setItem('sheetId',  data.sheetId);
       if (data.apiKey)   localStorage.setItem('apiKey',   data.apiKey);
@@ -6413,17 +6440,28 @@ async function syncProfileFromSheet(fromProfile) {
       if (data.tabName)  localStorage.setItem('tabName',  data.tabName);
       if (data.gcalDur)  localStorage.setItem('gcalDuration', data.gcalDur);
       if (data.personal && data.personal !== '{}') localStorage.setItem('personalInfo', data.personal);
+      // Always explicitly restore radio data
+      if (data.radioPlaylists && data.radioPlaylists !== '{}') {
+        localStorage.setItem('radioPlaylistUrls', data.radioPlaylists);
+      }
+      if (data.radioMeta && data.radioMeta !== '{}') {
+        localStorage.setItem('radioStationMeta', data.radioMeta);
+      }
       applyProfileData(data, user);
       loadSavedConfig();
       loadPersonalInfo();
       refreshCredentials();
       updateSyncReadiness();
+      // Re-render radio grid with freshly pulled data
+      if (typeof renderRadioGrid === 'function') renderRadioGrid();
       const loaded = [
-        data.sheetUrl ? 'Script URL'  : '',
-        data.sheetId  ? 'Sheet ID'    : '',
-        data.apiKey   ? 'API Key'     : '',
-        data.gcalId   ? 'Calendar ID' : '',
-        hasPersonal   ? 'Personal Info' : ''
+        data.sheetUrl      ? 'Script URL'     : '',
+        data.sheetId       ? 'Sheet ID'       : '',
+        data.apiKey        ? 'API Key'        : '',
+        data.gcalId        ? 'Calendar ID'    : '',
+        hasPersonal        ? 'Personal Info'  : '',
+        data.radioPlaylists && data.radioPlaylists !== '{}' ? 'Radio Playlists' : '',
+        data.radioMeta      && data.radioMeta      !== '{}' ? 'Radio Config'    : ''
       ].filter(Boolean).join(', ');
       stat.textContent = '✅ Pulled: ' + (loaded || 'profile found') + ' — saved to this device!';
       stat.style.color = '#006400';
@@ -6516,6 +6554,23 @@ function copyLoginUrl() {
     btn.innerHTML = '&#10004;';
     btn.style.color = '#006400';
     setTimeout(() => { btn.innerHTML = '&#128203;'; btn.style.color = ''; }, 2000);
+  }
+}
+
+function copyHardcodedUrl() {
+  const url = 'https://script.google.com/macros/s/AKfycbxyW4rOVEuC_MIaLTzqq2GKx8fPS6RVoyTG9S5frpThIuYQ13y3yR49yjobFw2WFhI/exec';
+  const btn = document.getElementById('hardcodedCopyBtn');
+  navigator.clipboard.writeText(url).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  if (btn) {
+    btn.textContent = '✔';
+    btn.style.color = '#006400';
+    setTimeout(() => { btn.textContent = '📋'; btn.style.color = ''; }, 2000);
   }
 }
 
@@ -11209,8 +11264,8 @@ function renderRadioGrid() {
 
     tile.style.cssText = [
       'display:flex', 'flex-direction:column', 'align-items:center',
-      'gap:6px', 'cursor:pointer', 'position:relative',
-      'padding:12px 8px 8px',
+      'gap:0', 'cursor:pointer', 'position:relative', 'overflow:hidden',
+      customImg ? 'padding:0' : 'padding:12px 8px 8px',
       'background-color:' + bg + '!important',
       'background-image:none!important',
       'border-top:3px solid ' + borderT,
@@ -11218,7 +11273,7 @@ function renderRadioGrid() {
       'border-right:3px solid ' + borderB,
       'border-bottom:3px solid ' + borderB,
       'box-shadow:' + shadow,
-      'min-height:110px', 'justify-content:center',
+      'min-height:110px', 'justify-content:' + (customImg ? 'flex-end' : 'center'),
       'isolation:isolate',
       '-webkit-tap-highlight-color:transparent'
     ].join(';');
@@ -11226,32 +11281,47 @@ function renderRadioGrid() {
     // Icon / Image
     var iconEl = document.createElement('div');
     if (customImg) {
-      iconEl.style.cssText = 'width:44px;height:44px;position:relative;z-index:10;flex-shrink:0;';
+      // Full-bleed image behind everything
+      iconEl.style.cssText = 'position:absolute;inset:0;z-index:1;';
       var img = document.createElement('img');
       img.src = customImg;
-      img.style.cssText = 'width:44px;height:44px;object-fit:cover;border-radius:4px;display:block;';
-      img.onerror = function() { iconEl.textContent = genre.icon; iconEl.style.fontSize = '40px'; };
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      img.onerror = function() {
+        iconEl.style.cssText = 'font-size:36px;line-height:1;position:relative;z-index:10;';
+        iconEl.textContent = genre.icon;
+      };
       iconEl.appendChild(img);
     } else {
       iconEl.style.cssText = 'font-size:36px;line-height:1;position:relative;z-index:10;opacity:1;filter:none;';
       iconEl.textContent = genre.icon;
     }
 
-    // Label
+    // Label — overlaid at bottom if image, normal flow otherwise
     var labelEl = document.createElement('div');
-    labelEl.style.cssText = "font-family:'VT323',monospace;font-size:13px;font-weight:bold;text-align:center;color:" + labelColor + ";line-height:1.2;position:relative;z-index:10;opacity:1;";
+    if (customImg) {
+      labelEl.style.cssText = 'font-family:VT323,monospace;font-size:13px;font-weight:bold;text-align:center;' +
+        'color:#fff;line-height:1.2;position:relative;z-index:10;width:100%;' +
+        'padding:3px 4px 4px;background:rgba(0,0,0,0.62);' +
+        'text-shadow:0 1px 3px #000,0 0 6px #000;';
+    } else {
+      labelEl.style.cssText = "font-family:'VT323',monospace;font-size:13px;font-weight:bold;text-align:center;color:" + labelColor + ";line-height:1.2;position:relative;z-index:10;opacity:1;";
+    }
     labelEl.textContent = label;
 
-    // Info button row (only if there's metadata to show)
+    // Info / explicit badge row
     var hasInfo = meta.genre || meta.description || meta.explicit;
     var infoRow = document.createElement('div');
-    infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;z-index:20;position:relative;';
+    if (customImg) {
+      infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;z-index:20;position:relative;width:100%;padding:2px 4px 4px;background:rgba(0,0,0,0.45);';
+    } else {
+      infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;z-index:20;position:relative;';
+    }
 
     if (hasInfo) {
       var infoBtn = document.createElement('button');
       infoBtn.textContent = 'ⓘ';
       infoBtn.title = 'Station info';
-      infoBtn.style.cssText = 'font-size:14px;background:none;border:none;cursor:pointer;color:' + (isRave ? '#00ffff' : '#000080') + ';padding:0 2px;line-height:1;';
+      infoBtn.style.cssText = 'font-size:14px;background:none;border:none;cursor:pointer;color:' + (customImg ? '#7df' : (isRave ? '#00ffff' : '#000080')) + ';padding:0 2px;line-height:1;';
       infoBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         showRadioInfoPopup(genre, meta, label);
@@ -11266,8 +11336,17 @@ function renderRadioGrid() {
     }
 
     tile.appendChild(iconEl);
-    tile.appendChild(labelEl);
-    if (infoRow.childNodes.length) tile.appendChild(infoRow);
+    if (!customImg) tile.appendChild(labelEl);
+    if (customImg) {
+      // For image tiles: label + info row stacked at the bottom
+      var bottomBar = document.createElement('div');
+      bottomBar.style.cssText = 'position:relative;z-index:10;width:100%;display:flex;flex-direction:column;align-items:stretch;';
+      bottomBar.appendChild(labelEl);
+      if (infoRow.childNodes.length) bottomBar.appendChild(infoRow);
+      tile.appendChild(bottomBar);
+    } else {
+      if (infoRow.childNodes.length) tile.appendChild(infoRow);
+    }
 
     tile.addEventListener('click', function() {
       if (url) window.open(url, '_blank');
@@ -11283,34 +11362,46 @@ function showRadioInfoPopup(genre, meta, label) {
 
   var overlay = document.createElement('div');
   overlay.id = 'radioInfoPopup';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
 
   var box = document.createElement('div');
   var isRave = document.body.classList.contains('rave-mode');
-  box.style.cssText = 'background:' + (isRave?'#0a0a0a':'#c0c0c0') + ';border-top:3px solid ' + (isRave?'#ff00ff':'#fff') + ';border-left:3px solid ' + (isRave?'#ff00ff':'#fff') + ';border-right:3px solid ' + (isRave?'#00ffff':'#404040') + ';border-bottom:3px solid ' + (isRave?'#00ffff':'#404040') + ';box-shadow:4px 4px 0 #000;max-width:340px;width:100%;font-family:VT323,monospace;';
+  box.style.cssText = 'background:' + (isRave?'#0a0a0a':'#c0c0c0') + ';' +
+    'border-top:4px solid ' + (isRave?'#ff00ff':'#fff') + ';' +
+    'border-left:4px solid ' + (isRave?'#ff00ff':'#fff') + ';' +
+    'border-right:4px solid ' + (isRave?'#00ffff':'#404040') + ';' +
+    'border-bottom:4px solid ' + (isRave?'#00ffff':'#404040') + ';' +
+    'box-shadow:6px 6px 0 #000;max-width:480px;width:100%;font-family:VT323,monospace;' +
+    'max-height:90vh;overflow-y:auto;';
 
   // Title bar
   var titleBar = document.createElement('div');
-  titleBar.style.cssText = 'background:' + (isRave?'#ff00ff':'#000080') + ';color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:bold;';
-  titleBar.innerHTML = '<span>📻 ' + label + '</span>';
+  titleBar.style.cssText = 'background:' + (isRave?'#ff00ff':'#000080') + ';color:#fff;' +
+    'padding:10px 14px;display:flex;align-items:center;justify-content:space-between;' +
+    'font-size:22px;font-weight:bold;position:sticky;top:0;z-index:2;';
+  var titleSpan = document.createElement('span');
+  titleSpan.textContent = '📻 ' + label;
+  titleSpan.style.cssText = 'flex:1;margin-right:8px;';
   var closeBtn = document.createElement('button');
   closeBtn.textContent = '✕';
-  closeBtn.style.cssText = 'background:none;border:none;color:#fff;cursor:pointer;font-family:VT323,monospace;font-size:16px;padding:0 4px;';
+  closeBtn.style.cssText = 'background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);color:#fff;cursor:pointer;font-family:VT323,monospace;font-size:20px;padding:2px 10px;flex-shrink:0;';
   closeBtn.onclick = function() { overlay.remove(); };
+  titleBar.appendChild(titleSpan);
   titleBar.appendChild(closeBtn);
   box.appendChild(titleBar);
 
   // Body
   var body = document.createElement('div');
-  body.style.cssText = 'padding:14px 16px;display:flex;flex-direction:column;gap:10px;';
+  body.style.cssText = 'padding:20px;display:flex;flex-direction:column;gap:16px;';
 
-  // Station image if set
+  // Station image — full width, tall
   if (meta.image) {
     var imgWrap = document.createElement('div');
-    imgWrap.style.cssText = 'text-align:center;';
+    imgWrap.style.cssText = 'width:100%;';
     var img = document.createElement('img');
     img.src = meta.image;
-    img.style.cssText = 'width:80px;height:80px;object-fit:cover;border:2px solid ' + (isRave?'#ff00ff':'#000') + ';border-radius:4px;';
+    img.style.cssText = 'width:100%;max-height:260px;object-fit:cover;display:block;' +
+      'border:3px solid ' + (isRave?'#ff00ff':'#000') + ';';
     imgWrap.appendChild(img);
     body.appendChild(imgWrap);
   }
@@ -11318,12 +11409,12 @@ function showRadioInfoPopup(genre, meta, label) {
   function infoRow(lbl, val) {
     if (!val) return;
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;';
-    var lSpan = document.createElement('span');
-    lSpan.style.cssText = 'color:' + (isRave?'#00ffff':'#000080') + ';font-size:15px;font-weight:bold;flex-shrink:0;min-width:80px;';
-    lSpan.textContent = lbl + ':';
-    var vSpan = document.createElement('span');
-    vSpan.style.cssText = 'color:' + (isRave?'#fff':'#000') + ';font-size:15px;line-height:1.3;';
+    row.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+    var lSpan = document.createElement('div');
+    lSpan.style.cssText = 'color:' + (isRave?'#00ffff':'#000080') + ';font-size:17px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;';
+    lSpan.textContent = lbl;
+    var vSpan = document.createElement('div');
+    vSpan.style.cssText = 'color:' + (isRave?'#fff':'#000') + ';font-size:22px;line-height:1.3;';
     vSpan.textContent = val;
     row.appendChild(lSpan);
     row.appendChild(vSpan);
@@ -11331,7 +11422,7 @@ function showRadioInfoPopup(genre, meta, label) {
   }
 
   if (meta.genre) infoRow('Genre', meta.genre);
-  if (meta.explicit !== undefined) infoRow('Explicit', meta.explicit ? '🔞 Yes' : '✅ No');
+  if (meta.explicit !== undefined) infoRow('Explicit', meta.explicit ? '🔞 Yes' : '✅ Clean');
   if (meta.description) infoRow('About', meta.description);
 
   box.appendChild(body);
