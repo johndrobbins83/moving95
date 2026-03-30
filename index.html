@@ -6142,6 +6142,15 @@ function applyLogin(user) {
   document.getElementById('userBadge').style.display = 'inline-block';
   document.getElementById('profileName').textContent = user;
   localStorage.setItem('loggedInUser', user);
+  // Each user gets their own inventory tab named after them
+  // Only set if not already set to a user-specific tab
+  var existingTab = localStorage.getItem('tabName') || '';
+  if (!existingTab || existingTab === 'Inventory') {
+    var userTab = user.charAt(0).toUpperCase() + user.slice(1).toLowerCase();
+    localStorage.setItem('tabName', userTab);
+    var cfgInput = document.getElementById('cfgTabName');
+    if (cfgInput) cfgInput.value = userTab;
+  }
   loadItemCounter();
   loadSavedConfig();
   loadPersonalInfo();
@@ -6634,6 +6643,8 @@ function goToProfile() {
 function doLogout() {
   if (!confirm('Sign out of ' + (currentUser || 'this account') + '?')) return;
   localStorage.removeItem('loggedInUser');
+  // Reset tab name so the next user gets their own tab on login
+  localStorage.setItem('tabName', 'Inventory');
   currentUser = null;
   document.getElementById('userBadge').style.display = 'none';
   document.getElementById('loginOverlay').classList.remove('hidden');
