@@ -6177,6 +6177,20 @@ function applyProfileData(data, user) {
     }
   });
   console.log('Profile applied:', applied, 'fields for user:', user);
+  // Extract radio data bundled inside the personal blob, then clean it back out
+  try {
+    const p = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+    if (p._radioPlaylists && Object.keys(p._radioPlaylists).length) {
+      localStorage.setItem('radioPlaylistUrls', JSON.stringify(p._radioPlaylists));
+    }
+    if (p._radioMeta && Object.keys(p._radioMeta).length) {
+      localStorage.setItem('radioStationMeta', JSON.stringify(p._radioMeta));
+    }
+    // Remove the hidden radio keys so they don't pollute the personal info display
+    delete p._radioPlaylists;
+    delete p._radioMeta;
+    localStorage.setItem('personalInfo', JSON.stringify(p));
+  } catch(e) {}
   // If the login overlay is still showing, this is a login flow — complete it
   const overlay = document.getElementById('loginOverlay');
   if (overlay && !overlay.classList.contains('hidden')) {
@@ -6202,6 +6216,15 @@ function gatherConfig() {
     if (val) localStorage.setItem(storageKey, val);
     return val;
   }
+  // Bundle radio data inside personal so it travels through the GS sync column
+  let personal = {};
+  try { personal = JSON.parse(localStorage.getItem('personalInfo') || '{}'); } catch(e) {}
+  // Strip any previously-bundled radio keys from the clean copy first
+  delete personal._radioPlaylists;
+  delete personal._radioMeta;
+  // Now embed the current radio data for the push
+  try { personal._radioPlaylists = JSON.parse(localStorage.getItem('radioPlaylistUrls') || '{}'); } catch(e) {}
+  try { personal._radioMeta      = JSON.parse(localStorage.getItem('radioStationMeta')  || '{}'); } catch(e) {}
   return {
     sheetUrl: getLive('sheetUrl',     'sheetUrl', ''),
     sheetId:  getLive('cfgSheetId',   'sheetId',  ''),
@@ -6209,7 +6232,7 @@ function gatherConfig() {
     tabName:  getLive('cfgTabName',   'tabName',  'Inventory'),
     gcalId:   getLive('gcalId',       'gcalId',   ''),
     gcalDur:  getLive('gcalDuration', 'gcalDuration', '2'),
-    personal: localStorage.getItem('personalInfo') || '{}',
+    personal: JSON.stringify(personal),
     radioPlaylists: localStorage.getItem('radioPlaylistUrls') || '{}',
     radioMeta:      localStorage.getItem('radioStationMeta')  || '{}'
   };
