@@ -3024,6 +3024,19 @@ function setColorMode(mode) {
   if (mode !== 'rave' && typeof closeRavePlayer === 'function') closeRavePlayer();
 }
 
+function cycleColorMode() {
+  var current = localStorage.getItem('colorMode') || 'light';
+  var order = ['light', 'dark', 'rave'];
+  var next = order[(order.indexOf(current) + 1) % order.length];
+  setColorMode(next);
+  // Brief visual feedback on the logo
+  var logo = document.getElementById('headerLogo');
+  if (logo) {
+    logo.style.transform = 'scale(1.18)';
+    setTimeout(function() { logo.style.transform = ''; }, 200);
+  }
+}
+
 function updateColorModeUI(mode) {
   const modes = { light: 'btnModeLight', dark: 'btnModeDark', rave: 'btnModeRave' };
   const labels = { light: '☀️ Light Mode — Active', dark: '🌙 Dark Mode — Active', rave: '🌈 Rave Mode — Active' };
@@ -6493,6 +6506,13 @@ async function doLogin() {
     const pinHash = await hashPin(pin);
     localStorage.setItem('profile_' + user.toLowerCase() + '_pin', pinHash);
     localStorage.setItem('loggedInUser', user);
+    // Pre-set per-user tab name so applyLogin and any inventory calls use the right tab
+    const _userTab = user.charAt(0).toUpperCase() + user.slice(1).toLowerCase();
+    if (!localStorage.getItem('tabName') || localStorage.getItem('tabName') === 'Inventory') {
+      localStorage.setItem('tabName', _userTab);
+      const _cfgTab = document.getElementById('cfgTabName');
+      if (_cfgTab) _cfgTab.value = _userTab;
+    }
     err.textContent = 'No Apps Script URL found. Go to Config → Apps Script URL after login to connect your account.';
     err.style.color = '#cc6600';
     err.style.background = '#fffde7';
@@ -6530,15 +6550,27 @@ async function doLogin() {
     } else {
       // No profile found — create one
       const pinHash = await hashPin(pin);
+
+      // Set the per-user tab name NOW, before gatherConfig reads it
+      const userTab = user.charAt(0).toUpperCase() + user.slice(1).toLowerCase();
+      localStorage.setItem('tabName', userTab);
+      const cfgTabInput = document.getElementById('cfgTabName');
+      if (cfgTabInput) cfgTabInput.value = userTab;
+
       const profile = gatherConfig();
-      profile.user = user.toLowerCase();
-      profile.pin  = pinHash;
-      await fetch(scriptUrl, {
+      profile.user    = user.toLowerCase();
+      profile.pin     = pinHash;
+      profile.tabName = userTab;  // ensure it is explicitly set
+
+      localStorage.setItem('loggedInUser', user);
+
+      // Fire and forget — no-cors means we cannot read the response anyway
+      fetch(scriptUrl, {
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'saveProfile', profile })
-      });
-      localStorage.setItem('loggedInUser', user);
+      }).catch(function() {});
+
       applyLogin(user);
     }
   } catch(e) {
@@ -6552,6 +6584,13 @@ async function doLogin() {
     }
     localStorage.setItem('profile_' + user.toLowerCase() + '_pin', pinHash);
     localStorage.setItem('loggedInUser', user);
+    // Pre-set per-user tab name before applyLogin reads it
+    const _errTab = user.charAt(0).toUpperCase() + user.slice(1).toLowerCase();
+    if (!localStorage.getItem('tabName') || localStorage.getItem('tabName') === 'Inventory') {
+      localStorage.setItem('tabName', _errTab);
+      const _errCfg = document.getElementById('cfgTabName');
+      if (_errCfg) _errCfg.value = _errTab;
+    }
     applyLogin(user);
   }
   spin.style.display = 'none';
