@@ -2164,7 +2164,11 @@ async function saveEditedItem() {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'updateRow', item: updated })
+      body: JSON.stringify({
+        action: 'updateRow',
+        item: updated,
+        tabName: localStorage.getItem('tabName') || 'Inventory'
+      })
     });
 
     // Wait a moment for GS to process, then verify by reading the row from Sheets API
@@ -7356,7 +7360,8 @@ async function submitItem() {
     estCost: estCost ? parseFloat(estCost) : '',
     wrapped, fragile,
     itemStatus: Array.from(document.querySelectorAll('input[name="itemStatus"]:checked')).map(el => el.value).join(', '),
-    images: imageDataArray, timestamp: new Date().toISOString()
+    images: imageDataArray, timestamp: new Date().toISOString(),
+    tabName: localStorage.getItem('tabName') || 'Inventory'
   };
 
   try {
@@ -7641,7 +7646,7 @@ async function clearSheetData() {
     await fetch(url, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'clearSheet' })
+      body: JSON.stringify({ action: 'clearSheet', tabName: localStorage.getItem('tabName') || 'Inventory' })
     });
     allItems = []; filtered = [];
     status.textContent = '✅ Delete request sent. Refresh the Inventory Viewer to confirm.';
@@ -7771,7 +7776,7 @@ async function clearSheetData() {
     await fetch(url, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'clearSheet' })
+      body: JSON.stringify({ action: 'clearSheet', tabName: localStorage.getItem('tabName') || 'Inventory' })
     });
     allItems = []; filtered = [];
     status.textContent = '✅ Request sent. Open Inventory Viewer and tap Refresh to confirm.';
@@ -9257,7 +9262,7 @@ async function saveEditedItem() {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'updateRow', item: updated })
+      body: JSON.stringify({ action: 'updateRow', item: updated, tabName: localStorage.getItem('tabName') || 'Inventory' })
     });
 
     // Wait a moment for GS to process, then verify by reading the row from Sheets API
