@@ -6879,6 +6879,10 @@ async function syncProfileFromSheet(fromProfile) {
       updateSyncReadiness();
       // Re-render radio grid with freshly pulled data
       if (typeof renderRadioGrid === 'function') renderRadioGrid();
+      // Reload inventory now that credentials are confirmed from cloud
+      if (allItems.length === 0 && localStorage.getItem('sheetId') && localStorage.getItem('apiKey')) {
+        loadViewerData();
+      }
       const loaded = [
         data.sheetUrl      ? 'Script URL'     : '',
         data.sheetId       ? 'Sheet ID'       : '',
