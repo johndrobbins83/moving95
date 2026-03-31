@@ -1972,6 +1972,112 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
+
+    /* ── Mobile Radio: switch to playlist mode ── */
+    #page-radio.radio-mobile-mode .radio-desktop-grid { display: none !important; }
+    #page-radio.radio-mobile-mode .radio-mobile-playlist { display: block !important; }
+
+    /* Sticky dial container on mobile */
+    #page-radio.radio-mobile-mode #radioDial {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      padding-bottom: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Playlist — natural page scroll, no inner scroll box */
+    .radio-mobile-playlist {
+      padding: 0 12px 16px;
+    }
+
+    /* Playlist row */
+    .radio-pl-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--dark);
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.1s;
+    }
+    .radio-pl-row:active { background: rgba(0,0,128,0.08); }
+    .radio-pl-row.pl-active {
+      background: rgba(0,0,128,0.12);
+      border-left: 3px solid #000080;
+    }
+    body.rave-mode .radio-pl-row.pl-active {
+      background: rgba(255,0,255,0.1);
+      border-left: 3px solid #ff00ff;
+    }
+
+    /* Thumbnail */
+    .radio-pl-thumb {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border: 2px solid #404040;
+    }
+    .radio-pl-thumb-grad {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      border: 2px solid #404040;
+    }
+
+    /* Text block */
+    .radio-pl-info { flex: 1; min-width: 0; }
+    .radio-pl-name {
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--darker);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+    .radio-pl-name.has-url { color: #15803d; }
+    body.rave-mode .radio-pl-name.has-url { color: #00ff00; }
+    .radio-pl-genre {
+      font-family: 'VT323', monospace;
+      font-size: 15px;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Hide desktop hint text on mobile */
+    #page-radio.radio-mobile-mode .radio-station-hint { display: none; }
+
+    /* Right side: play chip + info btn */
+    .radio-pl-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .radio-pl-play {
+      font-size: 18px;
+      color: #1db954;
+      line-height: 1;
+    }
+    body.rave-mode .radio-pl-play { color: #00ff00; }
+    .radio-pl-info-btn {
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(0,0,0,0.3);
+      color: var(--darker);
+      cursor: pointer;
+      padding: 1px 6px;
+      line-height: 1.4;
+      border-radius: 2px;
+    }
+    body.rave-mode .radio-pl-info-btn {
+      background: rgba(255,0,255,0.12);
+      border-color: rgba(0,255,255,0.4);
+      color: #00ffff;
+    }
   }
   #radio-grid > div {
     min-height: 0;
@@ -6064,7 +6170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <div style="padding:10px 12px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:normal;color:var(--darker);">
+  <div class="radio-station-hint" style="padding:10px 12px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:normal;color:var(--darker);">
     Tap a station card to open in Spotify · Tap ⓘ for station info
   </div>
 
@@ -6126,8 +6232,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <audio id="raveAudio" preload="none"></audio>
 
-  <div style="padding:8px 12px 16px;">
+  <!-- DESKTOP: normal grid -->
+  <div class="radio-desktop-grid" style="padding:8px 12px 16px;">
     <div class="radio-grid-wrap"><div id="radio-grid"></div></div>
+  </div>
+
+  <!-- MOBILE: sticky dial + scrollable playlist (rendered by JS) -->
+  <div class="radio-mobile-playlist" style="display:none;">
+    <div id="radio-playlist-list"></div>
   </div>
 
 </div>
@@ -11849,6 +11961,11 @@ function dialTune(idx, skipPopup) {
 
   // Highlight active card in the grid
   dialHighlightCard(g.id);
+
+  // Highlight playlist row on mobile
+  if (isMobileRadio()) {
+    highlightPlaylistRow(idx);
+  }
 }
 
 function dialHighlightCard(activeId) {
@@ -11994,11 +12111,126 @@ function dialDrawTicks() {
 
     dialDrawTicks();
     window.addEventListener('resize', dialDrawTicks);
+    window.addEventListener('resize', function() {
+      applyRadioLayout();
+      renderRadioPlaylist();
+    });
   });
 })();
 
+// ── Mobile playlist renderer ──────────────────────────────────────────────
+function isMobileRadio() {
+  return window.innerWidth <= 600;
+}
+
+function applyRadioLayout() {
+  var page = document.getElementById('page-radio');
+  if (!page) return;
+  if (isMobileRadio()) {
+    page.classList.add('radio-mobile-mode');
+  } else {
+    page.classList.remove('radio-mobile-mode');
+  }
+}
+
+function renderRadioPlaylist() {
+  var list = document.getElementById('radio-playlist-list');
+  if (!list) return;
+  list.innerHTML = '';
+  var isRave = document.body.classList.contains('rave-mode');
+  loadRadioUrls();
+
+  // Header row
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'padding:8px 10px 6px;font-family:VT323,monospace;font-size:13px;' +
+    'color:' + (isRave ? '#ff00ff' : '#555') + ';letter-spacing:1px;' +
+    'border-bottom:2px solid ' + (isRave ? '#ff00ff44' : 'var(--dark)') + ';';
+  hdr.textContent = 'TAP ROW TO TUNE · TAP ⓘ FOR INFO · ▶ OPENS SPOTIFY';
+  list.appendChild(hdr);
+
+  RADIO_GENRES.forEach(function(genre, idx) {
+    var url = radioUrls[genre.id] || '';
+    var meta = getStationMeta(genre.id);
+    var label = meta.name || genre.label;
+    var customImg = meta.image || '';
+
+    var row = document.createElement('div');
+    row.className = 'radio-pl-row';
+    row.id = 'pl-row-' + idx;
+
+    // Thumbnail
+    if (customImg) {
+      var thumb = document.createElement('img');
+      thumb.src = customImg;
+      thumb.className = 'radio-pl-thumb';
+      row.appendChild(thumb);
+    } else {
+      var hue = Math.round((idx / RADIO_GENRES.length) * 360);
+      var grad = document.createElement('div');
+      grad.className = 'radio-pl-thumb-grad';
+      grad.style.background = isRave
+        ? 'linear-gradient(135deg,#0a0a0a,#1a0030)'
+        : 'linear-gradient(135deg,hsl(' + hue + ',30%,20%),hsl(' + hue + ',20%,12%))';
+      row.appendChild(grad);
+    }
+
+    // Text
+    var info = document.createElement('div');
+    info.className = 'radio-pl-info';
+    var nameEl = document.createElement('div');
+    nameEl.className = 'radio-pl-name' + (url ? ' has-url' : '');
+    nameEl.textContent = label;
+    var genreEl = document.createElement('div');
+    genreEl.className = 'radio-pl-genre';
+    genreEl.textContent = meta.genre || genre.label;
+    info.appendChild(nameEl);
+    info.appendChild(genreEl);
+    row.appendChild(info);
+
+    // Right: play + info
+    var right = document.createElement('div');
+    right.className = 'radio-pl-right';
+    if (url) {
+      var playIcon = document.createElement('span');
+      playIcon.className = 'radio-pl-play';
+      playIcon.textContent = '▶';
+      right.appendChild(playIcon);
+    }
+    var infoBtn = document.createElement('button');
+    infoBtn.className = 'radio-pl-info-btn';
+    infoBtn.textContent = 'ⓘ';
+    infoBtn.title = 'Station info';
+    (function(g, m, l, i) {
+      infoBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dialTune(i);
+        highlightPlaylistRow(i);
+        showRadioInfoPopup(g, m, l);
+      });
+      row.addEventListener('click', function() {
+        dialTune(i);
+        highlightPlaylistRow(i);
+        if (url) window.open(url, '_blank');
+      });
+    })(genre, meta, label, idx);
+    right.appendChild(infoBtn);
+    row.appendChild(right);
+
+    list.appendChild(row);
+  });
+}
+
+function highlightPlaylistRow(idx) {
+  var rows = document.querySelectorAll('.radio-pl-row');
+  rows.forEach(function(r) { r.classList.remove('pl-active'); });
+  var target = document.getElementById('pl-row-' + idx);
+  if (target) target.classList.add('pl-active');
+}
+
 function renderRadioGrid() {
   loadRadioUrls();
+  applyRadioLayout();
+  renderRadioPlaylist();
   var grid = document.getElementById('radio-grid');
   if (!grid) return;
   grid.innerHTML = '';
