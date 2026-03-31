@@ -46,8 +46,40 @@
     background: #0d1b2a !important; color: #e0e0e0 !important;
     border-color: var(--dark) !important;
   }
+  /* Dark mode: keep room colours but darken them */
   body.dark-mode .item-row, body.dark-mode .budget-item,
-  body.dark-mode .ev-item, body.dark-mode .ck-item { background: #0d1b2a; }
+  body.dark-mode .ev-item, body.dark-mode .ck-item { background: #0d1b2a; color: #e0e0e0; }
+  body.dark-mode .item-row.room-Living-Room    { background: #5a4010; color: #e0e0e0; }
+  body.dark-mode .item-row.room-Bedroom        { background: #1a2a50; }
+  body.dark-mode .item-row.room-Studio         { background: #1a3a20; }
+  body.dark-mode .item-row.room-Office         { background: #0a2a3a; }
+  body.dark-mode .item-row.room-Closet-1       { background: #2e1a3a; }
+  body.dark-mode .item-row.room-Closet-2       { background: #3a1a28; }
+  body.dark-mode .item-row.room-Closet-3       { background: #3a2010; }
+  body.dark-mode .item-row.room-Closet-4       { background: #2a1e18; }
+  body.dark-mode .item-row.room-Sitting-Room   { background: #3a3500; }
+  body.dark-mode .item-row.room-Listening-Room { background: #0a2e2c; }
+  body.dark-mode .item-row.room-Kitchen        { background: #1e3010; }
+  body.dark-mode .item-row.room-Mini-Office    { background: #3a2e00; }
+  body.dark-mode .item-row.room-Bathroom       { background: #0a2e36; }
+  body.dark-mode .item-row.room-Plant-Area     { background: #142a14; }
+  body.dark-mode .item-row.room-Workshop       { background: #261e18; }
+  /* Dark mode room dividers — match tinted colour */
+  body.dark-mode .room-divider.room-Living-Room    { background: #7a5818 !important; color: #e0e0e0 !important; }
+  body.dark-mode .room-divider.room-Bedroom        { background: #263a6a !important; }
+  body.dark-mode .room-divider.room-Studio         { background: #1e4a28 !important; }
+  body.dark-mode .room-divider.room-Office         { background: #0e3a4e !important; }
+  body.dark-mode .room-divider.room-Closet-1       { background: #3e2450 !important; }
+  body.dark-mode .room-divider.room-Closet-2       { background: #4e2438 !important; }
+  body.dark-mode .room-divider.room-Closet-3       { background: #4e2c18 !important; }
+  body.dark-mode .room-divider.room-Closet-4       { background: #382820 !important; }
+  body.dark-mode .room-divider.room-Sitting-Room   { background: #4e4800 !important; }
+  body.dark-mode .room-divider.room-Listening-Room { background: #0e3e3c !important; }
+  body.dark-mode .room-divider.room-Kitchen        { background: #284018 !important; }
+  body.dark-mode .room-divider.room-Mini-Office    { background: #4e3e00 !important; }
+  body.dark-mode .room-divider.room-Bathroom       { background: #0e3e48 !important; }
+  body.dark-mode .room-divider.room-Plant-Area     { background: #1c381c !important; }
+  body.dark-mode .room-divider.room-Workshop       { background: #342820 !important; }
   body.dark-mode .list-header { background: var(--dark); }
   body.dark-mode .room-divider { background: rgba(255,255,255,0.08); color: var(--black); }
   body.dark-mode .log-body, body.dark-mode #calcPanel > div { background: var(--face); }
@@ -185,7 +217,39 @@
     border: 2px solid #ffff00 !important;
     text-shadow: none;
   }
-  body.rave-mode .item-row { background: #000 !important; border-bottom: 1px solid #ff00ff !important; }
+  body.rave-mode .item-row { background: #000 !important; border-bottom: 1px solid #ff00ff22 !important; color: #e0e0e0 !important; }
+  /* Rave mode: neon glow tints per room */
+  body.rave-mode .item-row.room-Living-Room    { background: #1a0a00 !important; border-left: 3px solid #ff6600 !important; }
+  body.rave-mode .item-row.room-Bedroom        { background: #00001a !important; border-left: 3px solid #4466ff !important; }
+  body.rave-mode .item-row.room-Studio         { background: #001a00 !important; border-left: 3px solid #00ff44 !important; }
+  body.rave-mode .item-row.room-Office         { background: #001a1a !important; border-left: 3px solid #00ccff !important; }
+  body.rave-mode .item-row.room-Closet-1       { background: #12001a !important; border-left: 3px solid #cc44ff !important; }
+  body.rave-mode .item-row.room-Closet-2       { background: #1a0012 !important; border-left: 3px solid #ff44aa !important; }
+  body.rave-mode .item-row.room-Closet-3       { background: #1a0800 !important; border-left: 3px solid #ff8844 !important; }
+  body.rave-mode .item-row.room-Closet-4       { background: #100a08 !important; border-left: 3px solid #aa8877 !important; }
+  body.rave-mode .item-row.room-Sitting-Room   { background: #1a1a00 !important; border-left: 3px solid #ffff00 !important; }
+  body.rave-mode .item-row.room-Listening-Room { background: #001a18 !important; border-left: 3px solid #00ffcc !important; }
+  body.rave-mode .item-row.room-Kitchen        { background: #0a1a00 !important; border-left: 3px solid #88ff44 !important; }
+  body.rave-mode .item-row.room-Mini-Office    { background: #1a1200 !important; border-left: 3px solid #ffcc00 !important; }
+  body.rave-mode .item-row.room-Bathroom       { background: #001a1e !important; border-left: 3px solid #00eeff !important; }
+  body.rave-mode .item-row.room-Plant-Area     { background: #001200 !important; border-left: 3px solid #44ff88 !important; }
+  body.rave-mode .item-row.room-Workshop       { background: #0e0a08 !important; border-left: 3px solid #cc9966 !important; }
+  /* Rave room dividers — neon matching the room accent */
+  body.rave-mode .room-divider.room-Living-Room    { background: #ff660022 !important; border-left: 3px solid #ff6600 !important; color: #ff6600 !important; }
+  body.rave-mode .room-divider.room-Bedroom        { background: #4466ff22 !important; border-left: 3px solid #4466ff !important; color: #4466ff !important; }
+  body.rave-mode .room-divider.room-Studio         { background: #00ff4422 !important; border-left: 3px solid #00ff44 !important; color: #00ff44 !important; }
+  body.rave-mode .room-divider.room-Office         { background: #00ccff22 !important; border-left: 3px solid #00ccff !important; color: #00ccff !important; }
+  body.rave-mode .room-divider.room-Closet-1       { background: #cc44ff22 !important; border-left: 3px solid #cc44ff !important; color: #cc44ff !important; }
+  body.rave-mode .room-divider.room-Closet-2       { background: #ff44aa22 !important; border-left: 3px solid #ff44aa !important; color: #ff44aa !important; }
+  body.rave-mode .room-divider.room-Closet-3       { background: #ff884422 !important; border-left: 3px solid #ff8844 !important; color: #ff8844 !important; }
+  body.rave-mode .room-divider.room-Closet-4       { background: #aa887722 !important; border-left: 3px solid #aa8877 !important; color: #aa8877 !important; }
+  body.rave-mode .room-divider.room-Sitting-Room   { background: #ffff0022 !important; border-left: 3px solid #ffff00 !important; color: #ffff00 !important; }
+  body.rave-mode .room-divider.room-Listening-Room { background: #00ffcc22 !important; border-left: 3px solid #00ffcc !important; color: #00ffcc !important; }
+  body.rave-mode .room-divider.room-Kitchen        { background: #88ff4422 !important; border-left: 3px solid #88ff44 !important; color: #88ff44 !important; }
+  body.rave-mode .room-divider.room-Mini-Office    { background: #ffcc0022 !important; border-left: 3px solid #ffcc00 !important; color: #ffcc00 !important; }
+  body.rave-mode .room-divider.room-Bathroom       { background: #00eeff22 !important; border-left: 3px solid #00eeff !important; color: #00eeff !important; }
+  body.rave-mode .room-divider.room-Plant-Area     { background: #44ff8822 !important; border-left: 3px solid #44ff88 !important; color: #44ff88 !important; }
+  body.rave-mode .room-divider.room-Workshop       { background: #cc996622 !important; border-left: 3px solid #cc9966 !important; color: #cc9966 !important; }
   body.rave-mode .cell-num { background: #0a0000 !important; color: #ff00ff !important; }
   body.rave-mode .room-divider { background: #ff00ff !important; color: #000 !important; border: none !important; }
   body.rave-mode .list-header { background: #000 !important; border-bottom: 2px solid #00ffff !important; }
@@ -782,7 +846,7 @@
   .state-msg .icon { font-size: 40px; display: block; margin-bottom: 10px; }
 
   /* ── ROOM COLORS ── */
-  .room-Living-Room    { background: #FFD180; }
+  .room-Living-Room    { background: #FFD180; color: #111; }
   .room-Bedroom        { background: #B3C5F7; }
   .room-Studio         { background: #A5D6A7; }
   .room-Office         { background: #80D8FF; }
@@ -2511,7 +2575,7 @@ function toggleCalc() {
   if (sec && sec.style.display === 'none') {
     // Close others, open calc
     const allSections = ['secPersonal','secProfile','secLog','secScript','secViewer',
-      'secCounter','secGcal','secCreds','secCalculator','secColorModes','secDanger','secBackup','secRoute','secRadio'];
+      'secPersonal','secProfile','secColorModes','secRadio','secCreds','secViewer','secGcal','secCounter','secCalculator','secLog','secBackup','secScript','secDanger','secRoute'];
     allSections.forEach(id => {
       const s = document.getElementById(id);
       if (s && id !== 'secCalculator') s.style.display = 'none';
@@ -4068,7 +4132,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- PROFILE -->
   <div class="win-card">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secProfile','btnProfile')">
       <span>&#128100; Profile &amp; Sync</span>
@@ -4120,209 +4183,6 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secLog','btnLog')">
-      <span>&#128221; Session Log</span>
-      <button class="cal-nav-btn" id="btnLog">&#9660;</button>
-    </div>
-    <div id="secLog" style="display:none; padding:8px;">
-      <div class="log-body" id="logBody">
-        <div style="padding:12px; color:#888; font-weight:normal; font-size:17px;">No items logged yet.</div>
-      </div>
-      <div class="btn-row" style="margin-top:8px;">
-        <button class="btn danger" onclick="clearLog()">&#10005; Clear Log</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secScript','btnScript')">
-      <span>&#9881;&#65039; Apps Script URL</span>
-      <button class="cal-nav-btn" id="btnScript">&#9660;</button>
-    </div>
-    <div id="secScript" style="display:none;">
-      <div class="win-card-body">
-        <div class="config-field">
-          <label>Web App URL</label>
-          <input type="text" id="sheetUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <div class="config-note" id="urlStatus">Paste your Google Apps Script deployment URL and tap Save.</div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-submit" onclick="saveSheetUrl()" id="saveUrlBtn">&#128190; Save URL</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secViewer','btnViewer')">
-      <span>&#128193;&#65039; Inventory Viewer</span>
-      <button class="cal-nav-btn" id="btnViewer">&#9660;</button>
-    </div>
-    <div id="secViewer" style="display:none;">
-      <div class="win-card-body">
-        <div class="config-note" style="margin-bottom:12px;">
-          Sheet ID is in your sheet URL: docs.google.com/spreadsheets/d/<b>SHEET_ID</b>/edit<br><br>
-          API Key: console.cloud.google.com &#8594; APIs &#8594; Sheets API &#8594; Credentials.<br>
-          Set sheet to <b>Anyone with link can view</b>.<br><br>
-          <b>For Route address autocomplete:</b> also enable <b>Places API</b> in your Google Cloud project (same API key works).
-        </div>
-        <div class="config-field">
-          <label>Google Sheet ID</label>
-          <input type="text" id="cfgSheetId" placeholder="1BxiMVs0XRA..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        </div>
-        <div class="config-field">
-          <label>API Key</label>
-          <input type="text" id="cfgApiKey" placeholder="AIzaSy..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        </div>
-        <div class="config-field">
-          <label>Sheet Tab Name</label>
-          <input type="text" id="cfgTabName" placeholder="Inventory" autocomplete="off">
-          <div class="config-note" id="apiKeyStatus">Enter your Sheet ID and API Key above.</div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-submit" onclick="saveApiConfig()" id="saveApiBtn">&#128190; Save Viewer Config</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCounter','btnCounter')">
-      <span>&#128290; Item Counter</span>
-      <button class="cal-nav-btn" id="btnCounter">&#9660;</button>
-    </div>
-    <div id="secCounter" style="display:none;">
-      <div class="win-card-body">
-        <div class="config-field">
-          <label>Current Counter</label>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <div id="counterDisplay" style="background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px 12px;font-size:22px;letter-spacing:2px;color:var(--blue);min-width:80px;text-align:center;"></div>
-            <button class="btn" onclick="resetItemCounter()" style="flex:1;">&#8635; Reset Counter</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secGcal','btnGcal')">
-      <span>&#128197; Google Calendar</span>
-      <button class="cal-nav-btn" id="btnGcal">&#9660;</button>
-    </div>
-    <div id="secGcal" style="display:none;">
-      <div class="win-card-body">
-        <div class="config-note" style="margin-bottom:12px;">
-          Optional. Find Calendar ID at:<br>
-          calendar.google.com &#8594; Settings &#8594; your calendar &#8594; Integrate calendar
-        </div>
-        <div class="config-field">
-          <label>Calendar ID <span style="font-weight:normal;font-size:14px;">(optional)</span></label>
-          <input type="text" id="gcalId" placeholder="your@gmail.com or abc123@group.calendar.google.com"
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <div class="config-note" id="gcalIdStatus">Leave blank to use your default Google Calendar.</div>
-        </div>
-        <div class="config-field">
-          <label>Default Event Duration <span style="font-weight:normal;font-size:14px;">(hours)</span></label>
-          <select id="gcalDuration" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
-            <option value="1">1 hour</option>
-            <option value="2">2 hours</option>
-            <option value="3">3 hours</option>
-            <option value="4">4 hours</option>
-            <option value="8">8 hours (full day)</option>
-          </select>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-submit" onclick="saveGcalConfig()" id="saveGcalBtn">&#128190; Save Calendar Config</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- CREDENTIALS REFERENCE -->
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCreds','btnCreds')">
-      <span>&#128273; My Credentials</span>
-      <button class="cal-nav-btn" id="btnCreds">&#9660;</button>
-    </div>
-    <div id="secCreds" style="display:none;">
-      <div class="win-card-body">
-        <div class="config-note" style="margin-bottom:12px;">
-          Your stored credentials — tap &#128203; to copy any value. These are pulled from your saved config and sync across devices when you use Push/Pull in the Profile section.
-        </div>
-
-        <div class="cred-row">
-          <div class="cred-label">Apps Script URL</div>
-          <div class="cred-value" id="credScriptUrl">Not saved</div>
-          <button class="cred-copy-btn" onclick="copyCredential('credScriptUrl','credCopyScript')" id="credCopyScript">&#128203;</button>
-        </div>
-
-        <div class="cred-row">
-          <div class="cred-label">Google Sheet ID</div>
-          <div class="cred-value" id="credSheetId">Not saved</div>
-          <button class="cred-copy-btn" onclick="copyCredential('credSheetId','credCopySheetId')" id="credCopySheetId">&#128203;</button>
-        </div>
-
-        <div class="cred-row">
-          <div class="cred-label">API Key</div>
-          <div class="cred-value" id="credApiKey">Not saved</div>
-          <button class="cred-copy-btn" onclick="copyCredential('credApiKey','credCopyApiKey')" id="credCopyApiKey">&#128203;</button>
-        </div>
-
-        <div class="cred-row">
-          <div class="cred-label">Calendar ID</div>
-          <div class="cred-value" id="credCalId">Not saved</div>
-          <button class="cred-copy-btn" onclick="copyCredential('credCalId','credCopyCalId')" id="credCopyCalId">&#128203;</button>
-        </div>
-
-        <div class="btn-row" style="margin-top:10px;">
-          <button class="btn btn-submit" onclick="refreshCredentials()" style="flex:1;">&#8635; Refresh</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CALCULATOR -->
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCalculator','btnCalculator')">
-      <span>$ Calculator</span>
-      <button class="cal-nav-btn" id="btnCalculator">&#9660;</button>
-    </div>
-    <div id="secCalculator" style="display:none;">
-      <div style="padding:8px 8px 4px;">
-        <div id="calcExpr" style="height:18px;font-size:13px;font-weight:normal;color:#666;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
-        <div id="calcDisplay" style="background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:6px 8px;font-size:28px;font-weight:bold;text-align:right;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);">0</div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px 8px 8px;">
-        <button class="calc-btn calc-fn" onclick="calcInput('C')" style="grid-column:span 2;">C</button>
-        <button class="calc-btn calc-fn" onclick="calcInput('⌫')">⌫</button>
-        <button class="calc-btn calc-op" onclick="calcInput('/')">÷</button>
-        <button class="calc-btn" onclick="calcInput('7')">7</button>
-        <button class="calc-btn" onclick="calcInput('8')">8</button>
-        <button class="calc-btn" onclick="calcInput('9')">9</button>
-        <button class="calc-btn calc-op" onclick="calcInput('*')">×</button>
-        <button class="calc-btn" onclick="calcInput('4')">4</button>
-        <button class="calc-btn" onclick="calcInput('5')">5</button>
-        <button class="calc-btn" onclick="calcInput('6')">6</button>
-        <button class="calc-btn calc-op" onclick="calcInput('-')">−</button>
-        <button class="calc-btn" onclick="calcInput('1')">1</button>
-        <button class="calc-btn" onclick="calcInput('2')">2</button>
-        <button class="calc-btn" onclick="calcInput('3')">3</button>
-        <button class="calc-btn calc-op" onclick="calcInput('+')">+</button>
-        <button class="calc-btn" onclick="calcInput('0')" style="grid-column:span 2;">0</button>
-        <button class="calc-btn" onclick="calcInput('.')">.</button>
-        <button class="calc-btn calc-eq" onclick="calcInput('=')">=</button>
-      </div>
-      <div style="padding:0 8px 8px;">
-        <button class="calc-btn" onclick="calcUseResult()" style="width:100%;font-size:15px;color:#2e7d32;border-color:#a5d6a7;">
-          ➕ Use Result in Budget
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- COLOR MODES -->
-  <div class="win-card">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secColorModes','btnColorModes')">
       <span>🎨 Color Modes</span>
       <button class="cal-nav-btn" id="btnColorModes">&#9660;</button>
@@ -4346,79 +4206,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- DANGER ZONE -->
-  <div class="win-card" style="border-color:#800000;">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secDanger','btnDanger')" style="background:linear-gradient(to right,#800000,#c00000);">
-      <span>&#9888;&#65039; Danger Zone</span>
-      <button class="cal-nav-btn" id="btnDanger" style="background:rgba(255,255,255,0.15);color:white;border-color:rgba(255,255,255,0.3);">&#9660;</button>
-    </div>
-    <div id="secDanger" style="display:none;">
-      <div class="win-card-body">
-
-        <div style="margin-bottom:14px;">
-          <div style="font-size:16px;font-weight:bold;margin-bottom:4px;">Reset Inventory Viewer Cache</div>
-          <div class="config-note" style="margin-bottom:8px;">Clears the locally cached inventory list. Your Google Sheet data is untouched. Viewer will reload fresh from the sheet next time.</div>
-          <button class="btn" onclick="resetInventoryCache()" style="width:100%;color:#800000;font-size:18px;">&#128465; Clear Viewer Cache</button>
-          <div id="cacheResetStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
-        </div>
-
-        <div style="border-top:1px solid rgba(128,0,0,0.2);padding-top:14px;margin-bottom:14px;">
-          <div style="font-size:16px;font-weight:bold;margin-bottom:4px;">Clear Google Sheet Data</div>
-          <div class="config-note" style="margin-bottom:8px;">
-            Deletes ALL data rows from your Google Sheet (header row stays). Cannot be undone.<br><br>
-            Requires your Apps Script URL to be saved above.
-          </div>
-          <button class="btn" onclick="clearSheetData()" style="width:100%;color:#800000;font-size:18px;">&#128465; Delete All Sheet Rows</button>
-          <div id="sheetClearStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
-        </div>
-
-        <div style="border-top:1px solid rgba(128,0,0,0.2);padding-top:14px;">
-          <div style="font-size:16px;font-weight:bold;margin-bottom:4px;">Reset Item Counter to 0001</div>
-          <div class="config-note" style="margin-bottom:8px;">Resets the auto-incrementing item number back to 0001.</div>
-          <button class="btn" onclick="hardResetCounter()" style="width:100%;color:#800000;font-size:18px;">&#128465; Reset Counter to 0001</button>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- BACKUP & RESTORE -->
-  <div class="win-card">
-    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secBackup','btnBackup')">
-      <span>&#128190; Backup &amp; Restore</span>
-      <button class="cal-nav-btn" id="btnBackup">&#9660;</button>
-    </div>
-    <div id="secBackup" style="display:none;">
-      <div class="win-card-body">
-        <div class="config-note" style="margin-bottom:12px;">
-          Export all your local data to a JSON file you can save anywhere. Import it back on any device to restore everything.
-          <br><br>Includes: <b>Inventory items, Schedule events, Checklist tasks, Deliveries &amp; utilities.</b>
-        </div>
-
-        <div style="margin-bottom:14px;">
-          <div style="font-size:16px;font-weight:bold;margin-bottom:6px;">&#128190; Export Backup</div>
-          <button class="btn btn-submit" onclick="exportBackup()" style="width:100%;font-size:18px;">&#8659; Download Backup File</button>
-          <div id="exportStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
-        </div>
-
-        <div style="border-top:1px solid rgba(0,0,128,0.15);padding-top:14px;">
-          <div style="font-size:16px;font-weight:bold;margin-bottom:6px;">&#8657; Import Backup</div>
-          <div class="config-note" style="margin-bottom:8px;">
-            &#9888; Importing will <b>merge</b> with existing data — it will not delete current entries. To start fresh, use the Danger Zone to reset first.
-          </div>
-          <label style="display:block;width:100%;">
-            <div class="btn btn-submit" style="width:100%;font-size:18px;text-align:center;cursor:pointer;">&#8657; Choose Backup File</div>
-            <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none;">
-          </label>
-          <div id="importStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-
-  <!-- RADIO PLAYLISTS -->
   <div class="win-card">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secRadio','btnRadio')">
       <span>📻 Radio Playlists</span>
@@ -4475,6 +4262,274 @@ document.addEventListener('DOMContentLoaded', function() {
             <div id="raveShowSaveStatus" style="font-size:13px;font-weight:normal;color:#00ff00;text-align:center;margin-top:6px;display:none;"></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCreds','btnCreds')">
+      <span>&#128273; My Credentials</span>
+      <button class="cal-nav-btn" id="btnCreds">&#9660;</button>
+    </div>
+    <div id="secCreds" style="display:none;">
+      <div class="win-card-body">
+        <div class="config-note" style="margin-bottom:12px;">
+          Your stored credentials — tap &#128203; to copy any value. These are pulled from your saved config and sync across devices when you use Push/Pull in the Profile section.
+        </div>
+
+        <div class="cred-row">
+          <div class="cred-label">Apps Script URL</div>
+          <div class="cred-value" id="credScriptUrl">Not saved</div>
+          <button class="cred-copy-btn" onclick="copyCredential('credScriptUrl','credCopyScript')" id="credCopyScript">&#128203;</button>
+        </div>
+
+        <div class="cred-row">
+          <div class="cred-label">Google Sheet ID</div>
+          <div class="cred-value" id="credSheetId">Not saved</div>
+          <button class="cred-copy-btn" onclick="copyCredential('credSheetId','credCopySheetId')" id="credCopySheetId">&#128203;</button>
+        </div>
+
+        <div class="cred-row">
+          <div class="cred-label">API Key</div>
+          <div class="cred-value" id="credApiKey">Not saved</div>
+          <button class="cred-copy-btn" onclick="copyCredential('credApiKey','credCopyApiKey')" id="credCopyApiKey">&#128203;</button>
+        </div>
+
+        <div class="cred-row">
+          <div class="cred-label">Calendar ID</div>
+          <div class="cred-value" id="credCalId">Not saved</div>
+          <button class="cred-copy-btn" onclick="copyCredential('credCalId','credCopyCalId')" id="credCopyCalId">&#128203;</button>
+        </div>
+
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn btn-submit" onclick="refreshCredentials()" style="flex:1;">&#8635; Refresh</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secViewer','btnViewer')">
+      <span>&#128193;&#65039; Inventory Viewer</span>
+      <button class="cal-nav-btn" id="btnViewer">&#9660;</button>
+    </div>
+    <div id="secViewer" style="display:none;">
+      <div class="win-card-body">
+        <div class="config-note" style="margin-bottom:12px;">
+          Sheet ID is in your sheet URL: docs.google.com/spreadsheets/d/<b>SHEET_ID</b>/edit<br><br>
+          API Key: console.cloud.google.com &#8594; APIs &#8594; Sheets API &#8594; Credentials.<br>
+          Set sheet to <b>Anyone with link can view</b>.<br><br>
+          <b>For Route address autocomplete:</b> also enable <b>Places API</b> in your Google Cloud project (same API key works).
+        </div>
+        <div class="config-field">
+          <label>Google Sheet ID</label>
+          <input type="text" id="cfgSheetId" placeholder="1BxiMVs0XRA..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="config-field">
+          <label>API Key</label>
+          <input type="text" id="cfgApiKey" placeholder="AIzaSy..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="config-field">
+          <label>Sheet Tab Name</label>
+          <input type="text" id="cfgTabName" placeholder="Inventory" autocomplete="off">
+          <div class="config-note" id="apiKeyStatus">Enter your Sheet ID and API Key above.</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-submit" onclick="saveApiConfig()" id="saveApiBtn">&#128190; Save Viewer Config</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secGcal','btnGcal')">
+      <span>&#128197; Google Calendar</span>
+      <button class="cal-nav-btn" id="btnGcal">&#9660;</button>
+    </div>
+    <div id="secGcal" style="display:none;">
+      <div class="win-card-body">
+        <div class="config-note" style="margin-bottom:12px;">
+          Optional. Find Calendar ID at:<br>
+          calendar.google.com &#8594; Settings &#8594; your calendar &#8594; Integrate calendar
+        </div>
+        <div class="config-field">
+          <label>Calendar ID <span style="font-weight:normal;font-size:14px;">(optional)</span></label>
+          <input type="text" id="gcalId" placeholder="your@gmail.com or abc123@group.calendar.google.com"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <div class="config-note" id="gcalIdStatus">Leave blank to use your default Google Calendar.</div>
+        </div>
+        <div class="config-field">
+          <label>Default Event Duration <span style="font-weight:normal;font-size:14px;">(hours)</span></label>
+          <select id="gcalDuration" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+            <option value="1">1 hour</option>
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4">4 hours</option>
+            <option value="8">8 hours (full day)</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-submit" onclick="saveGcalConfig()" id="saveGcalBtn">&#128190; Save Calendar Config</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCounter','btnCounter')">
+      <span>&#128290; Item Counter</span>
+      <button class="cal-nav-btn" id="btnCounter">&#9660;</button>
+    </div>
+    <div id="secCounter" style="display:none;">
+      <div class="win-card-body">
+        <div class="config-field">
+          <label>Current Counter</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div id="counterDisplay" style="background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px 12px;font-size:22px;letter-spacing:2px;color:var(--blue);min-width:80px;text-align:center;"></div>
+            <button class="btn" onclick="resetItemCounter()" style="flex:1;">&#8635; Reset Counter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCalculator','btnCalculator')">
+      <span>$ Calculator</span>
+      <button class="cal-nav-btn" id="btnCalculator">&#9660;</button>
+    </div>
+    <div id="secCalculator" style="display:none;">
+      <div style="padding:8px 8px 4px;">
+        <div id="calcExpr" style="height:18px;font-size:13px;font-weight:normal;color:#666;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        <div id="calcDisplay" style="background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:6px 8px;font-size:28px;font-weight:bold;text-align:right;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);">0</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px 8px 8px;">
+        <button class="calc-btn calc-fn" onclick="calcInput('C')" style="grid-column:span 2;">C</button>
+        <button class="calc-btn calc-fn" onclick="calcInput('⌫')">⌫</button>
+        <button class="calc-btn calc-op" onclick="calcInput('/')">÷</button>
+        <button class="calc-btn" onclick="calcInput('7')">7</button>
+        <button class="calc-btn" onclick="calcInput('8')">8</button>
+        <button class="calc-btn" onclick="calcInput('9')">9</button>
+        <button class="calc-btn calc-op" onclick="calcInput('*')">×</button>
+        <button class="calc-btn" onclick="calcInput('4')">4</button>
+        <button class="calc-btn" onclick="calcInput('5')">5</button>
+        <button class="calc-btn" onclick="calcInput('6')">6</button>
+        <button class="calc-btn calc-op" onclick="calcInput('-')">−</button>
+        <button class="calc-btn" onclick="calcInput('1')">1</button>
+        <button class="calc-btn" onclick="calcInput('2')">2</button>
+        <button class="calc-btn" onclick="calcInput('3')">3</button>
+        <button class="calc-btn calc-op" onclick="calcInput('+')">+</button>
+        <button class="calc-btn" onclick="calcInput('0')" style="grid-column:span 2;">0</button>
+        <button class="calc-btn" onclick="calcInput('.')">.</button>
+        <button class="calc-btn calc-eq" onclick="calcInput('=')">=</button>
+      </div>
+      <div style="padding:0 8px 8px;">
+        <button class="calc-btn" onclick="calcUseResult()" style="width:100%;font-size:15px;color:#2e7d32;border-color:#a5d6a7;">
+          ➕ Use Result in Budget
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secLog','btnLog')">
+      <span>&#128221; Session Log</span>
+      <button class="cal-nav-btn" id="btnLog">&#9660;</button>
+    </div>
+    <div id="secLog" style="display:none; padding:8px;">
+      <div class="log-body" id="logBody">
+        <div style="padding:12px; color:#888; font-weight:normal; font-size:17px;">No items logged yet.</div>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn danger" onclick="clearLog()">&#10005; Clear Log</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secBackup','btnBackup')">
+      <span>&#128190; Backup &amp; Restore</span>
+      <button class="cal-nav-btn" id="btnBackup">&#9660;</button>
+    </div>
+    <div id="secBackup" style="display:none;">
+      <div class="win-card-body">
+        <div class="config-note" style="margin-bottom:12px;">
+          Export all your local data to a JSON file you can save anywhere. Import it back on any device to restore everything.
+          <br><br>Includes: <b>Inventory items, Schedule events, Checklist tasks, Deliveries &amp; utilities.</b>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:6px;">&#128190; Export Backup</div>
+          <button class="btn btn-submit" onclick="exportBackup()" style="width:100%;font-size:18px;">&#8659; Download Backup File</button>
+          <div id="exportStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
+        </div>
+
+        <div style="border-top:1px solid rgba(0,0,128,0.15);padding-top:14px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:6px;">&#8657; Import Backup</div>
+          <div class="config-note" style="margin-bottom:8px;">
+            &#9888; Importing will <b>merge</b> with existing data — it will not delete current entries. To start fresh, use the Danger Zone to reset first.
+          </div>
+          <label style="display:block;width:100%;">
+            <div class="btn btn-submit" style="width:100%;font-size:18px;text-align:center;cursor:pointer;">&#8657; Choose Backup File</div>
+            <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none;">
+          </label>
+          <div id="importStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secScript','btnScript')">
+      <span>&#9881;&#65039; Apps Script URL</span>
+      <button class="cal-nav-btn" id="btnScript">&#9660;</button>
+    </div>
+    <div id="secScript" style="display:none;">
+      <div class="win-card-body">
+        <div class="config-field">
+          <label>Web App URL</label>
+          <input type="text" id="sheetUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <div class="config-note" id="urlStatus">Paste your Google Apps Script deployment URL and tap Save.</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-submit" onclick="saveSheetUrl()" id="saveUrlBtn">&#128190; Save URL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="win-card" style="border-color:#800000;">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secDanger','btnDanger')" style="background:linear-gradient(to right,#800000,#c00000);">
+      <span>&#9888;&#65039; Danger Zone</span>
+      <button class="cal-nav-btn" id="btnDanger" style="background:rgba(255,255,255,0.15);color:white;border-color:rgba(255,255,255,0.3);">&#9660;</button>
+    </div>
+    <div id="secDanger" style="display:none;">
+      <div class="win-card-body">
+
+        <div style="margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:4px;">Reset Inventory Viewer Cache</div>
+          <div class="config-note" style="margin-bottom:8px;">Clears the locally cached inventory list. Your Google Sheet data is untouched. Viewer will reload fresh from the sheet next time.</div>
+          <button class="btn" onclick="resetInventoryCache()" style="width:100%;color:#800000;font-size:18px;">&#128465; Clear Viewer Cache</button>
+          <div id="cacheResetStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
+        </div>
+
+        <div style="border-top:1px solid rgba(128,0,0,0.2);padding-top:14px;margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:4px;">Clear Google Sheet Data</div>
+          <div class="config-note" style="margin-bottom:8px;">
+            Deletes ALL data rows from your Google Sheet (header row stays). Cannot be undone.<br><br>
+            Requires your Apps Script URL to be saved above.
+          </div>
+          <button class="btn" onclick="clearSheetData()" style="width:100%;color:#800000;font-size:18px;">&#128465; Delete All Sheet Rows</button>
+          <div id="sheetClearStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
+        </div>
+
+        <div style="border-top:1px solid rgba(128,0,0,0.2);padding-top:14px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:4px;">Reset Item Counter to 0001</div>
+          <div class="config-note" style="margin-bottom:8px;">Resets the auto-incrementing item number back to 0001.</div>
+          <button class="btn" onclick="hardResetCounter()" style="width:100%;color:#800000;font-size:18px;">&#128465; Reset Counter to 0001</button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -7476,7 +7531,7 @@ function toggleSection(sectionId, btnId) {
   // Close all other sections first
   if (!isOpen) {
     const allSections = ['secPersonal','secProfile','secLog','secScript','secViewer',
-                         'secCounter','secGcal','secCreds','secCalculator','secColorModes','secDanger','secBackup','secRoute','secRadio'];
+                         'secPersonal','secProfile','secColorModes','secRadio','secCreds','secViewer','secGcal','secCounter','secCalculator','secLog','secBackup','secScript','secDanger','secRoute'];
     allSections.forEach(id => {
       if (id === sectionId) return;
       const s = document.getElementById(id);
@@ -7962,7 +8017,7 @@ function renderItems() {
     const rc = roomClass(loc);
 
     // Room divider
-    html += '<div class="room-divider ' + rc + '" style="color:#000;background:rgba(0,0,0,0.18);">' +
+    html += '<div class="room-divider ' + rc + '">' +
       '<span>📦 ' + loc + '</span>' +
       '<span class="room-divider-count">' + items.length + ' item' + (items.length !== 1 ? 's' : '') + '</span>' +
     '</div>';
