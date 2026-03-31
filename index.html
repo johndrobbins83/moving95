@@ -2245,7 +2245,7 @@ async function saveEditedItem() {
 
     if (sheetId && apiKey) {
       const verifyUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + sheetId +
-        '/values/' + encodeURIComponent(tabName) + '?key=' + apiKey;
+        '/values/' + encodeURIComponent(tabName + '!A1:Z') + '?key=' + apiKey;
       const vRes  = await fetch(verifyUrl);
       const vData = await vRes.json();
       if (vData.values && vData.values.length > 1) {
@@ -7923,7 +7923,7 @@ async function loadViewerData() {
   document.getElementById('headerRefreshBtn').textContent = '⏳';
 
   try {
-    const range = encodeURIComponent(tabName);
+    const range = encodeURIComponent(tabName + "!A1:Z");
     const url   = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
     const res   = await fetch(url);
     if (!res.ok) {
@@ -9369,7 +9369,7 @@ async function saveEditedItem() {
 
     if (sheetId && apiKey) {
       const verifyUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + sheetId +
-        '/values/' + encodeURIComponent(tabName) + '?key=' + apiKey;
+        '/values/' + encodeURIComponent(tabName + '!A1:Z') + '?key=' + apiKey;
       const vRes  = await fetch(verifyUrl);
       const vData = await vRes.json();
       if (vData.values && vData.values.length > 1) {
