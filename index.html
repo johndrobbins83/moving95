@@ -1916,6 +1916,48 @@
     font-size: 15px !important;
   }
 
+  /* ── RAVE MODE: Radio Dial ── */
+  /* Dark mode dial */
+  body.dark-mode #dialBody {
+    background: var(--face) !important;
+    border-top-color: #2a2a4a !important;
+    border-left-color: #2a2a4a !important;
+    border-right-color: #000 !important;
+    border-bottom-color: #000 !important;
+  }
+  body.dark-mode #dialPrevBtn,
+  body.dark-mode #dialNextBtn {
+    background: var(--face) !important;
+    color: var(--blue) !important;
+    border-top-color: #2a2a4a !important;
+    border-left-color: #2a2a4a !important;
+    border-right-color: #000 !important;
+    border-bottom-color: #000 !important;
+  }
+  body.dark-mode #dialStationCount { color: var(--darker) !important; }
+  /* Rave mode dial */
+  body.rave-mode #dialBody {
+    background: #0a0a0a !important;
+    border-top-color: #ff00ff !important;
+    border-left-color: #ff00ff !important;
+    border-right-color: #00ffff !important;
+    border-bottom-color: #00ffff !important;
+    box-shadow: 0 0 18px #ff00ff44, 4px 4px 0 #000 !important;
+  }
+  body.rave-mode #dialStationName { color: #ff00ff !important; text-shadow: 0 0 10px #ff00ff88 !important; }
+  body.rave-mode #dialStationGenre { color: #00ffff !important; }
+  body.rave-mode #dialFreq        { color: #00ffff !important; text-shadow: 0 0 10px #00ffff66 !important; }
+  body.rave-mode #dialOnAir       { color: #ff00ff !important; text-shadow: 0 0 6px #ff00ff !important; }
+  body.rave-mode #dialNeedle      { background: #ff00ff !important; box-shadow: 0 0 8px #ff00ff !important; }
+  body.rave-mode #dialHandle      { background: var(--face) !important; border-top-color: #ff00ff !important; border-left-color: #ff00ff !important; border-right-color: #00ffff !important; border-bottom-color: #00ffff !important; }
+  body.rave-mode #dialPrevBtn,
+  body.rave-mode #dialNextBtn {
+    background: #000 !important; color: #ff00ff !important;
+    border-top-color: #ff00ff !important; border-left-color: #ff00ff !important;
+    border-right-color: #00ffff !important; border-bottom-color: #00ffff !important;
+  }
+  body.rave-mode #dialStationCount { color: #ff00ff88 !important; }
+
   /* ── RAVE RADIO BUTTON PULSE ── */
   @keyframes raveBtnPulse {
     0%,100% { box-shadow:0 0 18px #ff00ff88,0 0 8px #00ffff44; color:#ff00ff; border-top-color:#ff00ff; border-left-color:#ff00ff; }
@@ -5920,8 +5962,57 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
+  <!-- ── RADIO DIAL ── -->
+  <div id="radioDial" style="padding:12px 14px 6px;max-width:800px;margin:0 auto;width:100%;">
+    <div id="dialBody" style="background:var(--face);border-top:3px solid #ffffff;border-left:3px solid #ffffff;border-right:3px solid #404040;border-bottom:3px solid #404040;box-shadow:4px 4px 0 #000;padding:14px 16px 12px;font-family:'VT323',monospace;position:relative;">
+
+      <!-- Station display screen — LCD-style inset -->
+      <div style="background:#001a00;border-top:2px solid #404040;border-left:2px solid #404040;border-right:2px solid #ffffff;border-bottom:2px solid #ffffff;padding:8px 12px;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:inset 0 2px 8px rgba(0,0,0,0.8);">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:1;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;position:relative;z-index:2;">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+            <span id="dialStationIcon" style="font-size:28px;line-height:1;flex-shrink:0;">📻</span>
+            <div style="min-width:0;">
+              <div id="dialStationName" style="font-size:22px;font-weight:bold;color:#33ff33;text-shadow:0 0 6px #33ff3366;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:1px;">— SELECT A STATION —</div>
+              <div id="dialStationGenre" style="font-size:15px;color:#1db954;letter-spacing:1px;"></div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div id="dialFreq" style="font-size:26px;color:#33ff33;letter-spacing:2px;text-shadow:0 0 8px #33ff3344;">— FM</div>
+            <div id="dialOnAir" style="font-size:13px;color:#ff4444;letter-spacing:2px;visibility:hidden;text-shadow:0 0 6px #ff0000aa;">● ON AIR</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The dial track -->
+      <div style="position:relative;height:48px;margin-bottom:8px;">
+        <!-- Track groove -->
+        <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:6px;background:#808080;border-top:1px solid #404040;border-left:1px solid #404040;border-right:1px solid #fff;border-bottom:1px solid #fff;"></div>
+
+        <!-- Tick marks canvas -->
+        <canvas id="dialTickCanvas" width="0" height="48" style="position:absolute;left:0;top:0;width:100%;height:48px;"></canvas>
+
+        <!-- Needle -->
+        <div id="dialNeedle" style="position:absolute;top:0;bottom:0;width:2px;background:#ff0000;box-shadow:0 0 4px #ff0000;transform:translateX(-50%);left:50%;transition:left 0.4s cubic-bezier(0.25,0.46,0.45,0.94);pointer-events:none;"></div>
+
+        <!-- Draggable knob -->
+        <div id="dialHandle" style="position:absolute;top:50%;width:16px;height:16px;background:var(--face);border-top:2px solid #ffffff;border-left:2px solid #ffffff;border-right:2px solid #404040;border-bottom:2px solid #404040;transform:translate(-50%,-50%);left:50%;transition:left 0.4s cubic-bezier(0.25,0.46,0.45,0.94);cursor:grab;z-index:10;"></div>
+      </div>
+
+      <!-- Station labels strip -->
+      <div id="dialLabels" style="position:relative;height:22px;overflow:hidden;"></div>
+
+      <!-- Prev / Next buttons -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px;">
+        <button id="dialPrevBtn" onclick="dialStep(-1)" style="font-family:'VT323',monospace;font-size:20px;padding:4px 18px;cursor:pointer;background:var(--face);color:#000080;border-top:2px solid #ffffff;border-left:2px solid #ffffff;border-right:2px solid #404040;border-bottom:2px solid #404040;letter-spacing:1px;flex-shrink:0;">◀ PREV</button>
+        <div id="dialStationCount" style="font-size:15px;color:#404040;letter-spacing:1px;text-align:center;font-family:'VT323',monospace;">— / —</div>
+        <button id="dialNextBtn" onclick="dialStep(1)" style="font-family:'VT323',monospace;font-size:20px;padding:4px 18px;cursor:pointer;background:var(--face);color:#000080;border-top:2px solid #ffffff;border-left:2px solid #ffffff;border-right:2px solid #404040;border-bottom:2px solid #404040;letter-spacing:1px;flex-shrink:0;">NEXT ▶</button>
+      </div>
+    </div>
+  </div>
+
   <div style="padding:10px 12px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:normal;color:var(--darker);">
-    Tap a genre to open in Spotify · Tap ✏️ to set the playlist URL
+    Tap a station card to open in Spotify · Tap ⓘ for station info
   </div>
 
   <!-- RAVE RADIO BUTTON - only visible in rave mode -->
@@ -7089,7 +7180,13 @@ function showPage(name) {
   if (isViewer && allItems.length === 0) loadViewerData();
   // Refresh sync readiness when config page opens
   if (isConfig) updateSyncReadiness();
-  if (name === 'radio') renderRadioGrid();
+  if (name === 'radio') {
+    renderRadioGrid();
+    setTimeout(function() {
+      dialDrawTicks();
+      if (dialIndex < 0) dialTune(0);
+    }, 50);
+  }
   // Keep Games nav-btn lit when on hunt or trivia (sub-pages of Games)
   if (name === 'hunt' || name === 'trivia' || name === 'sudoku' || name === 'edm' || name === 'solitaire' || name === 'snake') {
     const gamesBtn = document.getElementById('nav-games');
@@ -11578,6 +11675,219 @@ function saveRadioPlaylists() {
   }
 }
 
+
+// ══════════════════════════════
+//  RADIO DIAL
+// ══════════════════════════════
+var dialIndex = -1;  // currently tuned station index (-1 = none)
+
+function dialGetGenres() {
+  // Return sorted genres with their display labels (respecting meta name overrides)
+  loadRadioUrls();
+  return RADIO_GENRES.map(function(g, i) {
+    return { genre: g, index: i, label: getStationLabel(g) };
+  });
+}
+
+function dialTune(idx, skipPopup) {
+  var genres = dialGetGenres();
+  if (idx < 0) idx = genres.length - 1;
+  if (idx >= genres.length) idx = 0;
+  dialIndex = idx;
+
+  var entry  = genres[idx];
+  var g      = entry.genre;
+  var meta   = getStationMeta(g.id);
+  var label  = getStationLabel(g);
+  var url    = radioUrls[g.id] || '';
+
+  // ── Seeded pseudo-random needle position per station ──
+  // Hash the station id to get a stable but "random-looking" FM position
+  function stationHash(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) {
+      h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+    }
+    return Math.abs(h);
+  }
+  var hash     = stationHash(g.id);
+  var pct      = 4 + (hash % 10000) / 10000 * 92; // 4%–96% range
+  var freqVal  = (88.1 + (pct / 100) * (107.9 - 88.1)).toFixed(1);
+
+  // Update display
+  var nameEl   = document.getElementById('dialStationName');
+  var genreEl  = document.getElementById('dialStationGenre');
+  var freqEl   = document.getElementById('dialFreq');
+  var iconEl   = document.getElementById('dialStationIcon');
+  var onAirEl  = document.getElementById('dialOnAir');
+  var countEl  = document.getElementById('dialStationCount');
+
+  if (nameEl)  nameEl.textContent  = label.toUpperCase();
+  if (genreEl) genreEl.textContent = meta.genre ? meta.genre.toUpperCase() : '';
+  if (freqEl)  freqEl.textContent  = freqVal + ' FM';
+  if (iconEl)  iconEl.textContent  = meta.image ? '📻' : (g.icon || '📻');
+  if (onAirEl) { onAirEl.style.visibility = url ? 'visible' : 'hidden'; }
+  if (countEl) countEl.textContent = (idx + 1) + ' / ' + genres.length;
+
+  // Move needle & handle to the station's unique random position
+  var needle = document.getElementById('dialNeedle');
+  var handle = document.getElementById('dialHandle');
+  if (needle) needle.style.left = pct + '%';
+  if (handle) handle.style.left = pct + '%';
+
+  // Update label strip
+  dialDrawLabels(idx);
+
+  // Highlight active card in the grid
+  dialHighlightCard(g.id);
+}
+
+function dialHighlightCard(activeId) {
+  var grid = document.getElementById('radio-grid');
+  if (!grid) return;
+  var tiles = grid.querySelectorAll(':scope > div');
+  tiles.forEach(function(tile, i) {
+    var g = RADIO_GENRES[i];
+    if (!g) return;
+    var imgCard = tile.querySelector('div');
+    if (!imgCard) return;
+    if (g.id === activeId) {
+      imgCard.style.outline = '3px solid #000080';
+      imgCard.style.outlineOffset = '1px';
+    } else {
+      imgCard.style.outline = '';
+      imgCard.style.outlineOffset = '';
+    }
+  });
+}
+
+function dialDrawLabels(activeIdx) {
+  var labelsEl = document.getElementById('dialLabels');
+  if (!labelsEl) return;
+  labelsEl.innerHTML = '';
+  var genres = dialGetGenres();
+  // Show a window of ±4 stations centered on current
+  var window_ = 4;
+  for (var i = Math.max(0, activeIdx - window_); i <= Math.min(genres.length - 1, activeIdx + window_); i++) {
+    var span = document.createElement('span');
+    var offset = i - activeIdx;
+    var pctFromCenter = (offset / (window_ + 1)) * 40; // spread ±40% from center
+    span.style.cssText =
+      'position:absolute;left:calc(50% + ' + pctFromCenter + '%);' +
+      'transform:translateX(-50%);' +
+      'font-family:VT323,monospace;font-size:' + (i === activeIdx ? '14' : '11') + 'px;' +
+      'color:' + (i === activeIdx ? '#000080' : '#808080') + ';' +
+      'white-space:nowrap;overflow:hidden;max-width:90px;text-overflow:ellipsis;' +
+      'transition:all 0.3s;top:2px;letter-spacing:0.5px;' +
+      'opacity:' + (Math.abs(offset) === window_ ? '0.3' : Math.abs(offset) <= 2 ? '1' : '0.55') + ';';
+    span.textContent = genres[i].label.toUpperCase();
+    labelsEl.appendChild(span);
+  }
+}
+
+function dialStep(dir) {
+  var genres = dialGetGenres();
+  var next = dialIndex + dir;
+  if (next < 0) next = genres.length - 1;
+  if (next >= genres.length) next = 0;
+  dialTune(next);
+}
+
+// Draw tick marks on the canvas
+function dialDrawTicks() {
+  var canvas = document.getElementById('dialTickCanvas');
+  if (!canvas) return;
+  var genres = dialGetGenres();
+  var w = canvas.offsetWidth || canvas.parentElement.offsetWidth || 400;
+  canvas.width = Math.round(w * window.devicePixelRatio || 1);
+  canvas.height = 48 * (window.devicePixelRatio || 1);
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, 48);
+
+  function hashId(str) {
+    var h = 0;
+    for (var ci = 0; ci < str.length; ci++) h = (Math.imul(31,h) + str.charCodeAt(ci)) | 0;
+    return Math.abs(h);
+  }
+  for (var i = 0; i < genres.length; i++) {
+    var gId  = genres[i].genre.id;
+    var pctT = 4 + (hashId(gId) % 10000) / 10000 * 92;
+    var x    = (pctT / 100) * w;
+    x = Math.max(2, Math.min(w - 2, x));
+    var isMajor = i % 5 === 0;
+    var th = isMajor ? 14 : 8;
+    ctx.strokeStyle = isMajor ? '#000080' : '#808080';
+    ctx.lineWidth = isMajor ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 24 - th / 2);
+    ctx.lineTo(x, 24 + th / 2);
+    ctx.stroke();
+  }
+}
+
+// Touch/drag support on the dial handle
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var track = document.getElementById('dialHandle');
+    if (!track) return;
+    var dragging = false;
+
+    function getTrackRect() {
+      var needle = document.getElementById('dialNeedle');
+      return needle ? needle.parentElement.getBoundingClientRect() : null;
+    }
+
+    function stationHashDrag(str) {
+      var h = 0;
+      for (var di = 0; di < str.length; di++) h = (Math.imul(31,h) + str.charCodeAt(di)) | 0;
+      return Math.abs(h);
+    }
+    function xToPctStation(clientX) {
+      var rect = getTrackRect();
+      if (!rect) return 0;
+      var clickPct = (clientX - rect.left) / rect.width * 100;
+      var genres = dialGetGenres();
+      // Find station whose hash-position is closest to click position
+      var bestIdx  = 0;
+      var bestDist = Infinity;
+      for (var di = 0; di < genres.length; di++) {
+        var sp = 4 + (stationHashDrag(genres[di].genre.id) % 10000) / 10000 * 92;
+        var dist = Math.abs(sp - clickPct);
+        if (dist < bestDist) { bestDist = dist; bestIdx = di; }
+      }
+      return bestIdx;
+    }
+
+    track.addEventListener('mousedown', function(e) { dragging = true; e.preventDefault(); });
+    document.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      dialTune(xToPctStation(e.clientX));
+    });
+    document.addEventListener('mouseup', function() { dragging = false; });
+
+    track.addEventListener('touchstart', function(e) { dragging = true; e.preventDefault(); }, { passive: false });
+    document.addEventListener('touchmove', function(e) {
+      if (!dragging) return;
+      dialTune(xToPctStation(e.touches[0].clientX));
+    }, { passive: true });
+    document.addEventListener('touchend', function() { dragging = false; });
+
+    // Also click anywhere on the track area to jump
+    var needleParent = document.getElementById('dialNeedle');
+    if (needleParent) {
+      needleParent.parentElement.addEventListener('click', function(e) {
+        if (e.target === track) return; // handled by drag
+        dialTune(xToPctStation(e.clientX));
+      });
+    }
+
+    dialDrawTicks();
+    window.addEventListener('resize', dialDrawTicks);
+  });
+})();
+
 function renderRadioGrid() {
   loadRadioUrls();
   var grid = document.getElementById('radio-grid');
@@ -11648,20 +11958,28 @@ function renderRadioGrid() {
     tile.appendChild(imgCard);
 
     // ── Info bar — sits BELOW the image card ──
-    // Single row: [station name] [ⓘ] — always present, shaded background
+    var barBg     = isRave ? '#0a0a0a'   : '#1a1a1a';
+    var barBorder = isRave ? '#ff00ff44' : 'rgba(0,0,0,0.4)';
+    var labelColor = isRave ? (url ? '#00ff00' : '#ffff00') : '#ffffff';
+    var labelShadow = isRave ? '0 0 6px #00ff0066' : '0 1px 3px rgba(0,0,0,0.9)';
+    var btnBg     = isRave ? '#ff00ff22' : 'rgba(255,255,255,0.15)';
+    var btnColor  = isRave ? '#00ffff'   : '#ffffff';
+    var btnBorder = isRave ? '1px solid #00ffff66' : '1px solid rgba(255,255,255,0.35)';
+
     var infoBar = document.createElement('div');
     infoBar.style.cssText =
-      'display:flex;align-items:center;justify-content:space-between;gap:4px;' +
-      'padding:5px 7px 5px;' +
-      'background:' + (isRave ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.13)') + ';' +
-      'border-top:1px solid ' + (isRave ? 'rgba(255,0,255,0.3)' : 'rgba(0,0,0,0.12)') + ';';
+      'display:flex;align-items:center;justify-content:space-between;gap:5px;' +
+      'padding:5px 6px 6px;' +
+      'background:' + barBg + ';' +
+      'border-top:1px solid ' + barBorder + ';';
 
     var labelEl = document.createElement('div');
     labelEl.style.cssText =
       'font-family:VT323,monospace;font-size:17px;font-weight:bold;' +
       'line-height:1.15;flex:1;min-width:0;overflow:hidden;' +
       'text-overflow:ellipsis;white-space:nowrap;' +
-      'color:' + (isRave ? (url ? '#00ff00' : '#ffff00') : '#111') + ';' +
+      'color:' + labelColor + ';' +
+      'text-shadow:' + labelShadow + ';' +
       'cursor:' + (url ? 'pointer' : 'default') + ';';
     labelEl.textContent = label;
     infoBar.appendChild(labelEl);
@@ -11674,28 +11992,39 @@ function renderRadioGrid() {
       infoBar.appendChild(expBadge);
     }
 
-    // ⓘ button — always shown
+    // ⓘ button — always shown, clearly visible
     var infoBtn = document.createElement('button');
     infoBtn.textContent = 'ⓘ';
     infoBtn.title = 'Station info';
     infoBtn.style.cssText =
-      'font-size:15px;background:none;border:none;cursor:pointer;flex-shrink:0;' +
-      'color:' + (isRave ? '#00ffff' : '#0055aa') + ';' +
-      'padding:0 0 0 3px;line-height:1;opacity:0.8;';
-    infoBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      showRadioInfoPopup(genre, meta, label);
-    });
+      'font-family:VT323,monospace;font-size:14px;font-weight:bold;' +
+      'background:' + btnBg + ';' +
+      'border:' + btnBorder + ';' +
+      'color:' + btnColor + ';' +
+      'cursor:pointer;flex-shrink:0;' +
+      'padding:1px 6px;line-height:1.4;border-radius:2px;' +
+      'letter-spacing:0.5px;';
+    (function(capturedGenre, capturedMeta, capturedLabel, capturedIdx) {
+      infoBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dialTune(capturedIdx);
+        showRadioInfoPopup(capturedGenre, capturedMeta, capturedLabel);
+      });
+    })(genre, meta, label, RADIO_GENRES.indexOf(genre));
     infoBar.appendChild(infoBtn);
 
     tile.appendChild(infoBar);
 
-    imgCard.addEventListener('click', function() {
-      if (url) window.open(url, '_blank');
-    });
-    labelEl.addEventListener('click', function() {
-      if (url) window.open(url, '_blank');
-    });
+    (function(capturedIdx) {
+      imgCard.addEventListener('click', function() {
+        dialTune(capturedIdx);
+        if (url) window.open(url, '_blank');
+      });
+      labelEl.addEventListener('click', function() {
+        dialTune(capturedIdx);
+        if (url) window.open(url, '_blank');
+      });
+    })(RADIO_GENRES.indexOf(genre));
 
     grid.appendChild(tile);
   });
