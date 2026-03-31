@@ -1385,24 +1385,33 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      align-items: center;
       overflow: hidden;
       padding: 8px !important;
     }
+    /* Score bar: match canvas width */
+    #page-snake > div[style*="padding:12px"] > div:first-child {
+      width: min(calc(100vw - 16px), calc(100dvh - var(--header-h) - var(--nav-h) - 80px));
+    }
     #page-snake .snake-screen-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+      /* Square: fit the smaller dimension */
+      width: min(calc(100vw - 16px), calc(100dvh - var(--header-h) - var(--nav-h) - 80px));
+      height: min(calc(100vw - 16px), calc(100dvh - var(--header-h) - var(--nav-h) - 80px));
+      flex-shrink: 0;
       margin-bottom: 8px !important;
     }
     #page-snake #snakeCanvas {
-      flex: 1;
-      height: 0; /* let flex grow handle it */
-      width: 100%;
+      width: 100% !important;
+      height: 100% !important;
     }
     /* Prevent any rubber-band / scroll while swiping on the game */
     #page-snake .snake-screen-wrap,
     #page-snake #snakeCanvas {
       touch-action: none;
+    }
+    /* Mobile start button: match canvas width */
+    #page-snake .snake-mobile-start {
+      width: min(calc(100vw - 16px), calc(100dvh - var(--header-h) - var(--nav-h) - 80px));
     }
   }
 
@@ -3260,7 +3269,7 @@ function calcUseResult() {
       ctx.fillText('SCORE: ' + (snake.length-3), getCanvas().width/2, getCanvas().height/2 + 8);
     }
     document.getElementById('snakeMsg').textContent = 'TAP ▶ TO RETRY';
-    document.getElementById('snakeStartBtn').textContent = '↺';
+    setStartBtnText('↺');
   }
 
   window.snakeStart = function() {
@@ -3268,7 +3277,7 @@ function calcUseResult() {
       // Stop the game
       running = false;
       clearInterval(gameLoop);
-      document.getElementById('snakeStartBtn').textContent = '▶';
+      setStartBtnText('▶');
       document.getElementById('snakeMsg').textContent = 'PAUSED — TAP ▶';
       return;
     }
@@ -3276,7 +3285,7 @@ function calcUseResult() {
     initGame();
     running = true;
     document.getElementById('snakeMsg').textContent = '';
-    document.getElementById('snakeStartBtn').textContent = '■';
+    setStartBtnText('■');
     gameLoop = setInterval(step, 150);
     // Extra draw loop for rave pulse (redraws between steps)
     if (document.body.classList.contains('rave-mode')) {
@@ -3292,7 +3301,7 @@ function calcUseResult() {
     running = false;
     clearInterval(gameLoop);
     initGame();
-    document.getElementById('snakeStartBtn').textContent = '▶';
+    setStartBtnText('▶');
     document.getElementById('snakeMsg').textContent = 'TAP ▶ TO START';
   };
 
@@ -3313,7 +3322,7 @@ function calcUseResult() {
     // Prevent the page from scrolling while the snake game is active
     page.addEventListener('touchstart', function(e) {
       if (!page.classList.contains('active')) return;
-      if (e.target && e.target.id === 'snakeStartBtn') return;
+      if (e.target && (e.target.id === 'snakeStartBtn' || e.target.id === 'snakeMobileStartBtn')) return;
       var t = e.touches[0];
       tx = t.clientX;
       ty = t.clientY;
@@ -3327,7 +3336,7 @@ function calcUseResult() {
 
     page.addEventListener('touchend', function(e) {
       if (!page.classList.contains('active')) return;
-      if (e.target && e.target.id === 'snakeStartBtn') return;
+      if (e.target && (e.target.id === 'snakeStartBtn' || e.target.id === 'snakeMobileStartBtn')) return;
       var t = e.changedTouches[0];
       var dx = t.clientX - tx;
       var dy = t.clientY - ty;
@@ -3358,6 +3367,14 @@ function calcUseResult() {
       case 'Enter': case ' ': snakeStart(); e.preventDefault(); break;
     }
   });
+
+  // Helper to sync both start buttons
+  function setStartBtnText(txt) {
+    var b1 = document.getElementById('snakeStartBtn');
+    var b2 = document.getElementById('snakeMobileStartBtn');
+    if (b1) b1.textContent = txt;
+    if (b2) b2.textContent = txt;
+  }
 
   // Expose dir button for on-screen controls
   window.snakeDirBtn = function(dx, dy) {
@@ -6015,7 +6032,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- Start/stop button — mobile only (no d-pad) -->
     <div class="snake-mobile-start" style="display:none;justify-content:center;margin-bottom:8px;">
-      <button class="snake-btn snake-btn-start" id="snakeStartBtn" onclick="snakeStart()" style="width:80px;font-size:22px;">▶</button>
+      <button class="snake-btn snake-btn-start" id="snakeMobileStartBtn" onclick="snakeStart()" style="width:80px;font-size:22px;">▶</button>
     </div>
 
   </div>
