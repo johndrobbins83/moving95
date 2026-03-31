@@ -3686,38 +3686,19 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="login-title">&#128274; Moving Inventory — Sign In</div>
     <div class="login-body">
       <div class="login-note" id="loginNote">
-        Enter your username and PIN to sign in. Paste your Script URL below to sync your full config.
+        Enter your username and PIN to sign in.
       </div>
 
-      <!-- Hardcoded Script URL for easy copy -->
-      <div style="margin-bottom:14px;padding:10px;background:rgba(0,0,128,0.07);border-left:3px solid var(--blue);">
-        <div style="font-size:13px;font-weight:bold;color:var(--blue);margin-bottom:6px;">📋 Your Apps Script URL</div>
-        <div style="display:flex;gap:4px;align-items:stretch;">
-          <div id="hardcodedScriptUrl" style="flex:1;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 8px;font-size:11px;font-weight:normal;font-family:monospace;color:var(--blue);word-break:break-all;line-height:1.4;">https://script.google.com/macros/s/AKfycbxyW4rOVEuC_MIaLTzqq2GKx8fPS6RVoyTG9S5frpThIuYQ13y3yR49yjobFw2WFhI/exec</div>
-          <button onclick="copyHardcodedUrl()" id="hardcodedCopyBtn" title="Copy URL" style="background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);font-family:'VT323',monospace;font-size:18px;cursor:pointer;padding:4px 10px;flex-shrink:0;align-self:flex-start;">📋</button>
-        </div>
+      <!-- Hardcoded Script URL — hidden, auto-seeded via JS on DOMContentLoaded -->
+      <div id="hardcodedScriptUrlWrap" style="display:none;">
+        <div id="hardcodedScriptUrl">https://script.google.com/macros/s/AKfycbxyW4rOVEuC_MIaLTzqq2GKx8fPS6RVoyTG9S5frpThIuYQ13y3yR49yjobFw2WFhI/exec</div>
       </div>
 
-      <!-- Script URL field -->
-      <div class="login-field">
-        <label>Apps Script URL</label>
-        <!-- Always-visible saved URL with copy button -->
-        <div id="loginUrlDisplay" style="display:none;margin-bottom:4px;">
-          <div style="display:flex;gap:4px;align-items:stretch;">
-            <div id="loginUrlText" style="flex:1;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 8px;font-size:11px;font-weight:normal;font-family:monospace;color:var(--blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:32px;display:flex;align-items:center;"></div>
-            <button onclick="copyLoginUrl()" id="loginUrlCopyBtn" title="Copy URL" style="background:var(--face);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);font-family:'VT323',monospace;font-size:18px;cursor:pointer;padding:4px 10px;flex-shrink:0;">&#128203;</button>
-          </div>
-          <div style="font-size:11px;font-weight:normal;color:#888;margin-top:2px;">Tap 📋 to copy · or paste a new URL below to update</div>
-        </div>
-        <!-- Input always visible so user can paste a new one anytime -->
-        <div id="loginUrlInput">
-          <input type="text" id="loginScriptUrl"
-            placeholder="https://script.google.com/macros/s/..."
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:7px 8px;font-family:'VT323',monospace;font-size:13px;font-weight:bold;min-height:42px;letter-spacing:0;-webkit-appearance:none;border-radius:0;"
-            onkeydown="if(event.key==='Enter') document.getElementById('loginUser').focus()">
-          <div id="loginUrlHint" style="font-size:12px;font-weight:normal;color:#666;margin-top:3px;">Paste your Apps Script /exec URL above to sync config on sign in.</div>
-        </div>
+      <!-- Script URL field — hidden, URL is auto-seeded via JS -->
+      <div id="loginScriptUrlWrap" style="display:none;">
+        <input type="text" id="loginScriptUrl" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div id="loginUrlDisplay" style="display:none;"><div id="loginUrlText"></div></div>
+        <div id="loginUrlInput" style="display:none;"></div>
       </div>
 
       <div class="login-field">
@@ -6524,20 +6505,14 @@ async function hashPin(pin) {
 
 function applyLogin(user) {
   currentUser = user;
-  // showPage early-returns if viewer is already active, so force-load inventory
-  const wasAlreadyViewer = (document.querySelector('.page.active') || {}).id === 'page-viewer';
-  showPage('viewer');
-  if (wasAlreadyViewer && allItems.length === 0) {
-    loadViewerData();
-  }
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('userBadge').textContent = '👤';
   document.getElementById('userBadge').title = 'Signed in as ' + user + ' — tap for profile';
   document.getElementById('userBadge').style.display = 'inline-block';
   document.getElementById('profileName').textContent = user;
   localStorage.setItem('loggedInUser', user);
-  // Each user gets their own inventory tab named after them
-  // Only set if not already set to a user-specific tab
+
+  // Set per-user tab name if not already set
   var existingTab = localStorage.getItem('tabName') || '';
   if (!existingTab || existingTab === 'Inventory') {
     var userTab = user.charAt(0).toUpperCase() + user.slice(1).toLowerCase();
@@ -6545,8 +6520,15 @@ function applyLogin(user) {
     var cfgInput = document.getElementById('cfgTabName');
     if (cfgInput) cfgInput.value = userTab;
   }
+
+  // Navigate to viewer — handles both fresh-page and already-on-viewer cases
+  const currentActive = (document.querySelector('.page.active') || {}).id;
+  if (currentActive !== 'page-viewer') {
+    showPage('viewer');   // showPage triggers loadViewerData internally
+  }
+
   loadItemCounter();
-  loadSavedConfig();
+  loadSavedConfig();     // populates sheetId / apiKey into DOM + localStorage
   loadPersonalInfo();
   renderCalendar();
   renderChecklist();
@@ -6554,11 +6536,22 @@ function applyLogin(user) {
   renderDeliveryList();
   updateProfileScriptStatus();
   populateProfileTab(user);
-  // Always auto-pull from cloud on sign-in if Script URL is set
+
+  // Always load inventory after config is ready — covers the already-on-viewer case
+  // and the case where sheetId/apiKey just landed from loadSavedConfig
+  setTimeout(function() {
+    if (allItems.length === 0) loadViewerData();
+  }, 100);
+
+  // Pull latest profile from cloud — then reload inventory with any updated credentials
   const _url = localStorage.getItem('sheetUrl') || '';
   if (_url) {
     setTimeout(function() {
       syncProfileFromSheet(false);
+      // After sync settles, reload inventory in case credentials were updated
+      setTimeout(function() {
+        if (allItems.length === 0) loadViewerData();
+      }, 2000);
     }, 800);
   }
 }
