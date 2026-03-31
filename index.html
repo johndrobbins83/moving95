@@ -107,11 +107,11 @@
     display: inline-block;
   }
   body.rave-mode .nav-btn:nth-child(1) .nav-btn-icon { animation-delay: 0s; }
-  body.rave-mode .nav-btn:nth-child(2) .nav-btn-icon { animation-delay: 0.34s; }
-  body.rave-mode .nav-btn:nth-child(3) .nav-btn-icon { animation-delay: 0.68s; }
-  body.rave-mode .nav-btn:nth-child(4) .nav-btn-icon { animation-delay: 1.02s; }
-  body.rave-mode .nav-btn:nth-child(5) .nav-btn-icon { animation-delay: 1.36s; }
-  body.rave-mode .nav-btn:nth-child(6) .nav-btn-icon { animation-delay: 1.7s; }
+  body.rave-mode .nav-btn:nth-child(2) .nav-btn-icon { animation-delay: 1.4s; }
+  body.rave-mode .nav-btn:nth-child(3) .nav-btn-icon { animation-delay: 2.8s; }
+  body.rave-mode .nav-btn:nth-child(4) .nav-btn-icon { animation-delay: 4.2s; }
+  body.rave-mode .nav-btn:nth-child(5) .nav-btn-icon { animation-delay: 5.6s; }
+  body.rave-mode .nav-btn:nth-child(6) .nav-btn-icon { animation-delay: 7.0s; }
   body.rave-mode .nav-btn:nth-child(7) .nav-btn-icon { animation-delay: 2.04s; }
   @keyframes raveIconCycle {
     0%   { color: #ff00ff; text-shadow: 0 0 8px #ff00ff, 0 0 16px #ff00ff; }
@@ -121,14 +121,14 @@
     100% { color: #ff00ff; text-shadow: 0 0 8px #ff00ff, 0 0 16px #ff00ff; }
   }
   body.rave-mode .nav-btn-label {
-    animation: raveLabelCycle 2.4s ease-in-out infinite;
+    animation: raveLabelCycle 10s ease-in-out infinite;
   }
   body.rave-mode .nav-btn:nth-child(1) .nav-btn-label { animation-delay: 0s; }
-  body.rave-mode .nav-btn:nth-child(2) .nav-btn-label { animation-delay: 0.34s; }
-  body.rave-mode .nav-btn:nth-child(3) .nav-btn-label { animation-delay: 0.68s; }
-  body.rave-mode .nav-btn:nth-child(4) .nav-btn-label { animation-delay: 1.02s; }
-  body.rave-mode .nav-btn:nth-child(5) .nav-btn-label { animation-delay: 1.36s; }
-  body.rave-mode .nav-btn:nth-child(6) .nav-btn-label { animation-delay: 1.7s; }
+  body.rave-mode .nav-btn:nth-child(2) .nav-btn-label { animation-delay: 1.4s; }
+  body.rave-mode .nav-btn:nth-child(3) .nav-btn-label { animation-delay: 2.8s; }
+  body.rave-mode .nav-btn:nth-child(4) .nav-btn-label { animation-delay: 4.2s; }
+  body.rave-mode .nav-btn:nth-child(5) .nav-btn-label { animation-delay: 5.6s; }
+  body.rave-mode .nav-btn:nth-child(6) .nav-btn-label { animation-delay: 7.0s; }
   body.rave-mode .nav-btn:nth-child(7) .nav-btn-label { animation-delay: 2.04s; }
   @keyframes raveLabelCycle {
     0%   { color: #ff00ff; }
@@ -139,15 +139,19 @@
   }
 
   /* ── RAVE MODE: top header icons neon glow ── */
-  body.rave-mode .header-wrench-btn,
-  body.rave-mode .user-badge,
-  body.rave-mode .header-refresh-btn {
-    animation: raveHeaderIcon 2s ease-in-out infinite;
+  /* Bell, profile, settings: NO color strobe — static neon white */
+  body.rave-mode #headerConfigBtn,
+  body.rave-mode #userBadge,
+  body.rave-mode #headerBellBtn {
+    color: #ffffff;
+    text-shadow: 0 0 6px #ffffff88;
+    animation: none !important;
   }
-  body.rave-mode #headerConfigBtn { animation-delay: 0s; }
-  body.rave-mode #userBadge       { animation-delay: 0.5s; }
-  body.rave-mode #headerBellBtn   { animation-delay: 1s; }
-  body.rave-mode #headerRefreshBtn{ animation-delay: 1.5s; }
+  /* Refresh button: slow gentle cycle */
+  body.rave-mode .header-refresh-btn {
+    animation: raveHeaderIcon 12s ease-in-out infinite;
+  }
+  body.rave-mode #headerRefreshBtn { animation-delay: 0s; }
   @keyframes raveHeaderIcon {
     0%   { color: #ff00ff; text-shadow: 0 0 8px #ff00ff; }
     33%  { color: #00ffff; text-shadow: 0 0 8px #00ffff; }
@@ -155,13 +159,13 @@
     100% { color: #ff00ff; text-shadow: 0 0 8px #ff00ff; }
   }
   body.rave-mode #headerWeather {
-    animation: raveHeaderIcon 2s ease-in-out infinite;
-    animation-delay: 0.25s;
+    animation: raveHeaderIcon 14s ease-in-out infinite;
+    animation-delay: 3s;
     filter: drop-shadow(0 0 4px #ff00ff);
   }
   body.rave-mode #headerClock {
-    animation: raveLabelCycle 2.4s ease-in-out infinite;
-    animation-delay: 0.7s;
+    animation: raveLabelCycle 16s ease-in-out infinite;
+    animation-delay: 2s;
     text-shadow: 0 0 8px currentColor;
   }
   body.rave-mode input, body.rave-mode textarea, body.rave-mode select {
@@ -1374,7 +1378,7 @@
 
   /* ── SNAKE PAGE: no-scroll full-screen layout on mobile ── */
   @media (pointer: coarse) {
-    #page-snake {
+    #page-snake.active {
       display: flex !important;
       flex-direction: column;
       height: calc(100dvh - var(--header-h) - var(--nav-h));
@@ -1854,6 +1858,12 @@
   }
   .radio-tile:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 #000000; }
   .radio-tile:active { transform: translateY(1px); box-shadow: 1px 1px 0 #000000; }
+  /* Grid tiles: hover on the image card portion */
+  #radio-grid > div > div:first-child {
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  #radio-grid > div:hover > div:first-child { transform: translateY(-2px); }
+  #radio-grid > div:active > div:first-child { transform: translateY(1px); }
   .radio-tile-icon {
     font-size: 36px; line-height: 1;
     position: relative; z-index: 10;
@@ -1888,13 +1898,19 @@
   }
   #radio-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    max-width: 720px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 800px;
     margin: 0 auto;
   }
+  @media (max-width: 600px) {
+    #radio-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+  }
   #radio-grid > div {
-    min-height: 130px;
+    min-height: 0;
   }
   #radio-grid > div .radio-label-text {
     font-size: 15px !important;
@@ -3313,13 +3329,13 @@ function calcUseResult() {
   };
 
   // Swipe detection — whole snake page (mobile-friendly, no scroll)
-  (function() {
+  // Must run after DOM is ready so getElementById finds page-snake
+  document.addEventListener('DOMContentLoaded', function() {
     var page = document.getElementById('page-snake');
     if (!page) return;
     var tx = 0, ty = 0;
     var MIN_SWIPE = 25;
 
-    // Prevent the page from scrolling while the snake game is active
     page.addEventListener('touchstart', function(e) {
       if (!page.classList.contains('active')) return;
       if (e.target && (e.target.id === 'snakeStartBtn' || e.target.id === 'snakeMobileStartBtn')) return;
@@ -3353,7 +3369,7 @@ function calcUseResult() {
       }
       e.preventDefault();
     }, { passive: false });
-  })();
+  });
 
   // Keyboard controls
   document.addEventListener('keydown', function(e) {
@@ -6302,6 +6318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLoginUrlDisplay();
     document.getElementById('loginUser').focus();
   }
+
 });
 
 // ══════════════════════════════
@@ -6416,7 +6433,12 @@ async function hashPin(pin) {
 
 function applyLogin(user) {
   currentUser = user;
+  // showPage early-returns if viewer is already active, so force-load inventory
+  const wasAlreadyViewer = (document.querySelector('.page.active') || {}).id === 'page-viewer';
   showPage('viewer');
+  if (wasAlreadyViewer && allItems.length === 0) {
+    loadViewerData();
+  }
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('userBadge').textContent = '👤';
   document.getElementById('userBadge').title = 'Signed in as ' + user + ' — tap for profile';
@@ -11483,39 +11505,39 @@ document.addEventListener('DOMContentLoaded', function() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 var RADIO_GENRES = [
-  { id:'jncoyears',   label:'The JNCO Years',        icon:'💿' },
-  { id:'discofever',  label:'Disco Fever',            icon:'🪩' },
-  { id:'deepend',     label:'The Deep End',           icon:'🌊' },
-  { id:'funkalicious',label:'Funkalicious',           icon:'🎺' },
-  { id:'deltavibes',  label:'Delta Vibes',            icon:'🌿' },
-  { id:'velvetlounge',label:'Velvet Lounge',          icon:'🎷' },
-  { id:'mainstage',   label:'Main Stage Radio',       icon:'🎛️' },
-  { id:'cocktailhour',label:'Cocktail Hour',          icon:'🍸' },
-  { id:'darkroom',    label:'The Dark Room',          icon:'🌑' },
-  { id:'thirdwave',   label:'The 3rd Wave',           icon:'🌀' },
-  { id:'islandsoul',  label:'Island Soul',            icon:'🌺' },
-  { id:'closeedge',   label:'Close to the Edge',      icon:'🔪' },
-  { id:'rapisdead',   label:'Rap Is Dead',            icon:'💀' },
-  { id:'nightmode',   label:'Nightmode Radio',        icon:'🌙' },
-  { id:'chelsea',     label:'Chelsea To the Canyon',  icon:'🏔️' },
-  { id:'totallyrad',  label:'Totally Rad',            icon:'📼' },
-  { id:'rockinyacht', label:'Rockin\' Yacht',          icon:'⛵' },
-  { id:'openmic',     label:'The Open Mic',           icon:'🎤' },
-  { id:'thequad',     label:'The Quad',               icon:'🎓' },
-  { id:'trippydippy', label:'Trippy Dippy',           icon:'🍄' },
-  { id:'candynecklace',label:'Candy Necklace',        icon:'🍬' },
-  { id:'jazzclub',    label:'Jazz Club',              icon:'🎷' },
-  { id:'synapse',     label:'The Synapse',            icon:'🧠' },
-  { id:'bigrewind',   label:'Big Rewind',             icon:'⏪' },
-  { id:'bassment',    label:'The Bassment',           icon:'🔊' },
-  { id:'liquiddrip',  label:'Liquid Drip',            icon:'💧' },
-  { id:'intojungle',  label:'Into the Jungle',        icon:'🌴' },
-  { id:'soundsystem', label:'Sound System Rockers',   icon:'📻' },
-  { id:'swoophead',   label:'Swoophead',              icon:'🦅' },
-  { id:'theloop',     label:'The Loop',               icon:'🔁' },
-  { id:'skatepark',   label:'Skatepark Radio',        icon:'🛹' },
-  { id:'circlepit',   label:'Circle Pit',             icon:'🤘' },
-  { id:'thegutter',   label:'The Gutter',             icon:'💢' },
+  { id:'bigrewind',    label:'Big Rewind',             icon:'⏪' },
+  { id:'bassment',     label:'The Bassment',           icon:'🔊' },
+  { id:'candynecklace',label:'Candy Necklace',         icon:'🍬' },
+  { id:'chelsea',      label:'Chelsea To the Canyon',  icon:'🏔️' },
+  { id:'circlepit',    label:'Circle Pit',             icon:'🤘' },
+  { id:'closeedge',    label:'Close to the Edge',      icon:'🔪' },
+  { id:'cocktailhour', label:'Cocktail Hour',          icon:'🍸' },
+  { id:'darkroom',     label:'The Dark Room',          icon:'🌑' },
+  { id:'deepend',      label:'The Deep End',           icon:'🌊' },
+  { id:'deltavibes',   label:'Delta Vibes',            icon:'🌿' },
+  { id:'discofever',   label:'Disco Fever',            icon:'🪩' },
+  { id:'funkalicious', label:'Funkalicious',           icon:'🎺' },
+  { id:'thegutter',    label:'The Gutter',             icon:'💢' },
+  { id:'intojungle',   label:'Into the Jungle',        icon:'🌴' },
+  { id:'islandsoul',   label:'Island Soul',            icon:'🌺' },
+  { id:'jazzclub',     label:'Jazz Club',              icon:'🎷' },
+  { id:'jncoyears',    label:'The JNCO Years',         icon:'💿' },
+  { id:'liquiddrip',   label:'Liquid Drip',            icon:'💧' },
+  { id:'theloop',      label:'The Loop',               icon:'🔁' },
+  { id:'mainstage',    label:'Main Stage Radio',       icon:'🎛️' },
+  { id:'nightmode',    label:'Nightmode Radio',        icon:'🌙' },
+  { id:'openmic',      label:'The Open Mic',           icon:'🎤' },
+  { id:'thequad',      label:'The Quad',               icon:'🎓' },
+  { id:'rapisdead',    label:'Rap Is Dead',            icon:'💀' },
+  { id:'rockinyacht',  label:"Rockin' Yacht",          icon:'⛵' },
+  { id:'skatepark',    label:'Skatepark Radio',        icon:'🛹' },
+  { id:'soundsystem',  label:'Sound System Rockers',   icon:'📻' },
+  { id:'swoophead',    label:'Swoophead',              icon:'🦅' },
+  { id:'synapse',      label:'The Synapse',            icon:'🧠' },
+  { id:'thirdwave',    label:'The 3rd Wave',           icon:'🌀' },
+  { id:'totallyrad',   label:'Totally Rad',            icon:'📼' },
+  { id:'trippydippy',  label:'Trippy Dippy',           icon:'🍄' },
+  { id:'velvetlounge', label:'Velvet Lounge',          icon:'🎷' },
 ];
 
 // Radio station metadata: name overrides, image, genre, explicit, description
@@ -11577,20 +11599,28 @@ function renderRadioGrid() {
     var borderB = isRave ? '#00ffff' : (url ? '#15803d' : '#404040');
     var shadow  = isRave ? '0 0 10px #ff00ff66' : '3px 3px 0 #000000';
 
+    // Outer wrapper: image card on top, label below
     tile.style.cssText = [
       'display:flex', 'flex-direction:column', 'align-items:stretch',
-      'cursor:pointer', 'position:relative', 'overflow:hidden', 'padding:0',
+      'cursor:pointer', 'position:relative', 'overflow:visible', 'padding:0',
+      'background:none', 'border:none', 'box-shadow:none',
+      '-webkit-tap-highlight-color:transparent'
+    ].join(';');
+
+    // ── Image card (the Win95 bordered box) ──
+    var imgCard = document.createElement('div');
+    imgCard.style.cssText = [
+      'position:relative', 'overflow:hidden',
       'border-top:3px solid ' + borderT,
       'border-left:3px solid ' + borderT,
       'border-right:3px solid ' + borderB,
       'border-bottom:3px solid ' + borderB,
       'box-shadow:' + shadow,
-      'min-height:130px',
-      'isolation:isolate',
-      '-webkit-tap-highlight-color:transparent'
+      'aspect-ratio:1/1',
+      'isolation:isolate'
     ].join(';');
 
-    // Background — image or dark gradient
+    // Background — image or gradient
     var bgEl = document.createElement('div');
     bgEl.style.cssText = 'position:absolute;inset:0;z-index:1;';
     if (customImg) {
@@ -11599,63 +11629,71 @@ function renderRadioGrid() {
       bgImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
       bgEl.appendChild(bgImg);
     } else {
-      // Dark gradient placeholder — unique hue per station using its index
       var idx = RADIO_GENRES.indexOf(genre);
       var hue = Math.round((idx / RADIO_GENRES.length) * 360);
       bgEl.style.background = isRave
         ? 'linear-gradient(160deg,#0a0a0a 0%,#1a0030 100%)'
         : 'linear-gradient(160deg,hsl(' + hue + ',30%,18%) 0%,hsl(' + hue + ',20%,10%) 100%)';
     }
-    tile.appendChild(bgEl);
+    imgCard.appendChild(bgEl);
 
-    // Spacer pushes label to bottom
-    var spacer = document.createElement('div');
-    spacer.style.cssText = 'flex:1;position:relative;z-index:2;';
-    tile.appendChild(spacer);
+    // Play indicator overlay (top-right corner if has url)
+    if (url) {
+      var playDot = document.createElement('div');
+      playDot.style.cssText = 'position:absolute;top:5px;right:6px;z-index:10;' +
+        'font-size:13px;color:' + (isRave ? '#00ff00' : '#1db954') + ';opacity:0.85;';
+      playDot.textContent = '▶';
+      imgCard.appendChild(playDot);
+    }
+    tile.appendChild(imgCard);
 
-    // Bottom bar — label + info/explicit
-    var bottomBar = document.createElement('div');
-    bottomBar.style.cssText = 'position:relative;z-index:10;width:100%;display:flex;flex-direction:column;align-items:stretch;';
+    // ── Info bar — sits BELOW the image card ──
+    // Single row: [station name] [ⓘ] — always present, shaded background
+    var infoBar = document.createElement('div');
+    infoBar.style.cssText =
+      'display:flex;align-items:center;justify-content:space-between;gap:4px;' +
+      'padding:5px 7px 5px;' +
+      'background:' + (isRave ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.13)') + ';' +
+      'border-top:1px solid ' + (isRave ? 'rgba(255,0,255,0.3)' : 'rgba(0,0,0,0.12)') + ';';
 
     var labelEl = document.createElement('div');
-    labelEl.style.cssText = 'font-family:VT323,monospace;font-size:16px;font-weight:bold;text-align:center;' +
-      'line-height:1.2;width:100%;padding:5px 4px 4px;' +
-      'color:' + (isRave ? (url ? '#00ff00' : '#ffff00') : '#fff') + ';' +
-      'background:rgba(0,0,0,0.72);' +
-      'text-shadow:0 1px 3px #000,0 0 8px #000;';
+    labelEl.style.cssText =
+      'font-family:VT323,monospace;font-size:17px;font-weight:bold;' +
+      'line-height:1.15;flex:1;min-width:0;overflow:hidden;' +
+      'text-overflow:ellipsis;white-space:nowrap;' +
+      'color:' + (isRave ? (url ? '#00ff00' : '#ffff00') : '#111') + ';' +
+      'cursor:' + (url ? 'pointer' : 'default') + ';';
     labelEl.textContent = label;
-    bottomBar.appendChild(labelEl);
+    infoBar.appendChild(labelEl);
 
-    // Info / explicit row
-    var hasInfo = meta.genre || meta.description || meta.explicit;
-    if (hasInfo || meta.explicit) {
-      var infoRow = document.createElement('div');
-      infoRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;' +
-        'padding:2px 4px 4px;background:rgba(0,0,0,0.5);position:relative;z-index:10;';
-      if (hasInfo) {
-        var infoBtn = document.createElement('button');
-        infoBtn.textContent = 'ⓘ';
-        infoBtn.title = 'Station info';
-        infoBtn.style.cssText = 'font-size:14px;background:none;border:none;cursor:pointer;' +
-          'color:' + (isRave ? '#00ffff' : '#7df') + ';padding:0 2px;line-height:1;';
-        infoBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          showRadioInfoPopup(genre, meta, label);
-        });
-        infoRow.appendChild(infoBtn);
-      }
-      if (meta.explicit) {
-        var expBadge = document.createElement('span');
-        expBadge.textContent = 'E';
-        expBadge.style.cssText = 'font-family:VT323,monospace;font-size:11px;background:#800000;color:#fff;padding:0 3px;border-radius:2px;font-weight:bold;line-height:1.4;flex-shrink:0;';
-        infoRow.appendChild(expBadge);
-      }
-      bottomBar.appendChild(infoRow);
+    // Explicit badge if needed
+    if (meta.explicit) {
+      var expBadge = document.createElement('span');
+      expBadge.textContent = 'E';
+      expBadge.style.cssText = 'font-family:VT323,monospace;font-size:11px;background:#800000;color:#fff;padding:0 3px;border-radius:2px;font-weight:bold;line-height:1.4;flex-shrink:0;';
+      infoBar.appendChild(expBadge);
     }
 
-    tile.appendChild(bottomBar);
+    // ⓘ button — always shown
+    var infoBtn = document.createElement('button');
+    infoBtn.textContent = 'ⓘ';
+    infoBtn.title = 'Station info';
+    infoBtn.style.cssText =
+      'font-size:15px;background:none;border:none;cursor:pointer;flex-shrink:0;' +
+      'color:' + (isRave ? '#00ffff' : '#0055aa') + ';' +
+      'padding:0 0 0 3px;line-height:1;opacity:0.8;';
+    infoBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      showRadioInfoPopup(genre, meta, label);
+    });
+    infoBar.appendChild(infoBtn);
 
-    tile.addEventListener('click', function() {
+    tile.appendChild(infoBar);
+
+    imgCard.addEventListener('click', function() {
+      if (url) window.open(url, '_blank');
+    });
+    labelEl.addEventListener('click', function() {
       if (url) window.open(url, '_blank');
     });
 
