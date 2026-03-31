@@ -1207,9 +1207,16 @@
   .snake-btn-start  { background: #111; color: #33ff33; border-color: #33ff33; font-size: 18px; }
   /* Desktop — buttons small since keyboard is available */
   @media (min-width: 640px) {
-    .snake-dpad { max-width: 180px; }
-    .snake-btn  { min-height: 36px; font-size: 18px; }
-    .snake-btn-start { font-size: 14px; }
+  .snake-dpad {
+    max-width: 160px;
+  }
+  .snake-btn  { min-height: 36px; font-size: 18px; }
+  .snake-btn-start { font-size: 14px; }
+  /* On coarse pointer (touch) devices: hide d-pad, show swipe hint */
+  @media (pointer: coarse) {
+    .snake-dpad-wrap { display: none !important; }
+    .snake-swipe-hint { display: block !important; }
+  }
   }
 
   /* ── SCROLLBAR ── */
@@ -2935,7 +2942,7 @@ function calcUseResult() {
     snakeHiScore = parseInt(localStorage.getItem('snakeHi') || '0');
     document.getElementById('snakeHi').textContent    = snakeHiScore;
     document.getElementById('snakeScore').textContent = '0';
-    document.getElementById('snakeMsg').textContent   = 'PRESS ▶ TO START';
+    document.getElementById('snakeMsg').textContent   = 'TAP ▶ TO START';
     drawGame();
   }
 
@@ -3065,7 +3072,7 @@ function calcUseResult() {
       ctx.fillText('GAME OVER', getCanvas().width/2, getCanvas().height/2 - 8);
       ctx.fillText('SCORE: ' + (snake.length-3), getCanvas().width/2, getCanvas().height/2 + 8);
     }
-    document.getElementById('snakeMsg').textContent = 'PRESS ▶ TO RETRY';
+    document.getElementById('snakeMsg').textContent = 'TAP ▶ TO RETRY';
     document.getElementById('snakeStartBtn').textContent = '↺';
   }
 
@@ -3075,7 +3082,7 @@ function calcUseResult() {
       running = false;
       clearInterval(gameLoop);
       document.getElementById('snakeStartBtn').textContent = '▶';
-      document.getElementById('snakeMsg').textContent = 'PAUSED — PRESS ▶';
+      document.getElementById('snakeMsg').textContent = 'PAUSED — TAP ▶';
       return;
     }
     // Start / resume
@@ -3101,6 +3108,40 @@ function calcUseResult() {
     nextDir = {x:dx, y:dy};
   };
 
+  // Swipe detection on canvas
+  (function() {
+    var canvas = document.getElementById('snakeCanvas');
+    if (!canvas) return;
+    var tx = 0, ty = 0;
+    var MIN_SWIPE = 20; // minimum px to count as a swipe
+
+    canvas.addEventListener('touchstart', function(e) {
+      var t = e.touches[0];
+      tx = t.clientX;
+      ty = t.clientY;
+      e.preventDefault(); // stop scroll
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function(e) {
+      var t = e.changedTouches[0];
+      var dx = t.clientX - tx;
+      var dy = t.clientY - ty;
+      var ax = Math.abs(dx), ay = Math.abs(dy);
+      if (Math.max(ax, ay) < MIN_SWIPE) {
+        // Tap with no real movement — start/pause
+        snakeStart();
+        e.preventDefault();
+        return;
+      }
+      if (ax > ay) {
+        snakeDir(dx > 0 ? 1 : -1, 0);
+      } else {
+        snakeDir(0, dy > 0 ? 1 : -1);
+      }
+      e.preventDefault();
+    }, { passive: false });
+  })();
+
   // Keyboard controls
   document.addEventListener('keydown', function(e) {
     var pg = document.getElementById('page-snake');
@@ -3110,7 +3151,7 @@ function calcUseResult() {
       case 'ArrowDown':  snakeDir(0,1);   e.preventDefault(); break;
       case 'ArrowLeft':  snakeDir(-1,0);  e.preventDefault(); break;
       case 'ArrowRight': snakeDir(1,0);   e.preventDefault(); break;
-      case 'Enter': case ' ': snakeStart(); e.preventDefault(); break;  // toggles start/stop
+      case 'Enter': case ' ': snakeStart(); e.preventDefault(); break;
     }
   });
 
@@ -5736,22 +5777,32 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Canvas container -->
     <div class="snake-screen-wrap" style="background:#000;border:3px solid #33ff33;border-radius:4px;box-shadow:0 0 12px #33ff3344;margin-bottom:12px;line-height:0;position:relative;">
       <canvas id="snakeCanvas" style="display:block;width:100%;"></canvas>
-      <div id="snakeMsg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:22px;color:#33ff33;text-shadow:0 0 8px #33ff33;pointer-events:none;">PRESS ▶ TO START</div>
+      <div id="snakeMsg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:22px;color:#33ff33;text-shadow:0 0 8px #33ff33;pointer-events:none;">SWIPE TO START</div>
     </div>
 
-    <!-- D-pad controls -->
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:10px;">
+    <!-- Start/pause button — always visible -->
+    <div style="display:flex;justify-content:center;margin-bottom:8px;">
+      <button class="snake-btn snake-btn-start" id="snakeStartBtn" onclick="snakeStart()" style="width:80px;font-size:22px;">▶</button>
+    </div>
+
+    <!-- D-pad — desktop only -->
+    <div class="snake-dpad-wrap" style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:10px;">
       <div class="snake-dpad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:160px;width:100%;">
         <div></div>
         <button class="snake-btn" onclick="snakeDirBtn(0,-1)">▲</button>
         <div></div>
         <button class="snake-btn" onclick="snakeDirBtn(-1,0)">◀</button>
-        <button class="snake-btn snake-btn-start" id="snakeStartBtn" onclick="snakeStart()">▶</button>
+        <div style="background:#111;border:2px solid #33ff3344;border-radius:4px;"></div>
         <button class="snake-btn" onclick="snakeDirBtn(1,0)">▶</button>
         <div></div>
         <button class="snake-btn" onclick="snakeDirBtn(0,1)">▼</button>
         <div></div>
       </div>
+    </div>
+
+    <!-- Swipe hint — mobile only -->
+    <div class="snake-swipe-hint" style="text-align:center;font-family:'VT323',monospace;font-size:15px;color:#33ff3388;margin-bottom:6px;display:none;">
+      swipe the screen to steer · tap to pause
     </div>
 
   </div>
