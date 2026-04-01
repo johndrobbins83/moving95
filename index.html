@@ -1125,7 +1125,122 @@
   .ev-contact { font-size: 13px; font-weight: normal; color: #444; line-height: 1.6; }
 
   /* ── LOGIN SCREEN ── */
+  /* ══ INTRO SLIDESHOW ══════════════════════════════════════════════════════ */
+  #introOverlay {
+    position: fixed; inset: 0; z-index: 600;
+    background: #0a0a1a;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'VT323', monospace;
+    overflow: hidden;
+  }
+  #introOverlay.intro-hidden { display: none !important; }
+
+  /* scanline effect */
+  #introOverlay::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 3px,
+      rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+    );
+  }
+
+  .intro-slide {
+    display: none; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center;
+    padding: 24px 28px 16px; max-width: 440px; width: 100%;
+    position: relative; z-index: 2;
+    animation: introFadeIn 0.45s ease both;
+  }
+  .intro-slide.active { display: flex; }
+  @keyframes introFadeIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .intro-emoji { font-size: 64px; line-height: 1; margin-bottom: 14px; filter: drop-shadow(0 0 18px currentColor); }
+  .intro-title { font-size: 32px; font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; }
+  .intro-body  { font-size: 18px; line-height: 1.55; font-weight: normal; opacity: 0.88; max-width: 360px; }
+  .intro-tip   {
+    margin-top: 14px; font-size: 15px; padding: 8px 12px;
+    border-left: 3px solid; opacity: 0.78; text-align: left; width: 100%;
+  }
+
+  /* dot progress */
+  .intro-dots { display: flex; gap: 8px; margin-top: 22px; position: relative; z-index: 2; }
+  .intro-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .intro-dot.active { background: white; transform: scale(1.3); }
+
+  /* nav buttons */
+  .intro-nav {
+    display: flex; gap: 12px; margin-top: 18px;
+    position: relative; z-index: 2; width: 100%; max-width: 440px;
+    padding: 0 28px; box-sizing: border-box;
+  }
+  .intro-btn {
+    font-family: 'VT323', monospace; font-size: 19px; font-weight: bold;
+    padding: 8px 20px; cursor: pointer; border: none; border-radius: 0;
+    letter-spacing: 1px; transition: opacity 0.2s;
+  }
+  .intro-btn:active { opacity: 0.7; }
+  .intro-btn-prev {
+    background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.25); flex: 1;
+  }
+  .intro-btn-next { flex: 2; }
+  .intro-btn-skip {
+    position: absolute; top: 14px; right: 18px; z-index: 3;
+    font-family: 'VT323', monospace; font-size: 16px;
+    background: none; border: none; color: rgba(255,255,255,0.35);
+    cursor: pointer; padding: 6px 10px;
+  }
+  .intro-btn-skip:hover { color: rgba(255,255,255,0.7); }
+
+  /* auto-progress bar */
+  .intro-progress-bar {
+    position: absolute; bottom: 0; left: 0; height: 3px;
+    background: white; opacity: 0.5;
+    transition: width linear;
+  }
+
+  /* per-slide accent colors */
+  .intro-s0 .intro-title { color: #00eaff; }
+  .intro-s0 .intro-emoji { color: #00eaff; }
+  .intro-s0 .intro-tip   { border-color: #00eaff; color: #00eaff; background: rgba(0,234,255,0.07); }
+  .intro-s0 .intro-btn-next { background: #00eaff; color: #000; }
+
+  .intro-s1 .intro-title { color: #ffff00; }
+  .intro-s1 .intro-emoji { color: #ffff00; }
+  .intro-s1 .intro-tip   { border-color: #ffff00; color: #ffff00; background: rgba(255,255,0,0.07); }
+  .intro-s1 .intro-btn-next { background: #ffff00; color: #000; }
+
+  .intro-s2 .intro-title { color: #00ff99; }
+  .intro-s2 .intro-emoji { color: #00ff99; }
+  .intro-s2 .intro-tip   { border-color: #00ff99; color: #00ff99; background: rgba(0,255,153,0.07); }
+  .intro-s2 .intro-btn-next { background: #00ff99; color: #000; }
+
+  .intro-s3 .intro-title { color: #ff9d00; }
+  .intro-s3 .intro-emoji { color: #ff9d00; }
+  .intro-s3 .intro-tip   { border-color: #ff9d00; color: #ff9d00; background: rgba(255,157,0,0.07); }
+  .intro-s3 .intro-btn-next { background: #ff9d00; color: #000; }
+
+  .intro-s4 .intro-title { color: #bf7aff; }
+  .intro-s4 .intro-emoji { color: #bf7aff; }
+  .intro-s4 .intro-tip   { border-color: #bf7aff; color: #bf7aff; background: rgba(191,122,255,0.07); }
+  .intro-s4 .intro-btn-next { background: #bf7aff; color: #000; }
+
+  .intro-s5 .intro-title { color: #ff4db8; }
+  .intro-s5 .intro-emoji { color: #ff4db8; }
+  .intro-s5 .intro-tip   { border-color: #ff4db8; color: #ff4db8; background: rgba(255,77,184,0.07); }
+  .intro-s5 .intro-btn-next { background: #ff4db8; color: #000; }
+
   .login-overlay {
+  
     position: fixed; inset: 0; z-index: 500;
     background: var(--bg);
     background-image: repeating-linear-gradient(
@@ -4090,6 +4205,103 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
+<!-- ══════════════════════════════
+     INTRO SLIDESHOW OVERLAY
+══════════════════════════════ -->
+<div id="introOverlay" class="intro-hidden">
+  <button class="intro-btn-skip" onclick="dismissIntro()">Skip ✕</button>
+
+  <!-- SLIDE 0: Welcome / Color Modes -->
+  <div class="intro-slide intro-s0" id="intro-slide-0">
+    <div class="intro-emoji">🖥️</div>
+    <div class="intro-title">Welcome to Moving '95</div>
+    <div class="intro-body">
+      Your all-in-one moving command centre — built to keep every box, bin, route, and task in one place while you move.
+    </div>
+    <div class="intro-tip">
+      💡 Tap the <b>logo</b> in the top-left at any time to cycle colour modes — Light, Dark… and something extra. 👀
+    </div>
+  </div>
+
+  <!-- SLIDE 1: Inventory -->
+  <div class="intro-slide intro-s1" id="intro-slide-1">
+    <div class="intro-emoji">📦</div>
+    <div class="intro-title">Inventory</div>
+    <div class="intro-body">
+      Log every item with room, type, weight, photo notes and a bin/box number. Each item gets its own auto-numbered ID so nothing gets lost.
+    </div>
+    <div class="intro-tip">
+      💡 Create <b>Bins &amp; Boxes</b> first — they get smart room-prefix IDs like <b>KT-001</b> (Kitchen) or <b>ST-003</b> (Studio). Qty lets you create a whole set at once.
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Route -->
+  <div class="intro-slide intro-s2" id="intro-slide-2">
+    <div class="intro-emoji">🗺️</div>
+    <div class="intro-title">Route Planner</div>
+    <div class="intro-body">
+      Plan your full driving route with multiple stops, get distance and time estimates, and find gas stations along the way.
+    </div>
+    <div class="intro-tip">
+      💡 Use <b>Share My Route</b> to text or email your route + live GPS location to a contact — great for keeping people updated on moving day.
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Budget & Tasks -->
+  <div class="intro-slide intro-s3" id="intro-slide-3">
+    <div class="intro-emoji">💰✅</div>
+    <div class="intro-title">Budget &amp; Tasks</div>
+    <div class="intro-body">
+      Track every moving expense in the <b>Budget</b> tab and stay on top of your to-do list with the <b>Tasks</b> checklist — mark items done as you go.
+    </div>
+    <div class="intro-tip">
+      💡 Tasks sync with your move schedule. Set dates on calendar events so nothing sneaks up on you.
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Entertainment -->
+  <div class="intro-slide intro-s4" id="intro-slide-4">
+    <div class="intro-emoji">🎮🎧</div>
+    <div class="intro-title">Entertainment</div>
+    <div class="intro-body">
+      Take a break with <b>Solitaire</b>, <b>Snake</b>, <b>Sudoku</b>, <b>Trivia</b> and more. When you need a soundtrack, flip to <b>Radio</b>.
+    </div>
+    <div class="intro-tip">
+      📻 The radio stations are <b>hand-picked</b> — every genre, every mood, curated just for this app. Dial through and find your vibe.
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Rave teaser / Let's go -->
+  <div class="intro-slide intro-s5" id="intro-slide-5">
+    <div class="intro-emoji">🕹️</div>
+    <div class="intro-title">One Last Thing…</div>
+    <div class="intro-body">
+      You already know about colour modes. But did you notice that <b>one of them unlocks extra features</b> in some sections? Explore and find out.
+    </div>
+    <div class="intro-tip">
+      ✨ Tap the logo a few times and see what happens. Some things only come out when the lights go down.
+    </div>
+  </div>
+
+  <!-- Dots -->
+  <div class="intro-dots" id="introDots">
+    <div class="intro-dot active" onclick="goToSlide(0)"></div>
+    <div class="intro-dot" onclick="goToSlide(1)"></div>
+    <div class="intro-dot" onclick="goToSlide(2)"></div>
+    <div class="intro-dot" onclick="goToSlide(3)"></div>
+    <div class="intro-dot" onclick="goToSlide(4)"></div>
+    <div class="intro-dot" onclick="goToSlide(5)"></div>
+  </div>
+
+  <!-- Nav -->
+  <div class="intro-nav">
+    <button class="intro-btn intro-btn-prev" id="introPrev" onclick="introStep(-1)" style="display:none;">← Back</button>
+    <button class="intro-btn intro-btn-next intro-s0" id="introNext" onclick="introStep(1)">Next →</button>
+  </div>
+
+  <!-- Auto-progress bar -->
+  <div id="introBar" class="intro-progress-bar" style="width:0%;"></div>
+</div>
 
 
 <!-- ── HEADER ── -->
@@ -7100,6 +7312,13 @@ function applyAdminMode(user) {
 function applyLogin(user) {
   currentUser = user;
   document.getElementById('loginOverlay').classList.add('hidden');
+
+  // Show intro slideshow on first-ever login for this user
+  var introKey = 'introSeen_' + user;
+  if (!localStorage.getItem(introKey)) {
+    localStorage.setItem(introKey, '1');
+    setTimeout(function() { showIntro(); }, 400);
+  }
   document.getElementById('userBadge').textContent = '👤';
   document.getElementById('userBadge').title = 'Signed in as ' + user + ' — tap for profile';
   document.getElementById('userBadge').style.display = 'inline-block';
@@ -7627,6 +7846,102 @@ function goToProfile() {
   } else {
     showPage('profile');
   }
+}
+
+// ══════════════════════════════
+//  INTRO SLIDESHOW
+// ══════════════════════════════
+var _introSlide = 0;
+var _introTotal = 6;
+var _introTimer = null;
+var _introBarTimer = null;
+var INTRO_DURATION = 6000; // ms per slide
+
+function showIntro() {
+  var el = document.getElementById('introOverlay');
+  if (!el) return;
+  el.classList.remove('intro-hidden');
+  _introSlide = 0;
+  _renderIntroSlide();
+  _introAutoAdvance();
+}
+
+function dismissIntro() {
+  var el = document.getElementById('introOverlay');
+  if (el) el.classList.add('intro-hidden');
+  clearTimeout(_introTimer);
+  clearInterval(_introBarTimer);
+}
+
+function introStep(dir) {
+  clearTimeout(_introTimer);
+  clearInterval(_introBarTimer);
+  var next = _introSlide + dir;
+  if (next >= _introTotal) { dismissIntro(); return; }
+  if (next < 0) next = 0;
+  _introSlide = next;
+  _renderIntroSlide();
+  _introAutoAdvance();
+}
+
+function goToSlide(n) {
+  clearTimeout(_introTimer);
+  clearInterval(_introBarTimer);
+  _introSlide = n;
+  _renderIntroSlide();
+  _introAutoAdvance();
+}
+
+function _renderIntroSlide() {
+  // hide all slides, show current
+  for (var i = 0; i < _introTotal; i++) {
+    var sl = document.getElementById('intro-slide-' + i);
+    if (sl) { sl.classList.remove('active'); sl.style.animation = 'none'; }
+  }
+  var cur = document.getElementById('intro-slide-' + _introSlide);
+  if (cur) {
+    cur.classList.add('active');
+    // re-trigger animation
+    void cur.offsetWidth;
+    cur.style.animation = '';
+  }
+
+  // dots
+  var dots = document.querySelectorAll('.intro-dot');
+  dots.forEach(function(d, i) {
+    d.classList.toggle('active', i === _introSlide);
+  });
+
+  // prev button
+  var prev = document.getElementById('introPrev');
+  if (prev) prev.style.display = _introSlide === 0 ? 'none' : 'block';
+
+  // next button label + color
+  var next = document.getElementById('introNext');
+  if (next) {
+    next.textContent = _introSlide === _introTotal - 1 ? "Let's Go! 🚀" : 'Next →';
+    // remove all slide color classes, apply current
+    for (var j = 0; j < _introTotal; j++) next.classList.remove('intro-s' + j);
+    next.classList.add('intro-s' + _introSlide);
+  }
+
+  // reset progress bar
+  var bar = document.getElementById('introBar');
+  if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; }
+}
+
+function _introAutoAdvance() {
+  var bar = document.getElementById('introBar');
+  if (bar) {
+    // small delay so transition resets first
+    setTimeout(function() {
+      bar.style.transition = 'width ' + INTRO_DURATION + 'ms linear';
+      bar.style.width = '100%';
+    }, 30);
+  }
+  _introTimer = setTimeout(function() {
+    introStep(1);
+  }, INTRO_DURATION);
 }
 
 function doLogout() {
