@@ -2055,23 +2055,26 @@
       font-family: 'VT323', monospace;
       font-size: 20px;
       font-weight: bold;
-      color: #ffffff;
+      color: #ffffff !important;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1.2;
       text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
-    .radio-pl-name.has-url { color: #6ee7a0; }
+    .radio-pl-name.has-url { color: #ffffff !important; }
+    body.dark-mode .radio-pl-name,
+    body.dark-mode .radio-pl-name.has-url { color: #ffffff !important; }
     body.rave-mode .radio-pl-name.has-url { color: #00ff00; }
     .radio-pl-genre {
       font-family: 'VT323', monospace;
       font-size: 15px;
-      color: rgba(255,255,255,0.65);
+      color: rgba(255,255,255,0.7) !important;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    body.dark-mode .radio-pl-genre { color: rgba(255,255,255,0.7) !important; }
 
     /* Hide desktop hint and win-card header on mobile to save space */
     #page-radio.radio-mobile-mode .radio-station-hint { display: none; }
