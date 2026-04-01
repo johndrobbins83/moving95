@@ -134,17 +134,17 @@
 
   /* ── RAVE MODE: bottom nav icons cycle through neon colors ── */
   body.rave-mode .nav-btn-icon {
-    animation: raveIconCycle 2.4s ease-in-out infinite;
+    animation: raveIconCycle 12s ease-in-out infinite;
     filter: drop-shadow(0 0 4px currentColor);
     display: inline-block;
   }
   body.rave-mode .nav-btn:nth-child(1) .nav-btn-icon { animation-delay: 0s; }
-  body.rave-mode .nav-btn:nth-child(2) .nav-btn-icon { animation-delay: 1.4s; }
-  body.rave-mode .nav-btn:nth-child(3) .nav-btn-icon { animation-delay: 2.8s; }
-  body.rave-mode .nav-btn:nth-child(4) .nav-btn-icon { animation-delay: 4.2s; }
-  body.rave-mode .nav-btn:nth-child(5) .nav-btn-icon { animation-delay: 5.6s; }
-  body.rave-mode .nav-btn:nth-child(6) .nav-btn-icon { animation-delay: 7.0s; }
-  body.rave-mode .nav-btn:nth-child(7) .nav-btn-icon { animation-delay: 2.04s; }
+  body.rave-mode .nav-btn:nth-child(2) .nav-btn-icon { animation-delay: 1.7s; }
+  body.rave-mode .nav-btn:nth-child(3) .nav-btn-icon { animation-delay: 3.4s; }
+  body.rave-mode .nav-btn:nth-child(4) .nav-btn-icon { animation-delay: 5.1s; }
+  body.rave-mode .nav-btn:nth-child(5) .nav-btn-icon { animation-delay: 6.8s; }
+  body.rave-mode .nav-btn:nth-child(6) .nav-btn-icon { animation-delay: 8.5s; }
+  body.rave-mode .nav-btn:nth-child(7) .nav-btn-icon { animation-delay: 10.2s; }
   @keyframes raveIconCycle {
     0%   { color: #ff00ff; text-shadow: 0 0 8px #ff00ff, 0 0 16px #ff00ff; }
     25%  { color: #00ffff; text-shadow: 0 0 8px #00ffff, 0 0 16px #00ffff; }
@@ -171,8 +171,7 @@
   }
 
   /* ── RAVE MODE: top header icons neon glow ── */
-  /* Bell, profile, settings: NO color strobe — static neon white */
-  body.rave-mode #headerConfigBtn,
+  /* Bell, profile: NO color strobe — static neon white */
   body.rave-mode #userBadge,
   body.rave-mode #headerBellBtn {
     color: #ffffff;
@@ -217,23 +216,23 @@
     border: 2px solid #ffff00 !important;
     text-shadow: none;
   }
-  body.rave-mode .item-row { background: #000 !important; border-bottom: 1px solid #ff00ff22 !important; color: #e0e0e0 !important; }
-  /* Rave mode: neon glow tints per room */
-  body.rave-mode .item-row.room-Living-Room    { background: #1a0a00 !important; border-left: 3px solid #ff6600 !important; }
-  body.rave-mode .item-row.room-Bedroom        { background: #00001a !important; border-left: 3px solid #4466ff !important; }
-  body.rave-mode .item-row.room-Studio         { background: #001a00 !important; border-left: 3px solid #00ff44 !important; }
-  body.rave-mode .item-row.room-Office         { background: #001a1a !important; border-left: 3px solid #00ccff !important; }
-  body.rave-mode .item-row.room-Closet-1       { background: #12001a !important; border-left: 3px solid #cc44ff !important; }
-  body.rave-mode .item-row.room-Closet-2       { background: #1a0012 !important; border-left: 3px solid #ff44aa !important; }
-  body.rave-mode .item-row.room-Closet-3       { background: #1a0800 !important; border-left: 3px solid #ff8844 !important; }
-  body.rave-mode .item-row.room-Closet-4       { background: #100a08 !important; border-left: 3px solid #aa8877 !important; }
-  body.rave-mode .item-row.room-Sitting-Room   { background: #1a1a00 !important; border-left: 3px solid #ffff00 !important; }
-  body.rave-mode .item-row.room-Listening-Room { background: #001a18 !important; border-left: 3px solid #00ffcc !important; }
-  body.rave-mode .item-row.room-Kitchen        { background: #0a1a00 !important; border-left: 3px solid #88ff44 !important; }
-  body.rave-mode .item-row.room-Mini-Office    { background: #1a1200 !important; border-left: 3px solid #ffcc00 !important; }
-  body.rave-mode .item-row.room-Bathroom       { background: #001a1e !important; border-left: 3px solid #00eeff !important; }
-  body.rave-mode .item-row.room-Plant-Area     { background: #001200 !important; border-left: 3px solid #44ff88 !important; }
-  body.rave-mode .item-row.room-Workshop       { background: #0e0a08 !important; border-left: 3px solid #cc9966 !important; }
+  body.rave-mode .item-row { background: #0a0014 !important; border-bottom: 1px solid #ff00ff33 !important; color: #ffffff !important; }
+  /* Rave mode: full neon color-coded rows per room */
+  body.rave-mode .item-row.room-Living-Room    { background: #2a0e00 !important; border-left: 5px solid #ff6600 !important; box-shadow: inset 3px 0 12px #ff660033 !important; color: #ffcc99 !important; }
+  body.rave-mode .item-row.room-Bedroom        { background: #00003a !important; border-left: 5px solid #4488ff !important; box-shadow: inset 3px 0 12px #4488ff33 !important; color: #aaccff !important; }
+  body.rave-mode .item-row.room-Studio         { background: #003318 !important; border-left: 5px solid #00ff66 !important; box-shadow: inset 3px 0 12px #00ff6633 !important; color: #99ffcc !important; }
+  body.rave-mode .item-row.room-Office         { background: #003333 !important; border-left: 5px solid #00eeff !important; box-shadow: inset 3px 0 12px #00eeff33 !important; color: #99eeff !important; }
+  body.rave-mode .item-row.room-Closet-1       { background: #220033 !important; border-left: 5px solid #cc44ff !important; box-shadow: inset 3px 0 12px #cc44ff33 !important; color: #ddaaff !important; }
+  body.rave-mode .item-row.room-Closet-2       { background: #33001a !important; border-left: 5px solid #ff44aa !important; box-shadow: inset 3px 0 12px #ff44aa33 !important; color: #ffaacc !important; }
+  body.rave-mode .item-row.room-Closet-3       { background: #2a1200 !important; border-left: 5px solid #ff8844 !important; box-shadow: inset 3px 0 12px #ff884433 !important; color: #ffccaa !important; }
+  body.rave-mode .item-row.room-Closet-4       { background: #1a1208 !important; border-left: 5px solid #ddaa77 !important; box-shadow: inset 3px 0 12px #ddaa7733 !important; color: #ddccaa !important; }
+  body.rave-mode .item-row.room-Sitting-Room   { background: #2a2a00 !important; border-left: 5px solid #ffff00 !important; box-shadow: inset 3px 0 12px #ffff0033 !important; color: #ffff99 !important; }
+  body.rave-mode .item-row.room-Listening-Room { background: #003328 !important; border-left: 5px solid #00ffcc !important; box-shadow: inset 3px 0 12px #00ffcc33 !important; color: #99ffee !important; }
+  body.rave-mode .item-row.room-Kitchen        { background: #162800 !important; border-left: 5px solid #88ff44 !important; box-shadow: inset 3px 0 12px #88ff4433 !important; color: #ccff99 !important; }
+  body.rave-mode .item-row.room-Mini-Office    { background: #281e00 !important; border-left: 5px solid #ffcc00 !important; box-shadow: inset 3px 0 12px #ffcc0033 !important; color: #ffee99 !important; }
+  body.rave-mode .item-row.room-Bathroom       { background: #003040 !important; border-left: 5px solid #00eeff !important; box-shadow: inset 3px 0 12px #00eeff33 !important; color: #99eeff !important; }
+  body.rave-mode .item-row.room-Plant-Area     { background: #002200 !important; border-left: 5px solid #44ff88 !important; box-shadow: inset 3px 0 12px #44ff8833 !important; color: #aaffcc !important; }
+  body.rave-mode .item-row.room-Workshop       { background: #180e08 !important; border-left: 5px solid #ff9955 !important; box-shadow: inset 3px 0 12px #ff995533 !important; color: #ffccaa !important; }
   /* Rave room dividers — neon matching the room accent */
   body.rave-mode .room-divider.room-Living-Room    { background: #ff660022 !important; border-left: 3px solid #ff6600 !important; color: #ff6600 !important; }
   body.rave-mode .room-divider.room-Bedroom        { background: #4466ff22 !important; border-left: 3px solid #4466ff !important; color: #4466ff !important; }
@@ -250,7 +249,10 @@
   body.rave-mode .room-divider.room-Bathroom       { background: #00eeff22 !important; border-left: 3px solid #00eeff !important; color: #00eeff !important; }
   body.rave-mode .room-divider.room-Plant-Area     { background: #44ff8822 !important; border-left: 3px solid #44ff88 !important; color: #44ff88 !important; }
   body.rave-mode .room-divider.room-Workshop       { background: #cc996622 !important; border-left: 3px solid #cc9966 !important; color: #cc9966 !important; }
-  body.rave-mode .cell-num { background: #0a0000 !important; color: #ff00ff !important; }
+  body.rave-mode .cell-num { background: #000 !important; color: #ff00ff !important; text-shadow: 0 0 6px #ff00ff88 !important; border-right: 1px solid #ff00ff44 !important; }
+  body.rave-mode .cell-meta { color: rgba(255,255,255,0.8) !important; }
+  body.rave-mode .cell-name-text { color: #ffffff !important; text-shadow: 0 0 6px rgba(255,255,255,0.4) !important; }
+  body.rave-mode .cell-name-block { border-bottom-color: rgba(255,255,255,0.1) !important; }
   body.rave-mode .room-divider { background: #ff00ff !important; color: #000 !important; border: none !important; }
   body.rave-mode .list-header { background: #000 !important; border-bottom: 2px solid #00ffff !important; }
   body.rave-mode .list-header span { color: #00ffff !important; }
@@ -879,6 +881,119 @@
     font-size: 13px; color: #333;
   }
   .meta-tag-label { font-size: 11px; color: #888; font-weight: normal; }
+
+  /* Dark mode: make item name and meta text white/readable */
+  body.dark-mode .cell-name-text { color: #ffffff !important; }
+  body.dark-mode .cell-meta { color: rgba(255,255,255,0.75) !important; }
+  body.dark-mode .cell-num { color: #4fc3f7 !important; background: rgba(0,0,0,0.35) !important; }
+  body.dark-mode .cell-name-block { border-bottom-color: rgba(255,255,255,0.07) !important; }
+
+  /* ── CONTAINER ROWS IN INVENTORY ── */
+  .container-row {
+    border-bottom: 2px solid rgba(0,0,128,0.18);
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    grid-template-rows: auto;
+    align-items: stretch;
+    min-height: 56px;
+    cursor: default;
+  }
+  .container-row .cell-num {
+    grid-row: 1;
+    background: rgba(0,0,128,0.12);
+    color: var(--blue);
+    font-size: 11px;
+  }
+  .container-row-body {
+    grid-column: 2;
+    padding: 8px 8px 8px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+  .container-row-name {
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--black);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .container-row-meta {
+    font-size: 12px;
+    color: var(--darker);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .container-expand-btn {
+    grid-column: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    background: var(--blue);
+    color: white;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    gap: 5px;
+    letter-spacing: 0.5px;
+    border-left: 2px solid rgba(255,255,255,0.2);
+  }
+  .container-expand-btn:active { filter: brightness(0.85); }
+  .container-contents {
+    display: none;
+    background: rgba(0,0,128,0.04);
+    border-bottom: 2px solid rgba(0,0,128,0.15);
+  }
+  .container-contents.open { display: block; }
+  .container-contents-header {
+    padding: 6px 10px 4px;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: var(--blue);
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(0,0,128,0.12);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .container-contents .item-row {
+    border-left: 3px solid rgba(0,0,128,0.2);
+    margin-left: 0;
+  }
+  .container-empty-note {
+    padding: 10px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: #888;
+  }
+
+  /* Dark mode container rows */
+  body.dark-mode .container-row { border-bottom-color: rgba(79,195,247,0.2); }
+  body.dark-mode .container-row .cell-num { background: rgba(79,195,247,0.1); color: #4fc3f7; }
+  body.dark-mode .container-row-name { color: #ffffff; }
+  body.dark-mode .container-row-meta { color: rgba(255,255,255,0.6); }
+  body.dark-mode .container-expand-btn { background: #0f3460; border-left-color: rgba(255,255,255,0.1); }
+  body.dark-mode .container-contents { background: rgba(79,195,247,0.04); border-bottom-color: rgba(79,195,247,0.15); }
+  body.dark-mode .container-contents-header { color: #4fc3f7; border-bottom-color: rgba(79,195,247,0.15); }
+  body.dark-mode .container-contents .item-row { border-left-color: rgba(79,195,247,0.25); }
+
+  /* Rave mode container rows */
+  body.rave-mode .container-row { border-bottom-color: #ff00ff44; }
+  body.rave-mode .container-row .cell-num { background: #0a0014; color: #ff00ff; text-shadow: 0 0 6px #ff00ff88; }
+  body.rave-mode .container-row-name { color: #ffffff; text-shadow: 0 0 6px rgba(255,255,255,0.3); }
+  body.rave-mode .container-row-meta { color: rgba(255,255,255,0.7); }
+  body.rave-mode .container-expand-btn { background: #ff00ff; color: #000; border-left-color: #00ffff44; }
+  body.rave-mode .container-contents { background: rgba(255,0,255,0.04); border-bottom-color: #ff00ff33; }
+  body.rave-mode .container-contents-header { color: #ff00ff; border-bottom-color: #ff00ff22; }
+  body.rave-mode .container-contents .item-row { border-left-color: #ff00ff44; }
 
   .badge { display: inline-block; padding: 1px 6px; font-size: 11px; font-weight: bold; border: 1px solid rgba(0,0,0,0.2); }
   .badge-yes  { background: #ffebee; color: #b71c1c; }
@@ -3985,15 +4100,13 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="flex:1;"></div>
   <!-- Logged-in user badge -->
   <button class="user-badge" id="userBadge" onclick="goToProfile()" title="My Profile" style="display:none;">&#128100;</button>
-  <!-- Settings -->
-  <button class="header-wrench-btn" onclick="toggleConfigPage()" id="headerConfigBtn" title="Settings">&#128295;</button>
   <!-- Notification bell -->
   <div style="position:relative;flex-shrink:0;">
     <button class="header-wrench-btn" onclick="toggleNotifPanel()" id="headerBellBtn" title="Notifications" style="font-size:20px;padding:2px 8px;">&#128276;</button>
     <span id="bellBadge" style="display:none;position:absolute;top:2px;right:2px;background:#e53935;color:white;font-size:10px;font-weight:bold;font-family:Arial,sans-serif;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;line-height:16px;text-align:center;"></span>
   </div>
   <!-- Refresh shown on viewer tab only -->
-  <button class="header-refresh-btn" id="headerRefreshBtn" style="display:none;" onclick="loadViewerData()">↺ Refresh</button>
+  <button class="header-refresh-btn" id="headerRefreshBtn" style="display:none;" onclick="loadViewerData()" title="Refresh inventory">↺</button>
 </div>
 
 <!-- ══════════════════════════════
@@ -4186,7 +4299,6 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
   </div>
-  <div style="height:40px;"></div>
 </div>
 
 
@@ -4200,7 +4312,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
       <span style="color:white;">🗂️ Inventory</span>
       <span style="color:rgba(255,255,255,0.75);font-size:14px;font-weight:normal;" id="viewerItemCount"></span>
-      <button onclick="showPage('form')" style="margin-left:auto;font-family:'VT323',monospace;font-size:16px;padding:3px 12px;cursor:pointer;background:rgba(255,255,255,0.18);color:#fff;border-top:2px solid rgba(255,255,255,0.5);border-left:2px solid rgba(255,255,255,0.5);border-right:2px solid rgba(0,0,0,0.3);border-bottom:2px solid rgba(0,0,0,0.3);letter-spacing:1px;flex-shrink:0;">➕ Add Item</button>
     </div>
   </div>
 
@@ -4263,7 +4374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="win-card-title">
       <span>📦 Items</span>
       <div style="display:flex;gap:4px;">
-        <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" style="font-size:15px;padding:3px 10px;">↺ Refresh</button>
+        <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" title="Refresh inventory" style="font-size:18px;padding:3px 10px;">↺</button>
         <button class="cal-nav-btn" onclick="downloadInventoryPDF()" title="Download PDF" style="font-size:15px;padding:3px 10px;">⬇ PDF</button>
       </div>
     </div>
@@ -6426,38 +6537,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <span class="nav-btn-icon">📻</span>
     <span class="nav-btn-label">Radio</span>
   </button>
+  <button class="nav-btn" id="nav-config" onclick="showPage('config')" style="display:none;">
+    <span class="nav-btn-icon">⚙️</span>
+    <span class="nav-btn-label">Settings</span>
+  </button>
 </div>
-
-<!-- ── ADD ITEM FAB ── -->
-<button id="addItemFab" onclick="showPage('form')"
-  title="Add Inventory Item"
-  style="
-    display:none;
-    position:fixed;
-    right:16px;
-    bottom:calc(var(--nav-h) + 14px);
-    z-index:150;
-    width:52px;
-    height:52px;
-    border-radius:50%;
-    background:linear-gradient(135deg,var(--blue),var(--blue2));
-    color:#fff;
-    font-size:28px;
-    line-height:1;
-    border-top:2px solid rgba(255,255,255,0.5);
-    border-left:2px solid rgba(255,255,255,0.5);
-    border-right:2px solid rgba(0,0,0,0.4);
-    border-bottom:2px solid rgba(0,0,0,0.4);
-    box-shadow:3px 3px 0 #000, 0 4px 12px rgba(0,0,0,0.35);
-    cursor:pointer;
-    font-family:'VT323',monospace;
-    transition:transform 0.1s,box-shadow 0.1s;
-  "
-  onmousedown="this.style.transform='scale(0.93)';this.style.boxShadow='1px 1px 0 #000'"
-  onmouseup="this.style.transform='';this.style.boxShadow='3px 3px 0 #000, 0 4px 12px rgba(0,0,0,0.35)'"
-  ontouchstart="this.style.transform='scale(0.93)';this.style.boxShadow='1px 1px 0 #000'"
-  ontouchend="this.style.transform='';this.style.boxShadow='3px 3px 0 #000, 0 4px 12px rgba(0,0,0,0.35)'"
->➕</button>
 
 <!-- ── CONTAINER MANAGER OVERLAY ── -->
 <div id="containerManagerOverlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.55);" onclick="if(event.target===this)closeContainerManager()"></div>
@@ -7003,9 +7087,9 @@ function applyLogin(user) {
   // Show any queued admin notifications if this is John
   setTimeout(adminNotifFlush, 1500);
 
-  // Show Add Item FAB (viewer is the default landing page)
-  const _fab = document.getElementById('addItemFab');
-  if (_fab) _fab.style.display = 'flex';
+  // Show Settings nav button now that user is signed in
+  var _cfgNav = document.getElementById('nav-config');
+  if (_cfgNav) _cfgNav.style.display = '';
 
   // Set per-user tab name if not already set
   var existingTab = localStorage.getItem('tabName') || '';
@@ -7532,6 +7616,9 @@ function doLogout() {
   document.getElementById('loginPin').value  = '';
   document.getElementById('loginError').style.display = 'none';
   document.getElementById('loginUser').focus();
+  // Hide settings nav button — only visible when signed in
+  var _cfgNavOut = document.getElementById('nav-config');
+  if (_cfgNavOut) _cfgNavOut.style.display = 'none';
 }
 
 function refreshCredentials() {
@@ -7655,16 +7742,11 @@ function showPage(name) {
   const isBudget = name === 'budget';
   // headerItemNum removed — replaced with clock
   document.getElementById('headerRefreshBtn').style.display = isViewer ? 'block' : 'none';
-  const wrench  = document.getElementById('headerConfigBtn');
-  if (wrench) wrench.classList.toggle('active-page', isConfig);
+
 
   // Update header subtitle
   const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', snake:'🪱 Tapeworm', solitaire:'🃏 Solitaire', edm:'🎧 Rave Trivia', profile:'My Profile', budget:'Move Budget', radio:'📻 Radio' };
   // headerStatus removed
-
-  // Show Add Item FAB only on the viewer page
-  const fab = document.getElementById('addItemFab');
-  if (fab) fab.style.display = (name === 'viewer') ? 'flex' : 'none';
 
   // Refresh container dropdown when navigating to the form
   if (name === 'form') refreshContainerDropdown();
@@ -8657,6 +8739,49 @@ function clearFilters() {
 // ══════════════════════════════
 function roomClass(loc) { return 'room-' + (loc || 'default').replace(/\s+/g, '-'); }
 
+// Container types that act as containers in the inventory
+const CONTAINER_TYPES = new Set(['Box', 'Bin', 'Crate', 'Bag']);
+
+// Build one regular item-row HTML string
+function buildItemRowHtml(item, rc) {
+  const name    = item['Item Name'] || '(unnamed)';
+  const num     = item['Item #'] || '?';
+  const type    = item['Type'] || '';
+  const wrapped = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
+  const fragile = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
+  const bin     = item['Bin/Box #'] || '';
+  const weight  = item['Weight'] || '';
+  const cost    = item['Est. Cost'] ? '$' + parseFloat(item['Est. Cost']).toFixed(0) : '';
+  const qty     = item['Quantity'] && item['Quantity'] != 1 ? 'x' + item['Quantity'] : '';
+  const imgUrl  = item['Image URL(s)'] || '';
+
+  const imgLink   = imgUrl ? '<a href="' + imgUrl + '" target="_blank" style="font-size:13px;color:var(--blue);text-decoration:none;" onclick="event.stopPropagation()">📷</a>' : '';
+  const wrapBadge = wrapped ? '<span class="cell-badge badge-wrap">✔ Wrap</span>' : '';
+  const fragBadge = fragile ? '<span class="cell-badge badge-frag">⚠ Frag</span>' : '';
+
+  const metaParts = [];
+  if (type)   metaParts.push(type);
+  if (bin)    metaParts.push(bin);
+  if (weight) metaParts.push(weight);
+  if (cost)   metaParts.push(cost);
+  if (qty)    metaParts.push(qty);
+
+  const rowIdx = allItems.indexOf(item);
+  return '<div class="item-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" style="cursor:pointer;" title="Tap to edit">' +
+    '<div class="cell-num">' + String(num).padStart(4,'0') + '</div>' +
+    '<div class="cell-name-block"><span class="cell-name-text">' + name + '</span>' + imgLink + wrapBadge + fragBadge + '</div>' +
+    '<div class="cell-meta">' + metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') + '</div>' +
+  '</div>';
+}
+
+function toggleContainerContents(btnEl) {
+  const contentsEl = btnEl.closest('.container-row-wrap').querySelector('.container-contents');
+  const isOpen = contentsEl.classList.toggle('open');
+  btnEl.innerHTML = isOpen
+    ? getContainerIcon(btnEl.dataset.ctype) + ' ' + btnEl.dataset.count + ' items ▲'
+    : getContainerIcon(btnEl.dataset.ctype) + ' ' + btnEl.dataset.count + ' items ▼';
+}
+
 function renderItems() {
   const grid = document.getElementById('itemGrid');
   if (!filtered.length) {
@@ -8668,10 +8793,45 @@ function renderItems() {
 
   const header = '<div class="list-header"><span>#</span><span>Item Name &amp; Details</span></div>';
 
-  // Group items by room in order
+  // --- Identify container items and their contents ---
+  // A container item: its Bin/Box # matches its own identity (it IS the box)
+  // OR it is a Box/Bin/Crate/Bag type
+  // Items assigned to a container: their Bin/Box # == a container item's Bin/Box #
+  //   AND they are not themselves that container item
+
+  // Build map: containerId → [child items]
+  // containerIds = filtered items whose Type is a container type
+  const containerItems = filtered.filter(item => CONTAINER_TYPES.has(item['Type'] || ''));
+  
+  // Map bin id → container item (so we can look up quickly)
+  // Use Bin/Box # as the container's ID. If empty, fall back to Item Name.
+  const containerByBinId = {};
+  containerItems.forEach(item => {
+    const binId = (item['Bin/Box #'] || item['Item Name'] || '').trim().toLowerCase();
+    if (binId) containerByBinId[binId] = item;
+  });
+
+  // Assign child items to containers
+  // A child: has a Bin/Box # that matches a container's Bin/Box #, and is NOT itself that container
+  const childrenByBinId = {};
+  const childItemSet    = new Set();
+
+  filtered.forEach(item => {
+    const binRef = (item['Bin/Box #'] || '').trim().toLowerCase();
+    if (!binRef) return;
+    const containerItem = containerByBinId[binRef];
+    if (!containerItem || containerItem === item) return; // it IS the container
+    if (!childrenByBinId[binRef]) childrenByBinId[binRef] = [];
+    childrenByBinId[binRef].push(item);
+    childItemSet.add(item);
+  });
+
+  // Group into rooms — only top-level items (containers + unassigned items)
+  const topLevel = filtered.filter(item => !childItemSet.has(item));
+
   const roomOrder = [];
   const roomMap   = {};
-  filtered.forEach(item => {
+  topLevel.forEach(item => {
     const loc = item['Location'] || 'Unknown';
     if (!roomMap[loc]) { roomMap[loc] = []; roomOrder.push(loc); }
     roomMap[loc].push(item);
@@ -8681,50 +8841,69 @@ function renderItems() {
 
   roomOrder.forEach(loc => {
     const items = roomMap[loc];
-    const rc = roomClass(loc);
+    const rc    = roomClass(loc);
 
-    // Room divider
+    // Room divider — count includes children for accurate total
+    const childCount = items.reduce((sum, item) => {
+      if (!CONTAINER_TYPES.has(item['Type'] || '')) return sum;
+      const binId = (item['Bin/Box #'] || item['Item Name'] || '').trim().toLowerCase();
+      return sum + (childrenByBinId[binId] ? childrenByBinId[binId].length : 0);
+    }, 0);
+    const totalCount = items.length + childCount;
+
     html += '<div class="room-divider ' + rc + '">' +
       '<span>📦 ' + loc + '</span>' +
-      '<span class="room-divider-count">' + items.length + ' item' + (items.length !== 1 ? 's' : '') + '</span>' +
+      '<span class="room-divider-count">' + totalCount + ' item' + (totalCount !== 1 ? 's' : '') + '</span>' +
     '</div>';
 
     items.forEach(item => {
-      const name    = item['Item Name'] || '(unnamed)';
-      const num     = item['Item #'] || '?';
-      const type    = item['Type'] || '';
-      const wrapped = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
-      const fragile = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
-      const bin     = item['Bin/Box #'] || '';
-      const weight  = item['Weight'] || '';
-      const cost    = item['Est. Cost'] ? '$' + parseFloat(item['Est. Cost']).toFixed(0) : '';
-      const qty     = item['Quantity'] && item['Quantity'] != 1 ? 'x' + item['Quantity'] : '';
-      const imgUrl  = item['Image URL(s)'] || '';
+      const isContainer = CONTAINER_TYPES.has(item['Type'] || '');
+      const binId       = (item['Bin/Box #'] || item['Item Name'] || '').trim().toLowerCase();
+      const children    = isContainer ? (childrenByBinId[binId] || []) : [];
 
-      const imgLink = imgUrl
-        ? '<a href="' + imgUrl + '" target="_blank" style="font-size:13px;color:var(--blue);text-decoration:none;" onclick="event.stopPropagation()">📷</a>'
-        : '';
-      const wrapBadge = wrapped ? '<span class="cell-badge badge-wrap">✔ Wrap</span>' : '';
-      const fragBadge = fragile ? '<span class="cell-badge badge-frag">⚠ Frag</span>' : '';
+      if (isContainer) {
+        // --- Render container row ---
+        const name   = item['Item Name'] || '(unnamed)';
+        const num    = item['Item #'] || '?';
+        const type   = item['Type'] || 'Box';
+        const icon   = getContainerIcon(type);
+        const weight = item['Weight'] || '';
+        const notes  = item['Description'] ? item['Description'].substring(0,60) : '';
+        const rowIdx = allItems.indexOf(item);
+        const cnt    = children.length;
 
-      const metaParts = [];
-      if (type)   metaParts.push(type);
-      if (bin)    metaParts.push('Box ' + bin);
-      if (weight) metaParts.push(weight);
-      if (cost)   metaParts.push(cost);
-      if (qty)    metaParts.push(qty);
+        const metaParts = [type];
+        if (weight) metaParts.push(weight);
+        if (notes)  metaParts.push(notes);
 
-      const rowIdx = allItems.indexOf(item);
-      html += '<div class="item-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" style="cursor:pointer;" title="Tap to edit">' +
-        '<div class="cell-num">' + String(num).padStart(4,'0') + '</div>' +
-        '<div class="cell-name-block">' +
-          '<span class="cell-name-text">' + name + '</span>' +
-          imgLink + wrapBadge + fragBadge +
-        '</div>' +
-        '<div class="cell-meta">' +
-          metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') +
-        '</div>' +
-      '</div>';
+        html += '<div class="container-row-wrap">';
+        html += '<div class="container-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit">' +
+          '<div class="cell-num">' + icon + '</div>' +
+          '<div class="container-row-body">' +
+            '<div class="container-row-name">' + name + (item['Bin/Box #'] ? ' <span style="font-weight:normal;font-size:13px;opacity:0.7;"># ' + item['Bin/Box #'] + '</span>' : '') + '</div>' +
+            '<div class="container-row-meta">' + metaParts.join(' · ') + '</div>' +
+          '</div>' +
+          '<button class="container-expand-btn" onclick="event.stopPropagation();toggleContainerContents(this)" ' +
+            'data-ctype="' + type + '" data-count="' + cnt + '">' +
+            icon + ' ' + cnt + ' item' + (cnt !== 1 ? 's' : '') + ' ▼' +
+          '</button>' +
+        '</div>';
+
+        // --- Container contents (hidden until expanded) ---
+        html += '<div class="container-contents">';
+        if (children.length) {
+          html += '<div class="container-contents-header">📦 Contents of ' + name + '</div>';
+          children.forEach(child => { html += buildItemRowHtml(child, rc); });
+        } else {
+          html += '<div class="container-empty-note">This container has no items assigned to it yet.</div>';
+        }
+        html += '</div>'; // .container-contents
+        html += '</div>'; // .container-row-wrap
+
+      } else {
+        // Regular item
+        html += buildItemRowHtml(item, rc);
+      }
     });
   });
 
@@ -12144,9 +12323,9 @@ function solDropOnTableau(e, tc) {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 // Rave suit symbols: 0=spades(🪩disco) 1=hearts(💊pill) 2=diamonds(🍄shroom) 3=clubs(🌿weed)
-var SOL_RAVE_SUITS = ['🪩','💊','🍄','🌿'];
+var SOL_RAVE_SUITS = ['♠','♥','♦','♣'];
 // Rave neon colors per suit
-var SOL_RAVE_COLORS = ['#00ffff','#ff00ff','#ff4444','#00ff00'];
+var SOL_RAVE_COLORS = ['#00ffff','#ff00ff','#ff00ff','#00ffff'];
 
 function solIsRave() {
   return document.body.classList.contains('rave-mode');
@@ -12182,12 +12361,12 @@ function solMakeCard(card, source, cardIdx, isTop) {
   if (card.faceUp) {
     var sym = solGetSuitSymbol(card.suit);
     var rank = document.createElement('span'); rank.className = 'sol-rank';
-    rank.textContent = SOL_RANKS[card.rank] + (rave ? '' : sym);
+    rank.textContent = SOL_RANKS[card.rank] + sym;
     var center = document.createElement('span'); center.className = 'sol-center';
-    center.style.fontSize = rave ? '26px' : '24px';
+    center.style.fontSize = '24px';
     center.textContent = sym;
     var suitBot = document.createElement('span'); suitBot.className = 'sol-suit';
-    suitBot.textContent = SOL_RANKS[card.rank] + (rave ? '' : sym);
+    suitBot.textContent = SOL_RANKS[card.rank] + sym;
     div.appendChild(rank); div.appendChild(center); div.appendChild(suitBot);
 
     if (isTop) {
