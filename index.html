@@ -398,6 +398,12 @@
     );
   }
 
+  /* ── ADMIN-ONLY CARDS: hidden until John logs in ── */
+  #adminCard-sessionLog,
+  #adminCard-inventoryViewer,
+  #adminCard-myCredentials,
+  #adminCard-radioPlaylists { display: none; }
+
   /* ── HEADER ── */
   .app-header {
     position: fixed;
@@ -4325,7 +4331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <div class="win-card">
+  <div class="win-card" id="adminCard-radioPlaylists">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secRadio','btnRadio')">
       <span>📻 Radio Playlists</span>
       <button class="cal-nav-btn" id="btnRadio">&#9660;</button>
@@ -4385,7 +4391,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <div class="win-card">
+  <div class="win-card" id="adminCard-myCredentials">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secCreds','btnCreds')">
       <span>&#128273; My Credentials</span>
       <button class="cal-nav-btn" id="btnCreds">&#9660;</button>
@@ -4427,7 +4433,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <div class="win-card">
+  <div class="win-card" id="adminCard-inventoryViewer">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secViewer','btnViewer')">
       <span>&#128193;&#65039; Inventory Viewer</span>
       <button class="cal-nav-btn" id="btnViewer">&#9660;</button>
@@ -4550,7 +4556,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <div class="win-card">
+  <div class="win-card" id="adminCard-sessionLog">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secLog','btnLog')">
       <span>&#128221; Session Log</span>
       <button class="cal-nav-btn" id="btnLog">&#9660;</button>
@@ -6713,6 +6719,32 @@ async function hashPin(pin) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
+// ── ADMIN MODE ────────────────────────────────────────────────
+// Only John's profile sees the admin-only config cards.
+const ADMIN_USER = 'john';
+const ADMIN_ONLY_CARDS = [
+  'adminCard-sessionLog',
+  'adminCard-inventoryViewer',
+  'adminCard-myCredentials',
+  'adminCard-radioPlaylists'
+];
+
+function applyAdminMode(user) {
+  const isAdmin = user.trim().toLowerCase() === ADMIN_USER;
+  ADMIN_ONLY_CARDS.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? '' : 'none';
+  });
+  // Update or add the admin badge on the user badge element
+  const badge = document.getElementById('userBadge');
+  if (badge) {
+    if (isAdmin) {
+      badge.title = 'Signed in as ' + user + ' (Admin) — tap for profile';
+    }
+  }
+}
+// ─────────────────────────────────────────────────────────────
+
 function applyLogin(user) {
   currentUser = user;
   document.getElementById('loginOverlay').classList.add('hidden');
@@ -6721,6 +6753,9 @@ function applyLogin(user) {
   document.getElementById('userBadge').style.display = 'inline-block';
   document.getElementById('profileName').textContent = user;
   localStorage.setItem('loggedInUser', user);
+
+  // Apply admin-only visibility based on logged-in user
+  applyAdminMode(user);
 
   // Set per-user tab name if not already set
   var existingTab = localStorage.getItem('tabName') || '';
