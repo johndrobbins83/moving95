@@ -4376,6 +4376,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="display:flex;gap:4px;">
         <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" title="Refresh inventory" style="font-size:18px;padding:3px 10px;">↺</button>
         <button class="cal-nav-btn" onclick="downloadInventoryPDF()" title="Download PDF" style="font-size:15px;padding:3px 10px;">⬇ PDF</button>
+        <button class="cal-nav-btn" onclick="resetInventoryFull()" title="Clear sheet &amp; reset counter" style="font-size:15px;padding:3px 10px;color:#cc0000;border-color:#cc000066;">🗑 Reset</button>
       </div>
     </div>
     <div class="win-card-body" style="padding:8px;">
@@ -8544,6 +8545,48 @@ function hardResetCounter() {
   localStorage.setItem('itemCounter', 1);
   updateItemNumberDisplay();
   showSuccess('Item counter reset to 0001.');
+}
+
+async function resetInventoryFull() {
+  var confirmed = confirm(
+    'RESET INVENTORY?\n\n' +
+    'This will:\n' +
+    '  - Delete all rows from your Google Sheet\n' +
+    '  - Clear the local inventory cache\n' +
+    '  - Reset the item counter to 0001\n\n' +
+    'This cannot be undone. Continue?'
+  );
+  if (!confirmed) return;
+
+  var url = localStorage.getItem('sheetUrl') || '';
+
+  // 1. Clear the Google Sheet (no-cors fire-and-forget)
+  if (url) {
+    try {
+      await fetch(url, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clearSheet', tabName: localStorage.getItem('tabName') || 'Inventory' })
+      });
+    } catch(e) {}
+  }
+
+  // 2. Clear local cache
+  allItems = []; filtered = [];
+  if (typeof sessionItems !== 'undefined') sessionItems = [];
+
+  // 3. Reset counter to 1
+  itemCounter = 1;
+  localStorage.setItem('itemCounter', 1);
+  updateItemNumberDisplay();
+
+  // 4. Refresh the viewer grid
+  applyFilters();
+  renderStats();
+  var vc = document.getElementById('viewerItemCount');
+  if (vc) vc.textContent = '';
+
+  showSuccess('Inventory reset!\n\nSheet cleared and counter reset to 0001.');
 }
 
 function exportBackup() {
