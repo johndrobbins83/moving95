@@ -1981,10 +1981,10 @@
 
     /* ── Mobile Radio: switch to playlist mode ── */
     #page-radio.radio-mobile-mode .radio-desktop-grid { display: none !important; }
-    #page-radio.radio-mobile-mode .radio-mobile-playlist { display: flex !important; }
+    #page-radio.radio-mobile-mode.active .radio-mobile-playlist { display: flex !important; }
 
-    /* On mobile, lock the entire radio page so the page itself never scrolls */
-    #page-radio.radio-mobile-mode {
+    /* On mobile+active: lock radio page so dial stays pinned, playlist scrolls inside */
+    #page-radio.radio-mobile-mode.active {
       position: fixed !important;
       top: var(--header-h);
       left: 0; right: 0;
@@ -1996,7 +1996,7 @@
     }
 
     /* Dial sits at the top — fixed height, never scrolls */
-    #page-radio.radio-mobile-mode #radioDial {
+    #page-radio.radio-mobile-mode.active #radioDial {
       flex-shrink: 0;
       background: var(--bg);
       padding-bottom: 8px;
@@ -2005,11 +2005,15 @@
     }
 
     /* Playlist fills remaining height and scrolls internally */
-    .radio-mobile-playlist {
+    #page-radio.radio-mobile-mode.active .radio-mobile-playlist {
       flex: 1;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 0 0 8px;
+      padding: 0 14px 8px;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
     }
 
     /* Playlist row */
@@ -2077,10 +2081,10 @@
     body.dark-mode .radio-pl-genre { color: rgba(255,255,255,0.7) !important; }
 
     /* Hide desktop hint and win-card header on mobile to save space */
-    #page-radio.radio-mobile-mode .radio-station-hint { display: none; }
-    #page-radio.radio-mobile-mode > .win-card { display: none; }
-    #page-radio.radio-mobile-mode #raveRadioBtnWrap,
-    #page-radio.radio-mobile-mode #ravePlayerWrap { flex-shrink: 0; }
+    #page-radio.radio-mobile-mode.active .radio-station-hint { display: none; }
+    #page-radio.radio-mobile-mode.active > .win-card { display: none; }
+    #page-radio.radio-mobile-mode.active #raveRadioBtnWrap,
+    #page-radio.radio-mobile-mode.active #ravePlayerWrap { flex-shrink: 0; }
 
     /* Right side: play chip + info btn */
     .radio-pl-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -6265,7 +6269,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <!-- MOBILE: sticky dial + scrollable playlist (rendered by JS) -->
   <div class="radio-mobile-playlist" style="display:none;">
-    <div id="radio-playlist-list"></div>
+    <div id="radio-playlist-list" style="width:100%;"></div>
   </div>
 
 </div>
