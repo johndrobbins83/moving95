@@ -404,6 +404,42 @@
   #adminCard-myCredentials,
   #adminCard-radioPlaylists { display: none; }
 
+  /* ── BINS & BOXES MANAGER ── */
+  .container-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--face);
+    border-top: 2px solid var(--light);
+    border-left: 2px solid var(--light);
+    border-right: 2px solid var(--darker);
+    border-bottom: 2px solid var(--darker);
+    padding: 4px 10px 4px 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 3px;
+    transition: background 0.1s;
+  }
+  .container-chip:hover { background: var(--dark); color: white; }
+  .container-chip .chip-del {
+    font-size: 13px;
+    color: var(--red);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 0 0 4px;
+    font-family: 'VT323', monospace;
+    line-height: 1;
+  }
+  .container-chip.chip-selected {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue2);
+  }
+  .container-chip.chip-selected .chip-del { color: rgba(255,255,255,0.8); }
+
   /* ── HEADER ── */
   .app-header {
     position: fixed;
@@ -3969,6 +4005,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
       <span style="color:white;">📋 Add Inventory Item</span>
       <span style="color:rgba(255,255,255,0.75);font-size:14px;font-weight:normal;" id="itemCountStatus">Ready</span>
+      <button onclick="showPage('viewer')" style="margin-left:auto;font-family:'VT323',monospace;font-size:16px;padding:3px 10px;cursor:pointer;background:rgba(255,255,255,0.18);color:#fff;border-top:2px solid rgba(255,255,255,0.5);border-left:2px solid rgba(255,255,255,0.5);border-right:2px solid rgba(0,0,0,0.3);border-bottom:2px solid rgba(0,0,0,0.3);letter-spacing:1px;flex-shrink:0;">◀ Inventory</button>
     </div>
   </div>
 
@@ -4027,6 +4064,24 @@ document.addEventListener('DOMContentLoaded', function() {
           <input type="number" id="estCost" min="0" step="0.01" placeholder="0.00">
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="win-card">
+    <div class="win-card-title">📦 Assign to Box / Bin</div>
+    <div class="win-card-body">
+      <div class="field-row">
+        <div class="field wide">
+          <label for="containerAssign">Select Container <span style="font-weight:normal;font-size:13px;">(optional)</span></label>
+          <select id="containerAssign" onchange="onContainerAssign(this.value)" style="width:100%;">
+            <option value="">— None / Standalone Item —</option>
+          </select>
+        </div>
+        <div class="field" style="flex:0 0 auto;align-self:flex-end;">
+          <button class="btn" onclick="openContainerManager()" style="font-size:15px;white-space:nowrap;">⚙ Manage</button>
+        </div>
+      </div>
+      <div id="containerAssignInfo" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(0,0,128,0.07);border-left:3px solid var(--blue);font-family:'VT323',monospace;font-size:16px;"></div>
     </div>
   </div>
 
@@ -4145,6 +4200,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
       <span style="color:white;">🗂️ Inventory</span>
       <span style="color:rgba(255,255,255,0.75);font-size:14px;font-weight:normal;" id="viewerItemCount"></span>
+      <button onclick="showPage('form')" style="margin-left:auto;font-family:'VT323',monospace;font-size:16px;padding:3px 12px;cursor:pointer;background:rgba(255,255,255,0.18);color:#fff;border-top:2px solid rgba(255,255,255,0.5);border-left:2px solid rgba(255,255,255,0.5);border-right:2px solid rgba(0,0,0,0.3);border-bottom:2px solid rgba(0,0,0,0.3);letter-spacing:1px;flex-shrink:0;">➕ Add Item</button>
     </div>
   </div>
 
@@ -6346,11 +6402,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <span class="nav-btn-icon">🗂️</span>
     <span class="nav-btn-label">Inventory</span>
   </button>
-  <button class="nav-btn" id="nav-form" onclick="showPage('form')">
-    <span class="nav-btn-icon">➕</span>
-    <span class="nav-btn-label">Add Item</span>
-  </button>
-
   <button class="nav-btn" id="nav-schedule" onclick="showPage('schedule')">
     <span class="nav-btn-icon">📅</span>
     <span class="nav-btn-label">Schedule</span>
@@ -6375,6 +6426,93 @@ document.addEventListener('DOMContentLoaded', function() {
     <span class="nav-btn-icon">📻</span>
     <span class="nav-btn-label">Radio</span>
   </button>
+</div>
+
+<!-- ── ADD ITEM FAB ── -->
+<button id="addItemFab" onclick="showPage('form')"
+  title="Add Inventory Item"
+  style="
+    display:none;
+    position:fixed;
+    right:16px;
+    bottom:calc(var(--nav-h) + 14px);
+    z-index:150;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--blue),var(--blue2));
+    color:#fff;
+    font-size:28px;
+    line-height:1;
+    border-top:2px solid rgba(255,255,255,0.5);
+    border-left:2px solid rgba(255,255,255,0.5);
+    border-right:2px solid rgba(0,0,0,0.4);
+    border-bottom:2px solid rgba(0,0,0,0.4);
+    box-shadow:3px 3px 0 #000, 0 4px 12px rgba(0,0,0,0.35);
+    cursor:pointer;
+    font-family:'VT323',monospace;
+    transition:transform 0.1s,box-shadow 0.1s;
+  "
+  onmousedown="this.style.transform='scale(0.93)';this.style.boxShadow='1px 1px 0 #000'"
+  onmouseup="this.style.transform='';this.style.boxShadow='3px 3px 0 #000, 0 4px 12px rgba(0,0,0,0.35)'"
+  ontouchstart="this.style.transform='scale(0.93)';this.style.boxShadow='1px 1px 0 #000'"
+  ontouchend="this.style.transform='';this.style.boxShadow='3px 3px 0 #000, 0 4px 12px rgba(0,0,0,0.35)'"
+>➕</button>
+
+<!-- ── CONTAINER MANAGER OVERLAY ── -->
+<div id="containerManagerOverlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.55);" onclick="if(event.target===this)closeContainerManager()"></div>
+<div id="containerManagerPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:401;width:min(96vw,480px);max-height:85vh;overflow-y:auto;background:var(--face);border-top:3px solid var(--light);border-left:3px solid var(--light);border-right:3px solid var(--darker);border-bottom:3px solid var(--darker);box-shadow:6px 6px 0 #000;">
+  <div style="background:linear-gradient(to right,var(--blue),var(--blue2));padding:8px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
+    <span style="color:white;font-size:20px;font-weight:bold;">📦 Boxes &amp; Bins Manager</span>
+    <button onclick="closeContainerManager()" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;font-family:'VT323',monospace;padding:0 4px;">✕</button>
+  </div>
+  <div style="padding:14px;">
+
+    <!-- Create new container -->
+    <div style="margin-bottom:16px;">
+      <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;margin-bottom:8px;color:var(--blue);">➕ Create New Container</div>
+      <div class="field-row" style="margin-bottom:8px;">
+        <div class="field" style="flex:0 0 110px;">
+          <label>Type</label>
+          <select id="newContainerType" style="width:100%;">
+            <option value="Box">📦 Box</option>
+            <option value="Bin">🗃 Bin</option>
+            <option value="Crate">🪵 Crate</option>
+            <option value="Bag">🛍 Bag</option>
+            <option value="Other">📁 Other</option>
+          </select>
+        </div>
+        <div class="field" style="flex:0 0 110px;">
+          <label>ID / Label</label>
+          <input type="text" id="newContainerId" placeholder="e.g. B-01" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;">
+        </div>
+        <div class="field wide">
+          <label>Name <span style="font-weight:normal;font-size:12px;">(optional)</span></label>
+          <input type="text" id="newContainerName" placeholder="e.g. Kitchen Fragiles" autocomplete="off" style="width:100%;">
+        </div>
+      </div>
+      <div class="field-row" style="margin-bottom:8px;">
+        <div class="field">
+          <label>Room</label>
+          <select id="newContainerRoom" style="width:100%;">
+            <option value="">— Any —</option>
+            <option>Bathroom</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Closet 3</option><option>Closet 4</option><option>Kitchen</option><option>Listening Room</option><option>Living Room</option><option>Mini Office</option><option>Office</option><option>Plant Area</option><option>Sitting Room</option><option>Studio</option><option>Workshop</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field wide">
+          <label>Notes</label>
+          <input type="text" id="newContainerNotes" placeholder="Fragile, heavy, etc." autocomplete="off" style="width:100%;">
+        </div>
+      </div>
+      <button class="btn btn-submit" onclick="createContainer()" style="width:100%;font-size:18px;">✔ Create Container</button>
+      <div id="containerCreateStatus" style="font-family:'VT323',monospace;font-size:15px;color:#2e7d32;margin-top:6px;display:none;"></div>
+    </div>
+
+    <div style="border-top:2px solid var(--darker);padding-top:14px;">
+      <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;margin-bottom:10px;color:var(--blue);">📋 Existing Containers</div>
+      <div id="containerListDisplay"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ── CALCULATOR ── -->
@@ -6688,6 +6826,7 @@ async function doLogin() {
         err.style.display = 'block'; return;
       }
       // ✅ PIN correct — apply ALL profile data
+      adminNotifStore('login', user);
       applyProfileData(data, user);
     } else {
       // No profile found — create one
@@ -6705,6 +6844,9 @@ async function doLogin() {
       profile.tabName = userTab;  // ensure it is explicitly set
 
       localStorage.setItem('loggedInUser', user);
+
+      // Notify John that a new profile was created
+      adminNotifStore('new_profile', user);
 
       // Fire and forget — no-cors means we cannot read the response anyway
       fetch(scriptUrl, {
@@ -6753,6 +6895,83 @@ const ADMIN_ONLY_CARDS = [
   'adminCard-radioPlaylists'
 ];
 
+// ── ADMIN NOTIFICATIONS ───────────────────────────────────────
+// Stores login/new-profile events in localStorage and shows
+// them to John as toast notifications when he is logged in.
+
+const ADMIN_NOTIF_KEY = 'adminNotifications_john';
+
+function adminNotifStore(type, user) {
+  // Never notify about John's own activity
+  if (user.trim().toLowerCase() === ADMIN_USER) return;
+  var notifs = [];
+  try { notifs = JSON.parse(localStorage.getItem(ADMIN_NOTIF_KEY) || '[]'); } catch(e) {}
+  notifs.push({
+    type: type,         // 'login' | 'new_profile'
+    user: user,
+    time: new Date().toLocaleString()
+  });
+  localStorage.setItem(ADMIN_NOTIF_KEY, JSON.stringify(notifs));
+}
+
+function adminNotifFlush() {
+  // Only run when John is the current user
+  if (!currentUser || currentUser.trim().toLowerCase() !== ADMIN_USER) return;
+  var notifs = [];
+  try { notifs = JSON.parse(localStorage.getItem(ADMIN_NOTIF_KEY) || '[]'); } catch(e) {}
+  if (!notifs.length) return;
+  localStorage.removeItem(ADMIN_NOTIF_KEY);
+
+  // Show each notification as a sequential toast
+  notifs.forEach(function(n, i) {
+    setTimeout(function() {
+      var icon    = n.type === 'new_profile' ? '🆕' : '👤';
+      var label   = n.type === 'new_profile' ? 'New profile created' : 'Login';
+      adminToast(icon + ' ' + label + ': ' + n.user + '\n🕐 ' + n.time);
+    }, i * 3500);
+  });
+}
+
+function adminToast(msg) {
+  var toast = document.createElement('div');
+  toast.style.cssText = [
+    'position:fixed',
+    'top:calc(var(--header-h) + 10px)',
+    'left:50%',
+    'transform:translateX(-50%)',
+    'background:#000080',
+    'color:#ffffff',
+    'padding:10px 18px',
+    'font-family:\'VT323\',monospace',
+    'font-size:17px',
+    'font-weight:bold',
+    'z-index:9999',
+    'box-shadow:3px 3px 0 #000,0 0 0 2px #ffffff44',
+    'white-space:pre',
+    'text-align:center',
+    'max-width:90vw',
+    'border-top:2px solid #ffffff',
+    'border-left:2px solid #ffffff',
+    'border-right:2px solid #404040',
+    'border-bottom:2px solid #404040',
+    'pointer-events:none',
+    'opacity:0',
+    'transition:opacity 0.3s'
+  ].join(';');
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  // Fade in
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() { toast.style.opacity = '1'; });
+  });
+  // Fade out after 3s
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    setTimeout(function() { toast.remove(); }, 350);
+  }, 3000);
+}
+// ─────────────────────────────────────────────────────────────
+
 function applyAdminMode(user) {
   const isAdmin = user.trim().toLowerCase() === ADMIN_USER;
   ADMIN_ONLY_CARDS.forEach(function(id) {
@@ -6780,6 +6999,13 @@ function applyLogin(user) {
 
   // Apply admin-only visibility based on logged-in user
   applyAdminMode(user);
+
+  // Show any queued admin notifications if this is John
+  setTimeout(adminNotifFlush, 1500);
+
+  // Show Add Item FAB (viewer is the default landing page)
+  const _fab = document.getElementById('addItemFab');
+  if (_fab) _fab.style.display = 'flex';
 
   // Set per-user tab name if not already set
   var existingTab = localStorage.getItem('tabName') || '';
@@ -7436,6 +7662,13 @@ function showPage(name) {
   const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', snake:'🪱 Tapeworm', solitaire:'🃏 Solitaire', edm:'🎧 Rave Trivia', profile:'My Profile', budget:'Move Budget', radio:'📻 Radio' };
   // headerStatus removed
 
+  // Show Add Item FAB only on the viewer page
+  const fab = document.getElementById('addItemFab');
+  if (fab) fab.style.display = (name === 'viewer') ? 'flex' : 'none';
+
+  // Refresh container dropdown when navigating to the form
+  if (name === 'form') refreshContainerDropdown();
+
   // Auto-load viewer when switching to it
   if (isViewer && allItems.length === 0) loadViewerData();
   // Refresh sync readiness when config page opens
@@ -7644,6 +7877,9 @@ function onSubmitSuccess(payload) {
   (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = 'Last: ' + payload.itemName;
   showSuccess('Item #' + payload.itemNumber + '\n"' + payload.itemName + '"\nlogged!\n\nNext: #' + String(itemCounter).padStart(4,'0'));
 
+  // Auto-register if the submitted item is itself a Box/Bin/Crate/Bag
+  autoRegisterContainerIfNeeded(payload);
+
   // Auto-add Pack and Load tasks to the checklist
   autoAddItemTasks(payload);
   document.getElementById('itemName').value = '';
@@ -7668,6 +7904,209 @@ function fileToBase64(file) {
 }
 
 // ══════════════════════════════
+//  BINS & BOXES CONTAINER SYSTEM
+// ══════════════════════════════
+const CONTAINERS_KEY = 'movingContainers';
+
+function loadContainers() {
+  try { return JSON.parse(localStorage.getItem(CONTAINERS_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function saveContainers(list) {
+  localStorage.setItem(CONTAINERS_KEY, JSON.stringify(list));
+}
+
+function getContainerIcon(type) {
+  return { Box:'📦', Bin:'🗃️', Crate:'🪵', Bag:'🛍️' }[type] || '📁';
+}
+
+// Populate the "Assign to Box/Bin" dropdown on the form page
+function refreshContainerDropdown() {
+  var sel = document.getElementById('containerAssign');
+  if (!sel) return;
+  var current = sel.value;
+  sel.innerHTML = '<option value="">— None / Standalone Item —</option>';
+  var containers = loadContainers();
+  containers.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c.id;
+    var icon = getContainerIcon(c.type);
+    var label = icon + ' ' + c.id;
+    if (c.name) label += ' — ' + c.name;
+    if (c.room) label += ' (' + c.room + ')';
+    opt.textContent = label;
+    sel.appendChild(opt);
+  });
+  // Restore selection if it still exists
+  if (current) sel.value = current;
+}
+
+// When a container is selected in the dropdown, auto-fill Bin/Box # and room
+function onContainerAssign(containerId) {
+  var infoEl = document.getElementById('containerAssignInfo');
+  if (!containerId) {
+    if (infoEl) infoEl.style.display = 'none';
+    return;
+  }
+  var containers = loadContainers();
+  var c = containers.find(function(x) { return x.id === containerId; });
+  if (!c) return;
+
+  // Auto-fill Bin/Box # field
+  var binBox = document.getElementById('binBoxNumber');
+  if (binBox) binBox.value = c.id;
+
+  // Auto-fill room if set and form room is empty
+  var roomSel = document.getElementById('location');
+  if (roomSel && c.room && !roomSel.value) roomSel.value = c.room;
+
+  // Show info strip
+  if (infoEl) {
+    var icon = getContainerIcon(c.type);
+    var parts = [icon + ' ' + c.type + ' ' + c.id];
+    if (c.name)  parts.push(c.name);
+    if (c.room)  parts.push('📍 ' + c.room);
+    if (c.notes) parts.push('📝 ' + c.notes);
+    infoEl.textContent = parts.join('  ·  ');
+    infoEl.style.display = 'block';
+  }
+}
+
+// Open / close the manager overlay
+function openContainerManager() {
+  document.getElementById('containerManagerOverlay').style.display = 'block';
+  document.getElementById('containerManagerPanel').style.display = 'block';
+  renderContainerList();
+}
+
+function closeContainerManager() {
+  document.getElementById('containerManagerOverlay').style.display = 'none';
+  document.getElementById('containerManagerPanel').style.display = 'none';
+  refreshContainerDropdown();
+}
+
+// Create a new container from the manager form
+function createContainer() {
+  var type  = document.getElementById('newContainerType').value.trim();
+  var id    = document.getElementById('newContainerId').value.trim();
+  var name  = document.getElementById('newContainerName').value.trim();
+  var room  = document.getElementById('newContainerRoom').value;
+  var notes = document.getElementById('newContainerNotes').value.trim();
+
+  if (!id) {
+    showContainerStatus('⚠ Please enter an ID / Label for the container.', false);
+    return;
+  }
+
+  var containers = loadContainers();
+  if (containers.find(function(c) { return c.id.toLowerCase() === id.toLowerCase(); })) {
+    showContainerStatus('⚠ A container with ID "' + id + '" already exists.', false);
+    return;
+  }
+
+  containers.push({ type: type || 'Box', id: id, name: name, room: room, notes: notes, created: new Date().toLocaleString() });
+  saveContainers(containers);
+
+  // Clear form fields
+  document.getElementById('newContainerId').value  = '';
+  document.getElementById('newContainerName').value = '';
+  document.getElementById('newContainerNotes').value = '';
+  document.getElementById('newContainerRoom').value = '';
+
+  showContainerStatus('✅ ' + (type || 'Box') + ' "' + id + '" created!', true);
+  renderContainerList();
+  refreshContainerDropdown();
+}
+
+function showContainerStatus(msg, ok) {
+  var el = document.getElementById('containerCreateStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = ok ? '#2e7d32' : '#cc0000';
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 3000);
+}
+
+// Render the list of existing containers inside the manager
+function renderContainerList() {
+  var el = document.getElementById('containerListDisplay');
+  if (!el) return;
+  var containers = loadContainers();
+  if (!containers.length) {
+    el.innerHTML = '<div style="font-family:\'VT323\',monospace;font-size:16px;color:#888;padding:10px 0;">No containers yet. Create one above.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  containers.forEach(function(c, idx) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dark);font-family:\'VT323\',monospace;';
+
+    var icon = document.createElement('span');
+    icon.textContent = getContainerIcon(c.type);
+    icon.style.fontSize = '22px';
+
+    var info = document.createElement('div');
+    info.style.flex = '1';
+    var nameRow = document.createElement('div');
+    nameRow.style.cssText = 'font-size:18px;font-weight:bold;';
+    nameRow.textContent = c.id + (c.name ? ' — ' + c.name : '');
+    var metaRow = document.createElement('div');
+    metaRow.style.cssText = 'font-size:13px;color:#666;';
+    var meta = [c.type];
+    if (c.room)  meta.push('📍 ' + c.room);
+    if (c.notes) meta.push('📝 ' + c.notes);
+    metaRow.textContent = meta.join('  ·  ');
+    info.appendChild(nameRow);
+    info.appendChild(metaRow);
+
+    var delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete container';
+    delBtn.style.cssText = 'font-family:\'VT323\',monospace;font-size:18px;padding:3px 9px;cursor:pointer;background:var(--face);color:var(--red);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid var(--darker);border-bottom:2px solid var(--darker);flex-shrink:0;';
+    (function(i) {
+      delBtn.onclick = function() {
+        if (!confirm('Delete container "' + containers[i].id + '"? Items assigned to it won\'t be affected.')) return;
+        var list = loadContainers();
+        list.splice(i, 1);
+        saveContainers(list);
+        renderContainerList();
+        refreshContainerDropdown();
+      };
+    })(idx);
+
+    row.appendChild(icon);
+    row.appendChild(info);
+    row.appendChild(delBtn);
+    el.appendChild(row);
+  });
+}
+
+// Auto-register a Box/Bin item type when submitted as a container
+function autoRegisterContainerIfNeeded(payload) {
+  var type = payload.itemType;
+  if (type !== 'Box' && type !== 'Bin' && type !== 'Crate' && type !== 'Bag') return;
+  var id = payload.binBoxNumber || payload.itemName;
+  if (!id) return;
+  var containers = loadContainers();
+  if (containers.find(function(c) { return c.id.toLowerCase() === id.toLowerCase(); })) return;
+  containers.push({
+    type: type,
+    id: id,
+    name: payload.itemName !== id ? payload.itemName : '',
+    room: payload.location || '',
+    notes: payload.description ? payload.description.substring(0, 60) : '',
+    created: new Date().toLocaleString()
+  });
+  saveContainers(containers);
+  refreshContainerDropdown();
+}
+
+// Initialise dropdown when form page is first shown
+document.addEventListener('DOMContentLoaded', function() {
+  refreshContainerDropdown();
+});
+
+// ══════════════════════════════
 //  CLEAR FORM
 // ══════════════════════════════
 function clearForm() {
@@ -7682,6 +8121,11 @@ function clearForm() {
   document.getElementById('imageCount').textContent = '';
   document.getElementById('imageInput').value = '';
   selectedImages = [];
+  // Reset container assignment
+  var caSel = document.getElementById('containerAssign');
+  if (caSel) caSel.value = '';
+  var caInfo = document.getElementById('containerAssignInfo');
+  if (caInfo) caInfo.style.display = 'none';
   setStatus('Form cleared.');
 }
 
