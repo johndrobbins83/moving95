@@ -5224,6 +5224,29 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="btn-row" style="margin-top:6px;">
         <button class="btn" onclick="findGasStations()" id="findGasBtn" style="flex:1;">⛽ Find Gas Stations Along Route</button>
       </div>
+
+      <!-- Share Route -->
+      <div style="margin-top:14px;border-top:2px solid var(--dark);padding-top:12px;">
+        <div style="font-family:'VT323',monospace;font-size:18px;font-weight:bold;margin-bottom:8px;color:var(--blue);">📤 Share My Route</div>
+        <div style="font-size:13px;font-weight:normal;color:var(--darker);margin-bottom:10px;">
+          Send your full route + current location to a contact via text or email.
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input type="text" id="shareContactName" placeholder="Contact name (optional)"
+            autocomplete="off" autocorrect="off" spellcheck="false"
+            style="flex:1;font-family:'VT323',monospace;font-size:17px;min-height:40px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 8px;">
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <input type="text" id="shareContactValue" placeholder="Phone number or email address"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            style="flex:1;font-family:'VT323',monospace;font-size:17px;min-height:40px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 8px;">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-submit" onclick="shareRouteSMS()" style="flex:1;font-size:17px;">💬 Send via Text</button>
+          <button class="btn" onclick="shareRouteEmail()" style="flex:1;font-size:17px;">✉️ Send via Email</button>
+        </div>
+        <div id="shareRouteStatus" style="font-family:'VT323',monospace;font-size:15px;color:#2e7d32;margin-top:6px;display:none;text-align:center;"></div>
+      </div>
     </div>
   </div>
 
@@ -6558,7 +6581,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="field-row" style="margin-bottom:8px;">
         <div class="field" style="flex:0 0 110px;">
           <label>Type</label>
-          <select id="newContainerType" style="width:100%;">
+          <select id="newContainerType" style="width:100%;" onchange="previewContainerId()">
             <option value="Box">📦 Box</option>
             <option value="Bin">🗃 Bin</option>
             <option value="Crate">🪵 Crate</option>
@@ -6566,19 +6589,19 @@ document.addEventListener('DOMContentLoaded', function() {
             <option value="Other">📁 Other</option>
           </select>
         </div>
-        <div class="field" style="flex:0 0 110px;">
-          <label>ID / Label</label>
-          <input type="text" id="newContainerId" placeholder="e.g. B-01" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;">
-        </div>
         <div class="field wide">
           <label>Name <span style="font-weight:normal;font-size:12px;">(optional)</span></label>
-          <input type="text" id="newContainerName" placeholder="e.g. Kitchen Fragiles" autocomplete="off" style="width:100%;">
+          <input type="text" id="newContainerName" placeholder="e.g. Vinyl Records" autocomplete="off" style="width:100%;">
+        </div>
+        <div class="field" style="flex:0 0 64px;">
+          <label>Qty</label>
+          <input type="number" id="newContainerQty" value="1" min="1" max="99" oninput="previewContainerId()" style="width:100%;text-align:center;">
         </div>
       </div>
       <div class="field-row" style="margin-bottom:8px;">
         <div class="field">
           <label>Room</label>
-          <select id="newContainerRoom" style="width:100%;">
+          <select id="newContainerRoom" style="width:100%;" onchange="previewContainerId()">
             <option value="">— Any —</option>
             <option>Bathroom</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Closet 3</option><option>Closet 4</option><option>Kitchen</option><option>Listening Room</option><option>Living Room</option><option>Mini Office</option><option>Office</option><option>Plant Area</option><option>Sitting Room</option><option>Studio</option><option>Workshop</option><option>Other</option>
           </select>
@@ -6588,6 +6611,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <input type="text" id="newContainerNotes" placeholder="Fragile, heavy, etc." autocomplete="off" style="width:100%;">
         </div>
       </div>
+      <div id="containerIdPreview" style="font-family:'VT323',monospace;font-size:14px;color:var(--darker);margin-bottom:8px;padding:6px 8px;background:rgba(0,0,128,0.05);border-left:3px solid var(--blue);display:none;"></div>
       <button class="btn btn-submit" onclick="createContainer()" style="width:100%;font-size:18px;">✔ Create Container</button>
       <div id="containerCreateStatus" style="font-family:'VT323',monospace;font-size:15px;color:#2e7d32;margin-top:6px;display:none;"></div>
     </div>
@@ -8067,35 +8091,101 @@ function closeContainerManager() {
   refreshContainerDropdown();
 }
 
-// Create a new container from the manager form
+// Room → 2-letter prefix map
+var ROOM_PREFIX = {
+  'Bathroom':      'BA',
+  'Bedroom':       'BR',
+  'Closet 1':      'C1',
+  'Closet 2':      'C2',
+  'Closet 3':      'C3',
+  'Closet 4':      'C4',
+  'Kitchen':       'KT',
+  'Listening Room':'LR',
+  'Living Room':   'LV',
+  'Mini Office':   'MO',
+  'Office':        'OF',
+  'Plant Area':    'PL',
+  'Sitting Room':  'SR',
+  'Studio':        'ST',
+  'Workshop':      'WK',
+  'Other':         'OT'
+};
+
+// Get next sequential number for a given prefix across all existing containers
+function nextContainerSeq(prefix, containers) {
+  var used = containers
+    .map(function(c) { return c.id || ''; })
+    .filter(function(id) { return id.toUpperCase().startsWith(prefix.toUpperCase()); })
+    .map(function(id) {
+      var n = parseInt(id.slice(prefix.length));
+      return isNaN(n) ? 0 : n;
+    });
+  var max = used.length ? Math.max.apply(null, used) : 0;
+  return max + 1;
+}
+
+// Generate a padded ID like "KT-001"
+function makeContainerId(prefix, seq) {
+  return prefix + '-' + String(seq).padStart(3, '0');
+}
+
+// Preview IDs in the form as room/type/qty changes
+function previewContainerId() {
+  var room  = document.getElementById('newContainerRoom').value;
+  var qty   = parseInt(document.getElementById('newContainerQty').value) || 1;
+  var preview = document.getElementById('containerIdPreview');
+  if (!preview) return;
+
+  var prefix = room ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase()) : null;
+  if (!prefix) { preview.style.display = 'none'; return; }
+
+  var containers = loadContainers();
+  var start = nextContainerSeq(prefix, containers);
+  var ids = [];
+  for (var i = 0; i < Math.min(qty, 5); i++) {
+    ids.push(makeContainerId(prefix, start + i));
+  }
+  var label = ids.join(', ') + (qty > 5 ? ' … ' + makeContainerId(prefix, start + qty - 1) : '');
+  preview.textContent = '🏷 IDs will be: ' + label;
+  preview.style.display = 'block';
+}
+
+// Create a new container from the manager form (supports qty)
 function createContainer() {
   var type  = document.getElementById('newContainerType').value.trim();
-  var id    = document.getElementById('newContainerId').value.trim();
   var name  = document.getElementById('newContainerName').value.trim();
   var room  = document.getElementById('newContainerRoom').value;
   var notes = document.getElementById('newContainerNotes').value.trim();
+  var qty   = parseInt(document.getElementById('newContainerQty').value) || 1;
 
-  if (!id) {
-    showContainerStatus('⚠ Please enter an ID / Label for the container.', false);
-    return;
-  }
+  var prefix = room
+    ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase())
+    : (type || 'BX').substring(0,2).toUpperCase();
 
   var containers = loadContainers();
-  if (containers.find(function(c) { return c.id.toLowerCase() === id.toLowerCase(); })) {
-    showContainerStatus('⚠ A container with ID "' + id + '" already exists.', false);
-    return;
+  var start = nextContainerSeq(prefix, containers);
+  var created = new Date().toLocaleString();
+  var newIds = [];
+
+  for (var i = 0; i < qty; i++) {
+    var id = makeContainerId(prefix, start + i);
+    containers.push({ type: type || 'Box', id: id, name: name, room: room, notes: notes, created: created });
+    newIds.push(id);
   }
 
-  containers.push({ type: type || 'Box', id: id, name: name, room: room, notes: notes, created: new Date().toLocaleString() });
   saveContainers(containers);
 
-  // Clear form fields
-  document.getElementById('newContainerId').value  = '';
+  // Clear form
   document.getElementById('newContainerName').value = '';
   document.getElementById('newContainerNotes').value = '';
   document.getElementById('newContainerRoom').value = '';
+  document.getElementById('newContainerQty').value = '1';
+  document.getElementById('containerIdPreview').style.display = 'none';
 
-  showContainerStatus('✅ ' + (type || 'Box') + ' "' + id + '" created!', true);
+  var label = qty === 1
+    ? (type || 'Box') + ' "' + newIds[0] + '" created!'
+    : qty + ' ' + (type || 'Box') + 's created: ' + newIds[0] + ' – ' + newIds[newIds.length-1];
+  showContainerStatus('✅ ' + label, true);
   renderContainerList();
   refreshContainerDropdown();
 }
@@ -8167,15 +8257,21 @@ function renderContainerList() {
 function autoRegisterContainerIfNeeded(payload) {
   var type = payload.itemType;
   if (type !== 'Box' && type !== 'Bin' && type !== 'Crate' && type !== 'Bag') return;
-  var id = payload.binBoxNumber || payload.itemName;
-  if (!id) return;
   var containers = loadContainers();
-  if (containers.find(function(c) { return c.id.toLowerCase() === id.toLowerCase(); })) return;
+  var room = payload.location || '';
+  if (payload.binBoxNumber) {
+    if (containers.find(function(c) { return c.id.toLowerCase() === payload.binBoxNumber.toLowerCase(); })) return;
+  }
+  var prefix = room
+    ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase())
+    : (type || 'BX').substring(0,2).toUpperCase();
+  var seq = nextContainerSeq(prefix, containers);
+  var id = makeContainerId(prefix, seq);
   containers.push({
     type: type,
     id: id,
-    name: payload.itemName !== id ? payload.itemName : '',
-    room: payload.location || '',
+    name: payload.itemName || '',
+    room: room,
     notes: payload.description ? payload.description.substring(0, 60) : '',
     created: new Date().toLocaleString()
   });
@@ -10065,6 +10161,97 @@ function openInGoogleMaps() {
   let url = `https://www.google.com/maps/dir/${origin}/${dest}`;
   if (waypts) url = `https://www.google.com/maps/dir/${origin}/${waypts}/${dest}`;
   window.open(url, '_blank');
+}
+
+// ══════════════════════════════
+//  SHARE ROUTE
+// ══════════════════════════════
+function buildRouteMessage(locationLine) {
+  var addrs = getAddresses();
+  if (!addrs) return null;
+  var all = [addrs.origin].concat(addrs.stops).concat([addrs.dest]);
+  var name = document.getElementById('shareContactName').value.trim();
+  var greeting = name ? 'Hey ' + name + ',' : 'Hey,';
+
+  var mapsUrl = 'https://www.google.com/maps/dir/' +
+    all.map(function(a) { return encodeURIComponent(a); }).join('/');
+
+  var miles = document.getElementById('statMiles').textContent;
+  var time  = document.getElementById('statTime').textContent;
+  var statLine = (miles && miles !== '—')
+    ? '\n\u{1F4CF} ' + miles + ' mi  \u23F1 ' + time
+    : '';
+
+  var stops = '\nRoute:\n';
+  stops += '\uD83D\uDCCD From: ' + addrs.origin + '\n';
+  addrs.stops.forEach(function(s, i) { stops += '  \u21AA Stop ' + (i+1) + ': ' + s + '\n'; });
+  stops += '\uD83C\uDFC1 To: ' + addrs.dest;
+
+  var locLine = locationLine ? '\n\nMy current location:\n' + locationLine : '';
+
+  return greeting + "\n\nI'm sharing my moving route with you." +
+    stops + statLine +
+    '\n\nGoogle Maps: ' + mapsUrl +
+    locLine +
+    "\n\n- Sent from Moving '95";
+}
+
+function showShareStatus(msg, ok) {
+  var el = document.getElementById('shareRouteStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = ok ? '#2e7d32' : '#c62828';
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 4000);
+}
+
+function shareRouteSMS() {
+  if (!getAddresses()) { showShareStatus('Plan a route first.', false); return; }
+  var contact = document.getElementById('shareContactValue').value.trim();
+  function send(locationLine) {
+    var body = buildRouteMessage(locationLine);
+    var to = '';
+    if (contact && /^[\+\d][\d\s\-().]+$/.test(contact)) {
+      to = contact.replace(/\D/g, '');
+    }
+    window.location.href = 'sms:' + to + '?body=' + encodeURIComponent(body);
+    showShareStatus('Opening Messages app...', true);
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        var lat = pos.coords.latitude.toFixed(5);
+        var lng = pos.coords.longitude.toFixed(5);
+        send('https://maps.google.com/?q=' + lat + ',' + lng + ' (' + lat + ', ' + lng + ')');
+      },
+      function() { send(''); }
+    );
+  } else { send(''); }
+}
+
+function shareRouteEmail() {
+  if (!getAddresses()) { showShareStatus('Plan a route first.', false); return; }
+  var contact = document.getElementById('shareContactValue').value.trim();
+  function send(locationLine) {
+    var body = buildRouteMessage(locationLine);
+    var addrs = getAddresses();
+    var subject = 'My Moving Route: ' + addrs.origin + ' to ' + addrs.dest;
+    var to = (contact && contact.indexOf('@') > -1) ? contact : '';
+    window.location.href = 'mailto:' + to +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body='    + encodeURIComponent(body);
+    showShareStatus('Opening email app...', true);
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        var lat = pos.coords.latitude.toFixed(5);
+        var lng = pos.coords.longitude.toFixed(5);
+        send('https://maps.google.com/?q=' + lat + ',' + lng + ' (' + lat + ', ' + lng + ')');
+      },
+      function() { send(''); }
+    );
+  } else { send(''); }
 }
 
 
