@@ -1133,8 +1133,9 @@
     align-items: center; justify-content: center;
     font-family: 'VT323', monospace;
     overflow: hidden;
+    visibility: hidden; /* starts hidden; showIntro() makes it visible */
   }
-  #introOverlay.intro-hidden { display: none !important; }
+  #introOverlay.intro-hidden { visibility: hidden !important; pointer-events: none !important; }
 
   /* scanline effect */
   #introOverlay::before {
@@ -4208,7 +4209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ══════════════════════════════
      INTRO SLIDESHOW OVERLAY
 ══════════════════════════════ -->
-<div id="introOverlay" class="intro-hidden">
+<div id="introOverlay">
   <button class="intro-btn-skip" onclick="dismissIntro()">Skip ✕</button>
 
   <!-- SLIDE 0: Welcome / Color Modes -->
@@ -7313,11 +7314,13 @@ function applyLogin(user) {
   currentUser = user;
   document.getElementById('loginOverlay').classList.add('hidden');
 
-  // Show intro slideshow on first-ever login for this user
+  // Show intro slideshow on first-ever login for this user —
+  // show it IMMEDIATELY (before showPage/viewer renders) so there's no flash.
   var introKey = 'introSeen_' + user;
-  if (!localStorage.getItem(introKey)) {
+  var _isFirstLogin = !localStorage.getItem(introKey);
+  if (_isFirstLogin) {
     localStorage.setItem(introKey, '1');
-    setTimeout(function() { showIntro(); }, 400);
+    showIntro(); // synchronous — overlay is already on top (z-index 600)
   }
   document.getElementById('userBadge').textContent = '👤';
   document.getElementById('userBadge').title = 'Signed in as ' + user + ' — tap for profile';
@@ -7861,6 +7864,7 @@ function showIntro() {
   var el = document.getElementById('introOverlay');
   if (!el) return;
   el.classList.remove('intro-hidden');
+  el.style.visibility = 'visible';
   _introSlide = 0;
   _renderIntroSlide();
   _introAutoAdvance();
@@ -7868,7 +7872,7 @@ function showIntro() {
 
 function dismissIntro() {
   var el = document.getElementById('introOverlay');
-  if (el) el.classList.add('intro-hidden');
+  if (el) { el.classList.add('intro-hidden'); el.style.visibility = 'hidden'; }
   clearTimeout(_introTimer);
   clearInterval(_introBarTimer);
 }
