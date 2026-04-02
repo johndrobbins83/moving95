@@ -7136,65 +7136,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ── EDIT ITEM DIALOG ── -->
 <div class="dialog-overlay" id="editItemOverlay">
-  <div class="dialog-box" style="max-width:460px;max-height:90vh;overflow-y:auto;">
-    <div class="dialog-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));justify-content:space-between;">
+  <div class="dialog-box" style="max-width:500px;width:min(96vw,500px);max-height:96vh;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- Fixed title bar -->
+    <div class="dialog-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));justify-content:space-between;flex-shrink:0;">
       <span>✏️ Edit Item</span>
       <button class="dialog-close" onclick="closeEditDialog()">✕</button>
     </div>
-    <div style="padding:14px;">
 
-      <div class="config-field">
-        <label style="font-size:16px;">Item Name *</label>
-        <input type="text" id="editItemName" autocomplete="off" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
+    <!-- Scrollable body -->
+    <div style="flex:1;overflow-y:auto;padding:10px 12px 0;">
+
+      <!-- Row 1: Name (full width) -->
+      <div style="margin-bottom:6px;">
+        <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Item Name *</label>
+        <input type="text" id="editItemName" autocomplete="off" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:38px;">
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div class="config-field">
-          <label style="font-size:16px;">Type</label>
-          <select id="editItemType" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+      <!-- Row 2: Type · Location · Container (3 cols) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Type</label>
+          <select id="editItemType" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:bold;min-height:36px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Type --</option>
             <option>Art/Wall</option><option>Bin</option><option>Box</option><option>Clothing</option><option>Crafting</option><option>Dishes/Bar</option><option>Electronics</option><option>Furniture</option><option>Instruments</option><option>Kitchen Appliance</option><option>Linens</option><option>Pet Supplies</option><option>Plants</option><option>Other</option>
           </select>
         </div>
-        <div class="config-field">
-          <label style="font-size:16px;">Location</label>
-          <select id="editLocation" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Location</label>
+          <select id="editLocation" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:bold;min-height:36px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Room --</option>
             <option>Bathroom</option><option>Bedroom</option><option>Closet 1</option><option>Closet 2</option><option>Closet 3</option><option>Closet 4</option><option>Kitchen</option><option>Listening Room</option><option>Living Room</option><option>Mini Office</option><option>Office</option><option>Plant Area</option><option>Sitting Room</option><option>Studio</option><option>Workshop</option><option>Other</option>
           </select>
         </div>
-        <div class="config-field">
-          <label style="font-size:16px;">Move to Container</label>
-          <select id="editBinBox" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:16px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
-            <option value="">— None / Standalone —</option>
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Container</label>
+          <select id="editBinBox" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:13px;font-weight:bold;min-height:36px;-webkit-appearance:none;border-radius:0;">
+            <option value="">— None —</option>
           </select>
         </div>
-        <div class="config-field">
-          <label style="font-size:16px;">Weight</label>
-          <select id="editWeight" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:17px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
-            <option value="">-- Weight --</option>
+      </div>
+
+      <!-- Row 3: Weight · Cost · Qty (3 cols) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Weight</label>
+          <select id="editWeight" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:bold;min-height:36px;-webkit-appearance:none;border-radius:0;">
+            <option value="">-- Wt --</option>
             <option>Bulky</option><option>Heavy</option><option>Light</option><option>Medium</option><option>Very Heavy</option><option>Other</option>
           </select>
         </div>
-        <div class="config-field">
-          <label style="font-size:16px;">Est. Cost ($)</label>
-          <input type="number" id="editEstCost" min="0" step="0.01" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
-        </div>
-        <div class="config-field">
-          <label style="font-size:16px;">Qty</label>
-          <input type="number" id="editQty" min="1" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:18px;font-weight:bold;min-height:44px;">
-        </div>
-      </div>
-
-      <div class="config-field">
-        <label style="font-size:16px;">Description</label>
-        <textarea id="editDescription" rows="2" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:16px;font-weight:normal;resize:vertical;"></textarea>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
         <div>
-          <label style="font-size:16px;font-weight:bold;">Wrapped?</label>
-          <div class="toggle-group" style="margin-top:4px;">
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Est. Cost ($)</label>
+          <input type="number" id="editEstCost" min="0" step="0.01" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 6px;font-family:'VT323',monospace;font-size:15px;font-weight:bold;min-height:36px;">
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Qty</label>
+          <input type="number" id="editQty" min="1" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 6px;font-family:'VT323',monospace;font-size:15px;font-weight:bold;min-height:36px;">
+        </div>
+      </div>
+
+      <!-- Row 4: Description -->
+      <div style="margin-bottom:6px;">
+        <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Description</label>
+        <textarea id="editDescription" rows="1" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 6px;font-family:'VT323',monospace;font-size:14px;font-weight:normal;resize:vertical;min-height:34px;"></textarea>
+      </div>
+
+      <!-- Row 5: Wrapped · Fragile · Status (inline) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Wrapped?</label>
+          <div class="toggle-group">
             <input type="radio" name="editWrapped" id="editWrappedNo" value="No" checked>
             <label for="editWrappedNo">No</label>
             <input type="radio" name="editWrapped" id="editWrappedYes" value="Yes">
@@ -7202,8 +7213,8 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
         <div>
-          <label style="font-size:16px;font-weight:bold;">Fragile?</label>
-          <div class="toggle-group" style="margin-top:4px;">
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Fragile?</label>
+          <div class="toggle-group">
             <input type="radio" name="editFragile" id="editFragileNo" value="No" checked>
             <label for="editFragileNo">No</label>
             <input type="radio" name="editFragile" id="editFragileYes" value="Yes">
@@ -7212,47 +7223,45 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
 
-      <div class="config-field" style="margin-bottom:12px;">
-        <label style="font-size:16px;">Status</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+      <!-- Row 6: Status chips -->
+      <div style="margin-bottom:6px;">
+        <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Status</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <label class="check-pill" for="editStatusPacked"><input type="checkbox" id="editStatusPacked" value="Packed"> 📦 Packed</label>
           <label class="check-pill" for="editStatusLoaded"><input type="checkbox" id="editStatusLoaded" value="Loaded"> 🚛 Loaded</label>
           <label class="check-pill" for="editStatusUnpacked"><input type="checkbox" id="editStatusUnpacked" value="Unpacked"> 📬 Unpacked</label>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-        <div class="config-field">
-          <label style="font-size:16px;">Loading / Unloading</label>
-          <select id="editLoadAction" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:16px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+      <!-- Row 7: Load Action + Who -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Loading / Unloading</label>
+          <select id="editLoadAction" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:bold;min-height:36px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Action --</option>
-            <option>Loading</option>
-            <option>Unloading</option>
-            <option>Both</option>
+            <option>Loading</option><option>Unloading</option><option>Both</option>
           </select>
         </div>
-        <div class="config-field">
-          <label style="font-size:16px;">Who</label>
-          <select id="editLoadWho" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:8px;font-family:'VT323',monospace;font-size:16px;font-weight:bold;min-height:44px;-webkit-appearance:none;border-radius:0;">
+        <div>
+          <label style="font-size:13px;font-weight:bold;display:block;margin-bottom:2px;">Who</label>
+          <select id="editLoadWho" style="width:100%;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:5px 4px;font-family:'VT323',monospace;font-size:14px;font-weight:bold;min-height:36px;-webkit-appearance:none;border-radius:0;">
             <option value="">-- Who --</option>
-            <option>Self</option>
-            <option>Friends &amp; Family</option>
-            <option>Movers</option>
+            <option>Self</option><option>Friends &amp; Family</option><option>Movers</option>
           </select>
         </div>
       </div>
 
       <input type="hidden" id="editRowIndex">
       <input type="hidden" id="editItemNum">
+    </div>
 
-      <div id="editSaveStatus" style="font-size:14px;font-weight:normal;color:#555;min-height:20px;margin-bottom:8px;"></div>
-
-      <div style="display:flex;gap:8px;">
-        <button class="btn danger" onclick="closeEditDialog()" style="flex:1;">✕ Cancel</button>
-        <button class="btn btn-submit" onclick="saveEditedItem()" style="flex:2;">💾 Save Changes</button>
-      </div>
-      <div style="margin-top:8px;">
-        <button class="btn" onclick="deleteInventoryItem()" style="width:100%;color:#cc0000;border-color:#cc000055;font-size:16px;">🗑 Delete Item</button>
+    <!-- Fixed footer: status + 3 buttons -->
+    <div style="flex-shrink:0;padding:8px 12px;border-top:2px solid var(--dark);background:var(--face);">
+      <div id="editSaveStatus" style="font-size:13px;font-weight:normal;color:#555;min-height:16px;margin-bottom:6px;text-align:center;"></div>
+      <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:6px;">
+        <button class="btn" onclick="closeEditDialog()" style="font-size:15px;">✕ Cancel</button>
+        <button class="btn btn-submit" onclick="saveEditedItem()" style="font-size:15px;">💾 Save Changes</button>
+        <button class="btn" onclick="deleteInventoryItem()" style="font-size:15px;color:#cc0000;border-color:#cc000055;">🗑 Delete</button>
       </div>
     </div>
   </div>
