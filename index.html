@@ -2574,6 +2574,7 @@ function openEditDialog(rowIdx) {
   // Populate container dropdown from active bins/boxes
   var editBinSel = document.getElementById('editBinBox');
   if (editBinSel) {
+    cleanupContainers();
     var containers = loadContainers();
     editBinSel.innerHTML = '<option value="">— None / Standalone —</option>';
     containers.forEach(function(c) {
@@ -4506,6 +4507,13 @@ async function sendDailyEmail() {
 document.addEventListener('DOMContentLoaded', function() {
   updateBellBadge();
   setInterval(updateBellBadge, 60000);
+  // Auto-refresh inventory every 60s when on the viewer tab
+  setInterval(function() {
+    var activePage = document.querySelector('.page.active');
+    if (activePage && activePage.id === 'page-viewer') {
+      loadViewerData();
+    }
+  }, 60000);
 });
 
 </script>
@@ -8515,8 +8523,8 @@ function showPage(name) {
   // Refresh container dropdown when navigating to the form
   if (name === 'form') refreshContainerDropdown();
 
-  // Auto-load viewer when switching to it
-  if (isViewer && allItems.length === 0) loadViewerData();
+  // Auto-load viewer when switching to it (always refresh, throttle handles rate limiting)
+  if (isViewer) loadViewerData();
   // Refresh sync readiness when config page opens
   if (isConfig) updateSyncReadiness();
   if (name === 'radio') {
@@ -8860,6 +8868,19 @@ function saveContainers(list) {
   localStorage.setItem(CONTAINERS_KEY, JSON.stringify(list));
 }
 
+// Remove any legacy/malformed container entries (e.g. old "003-Misc Bin" format).
+// Valid IDs are exactly 7 chars: 2-letter type + 3-digit seq + 2-letter room (e.g. BN003LR).
+function cleanupContainers() {
+  var list = loadContainers();
+  var valid = list.filter(function(c) {
+    return c && c.id && /^[A-Z]{2}[0-9]{3}[A-Z]{2}$/.test(c.id);
+  });
+  if (valid.length !== list.length) {
+    console.log('cleanupContainers: removed', list.length - valid.length, 'legacy entries');
+    saveContainers(valid);
+  }
+}
+
 function getContainerIcon(type) {
   return { Box:'📦', Bin:'🗃️', Crate:'🪵', Bag:'🛍️' }[type] || '📁';
 }
@@ -8910,6 +8931,7 @@ function getRoomEmoji(room) {
 
 // Populate the "Assign to Box/Bin" dropdown on the form page
 function refreshContainerDropdown() {
+  cleanupContainers(); // remove any legacy-format entries before rendering
   var sel = document.getElementById('containerAssign');
   if (!sel) return;
   var current = sel.value;
@@ -9170,8 +9192,9 @@ function autoRegisterContainerIfNeeded(payload) {
   refreshContainerDropdown();
 }
 
-// Initialise dropdown when form page is first shown
+// Initialise dropdown when form page is first shown; clean up legacy entries
 document.addEventListener('DOMContentLoaded', function() {
+  cleanupContainers();
   refreshContainerDropdown();
 });
 
@@ -11042,41 +11065,66 @@ async function findGasStations() {
   list.innerHTML = '<div style="padding:16px;text-align:center;font-size:15px;font-weight:normal;color:#555;">Searching for gas stations along your route...</div>';
   card.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+  // Overpass mirrors — try primary first, fall back on 504/error
+  const OVERPASS_MIRRORS = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+  ];
+
+  // Keep query small to avoid 504: 4 sample points, nodes only, 5km radius, 20s timeout
+  const buildQuery = (pts) => {
+    const parts = pts
+      .map(p => `node["amenity"="fuel"](around:5000,${p.lat},${p.lng});`)
+      .join('\n');
+    return `[out:json][timeout:20];\n(\n${parts}\n);\nout;`;
+  };
+
+  const overpassFetch = async (query) => {
+    for (let m = 0; m < OVERPASS_MIRRORS.length; m++) {
+      const mirror = OVERPASS_MIRRORS[m];
+      if (m > 0) {
+        list.innerHTML = '<div style="padding:16px;text-align:center;font-size:15px;font-weight:normal;color:#888;">Primary server busy, trying backup...</div>';
+      }
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 22000); // 22s client timeout
+        const res = await fetch(mirror, {
+          method: 'POST',
+          body: 'data=' + encodeURIComponent(query),
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (res.status === 504 || res.status === 502 || res.status === 503) {
+          continue; // try next mirror
+        }
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error('Server error ' + res.status + ': ' + txt.substring(0, 100));
+        }
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch(e) {
+          throw new Error('Unexpected response from map server. Try again in a moment.');
+        }
+      } catch(fetchErr) {
+        if (fetchErr.name === 'AbortError') {
+          if (m < OVERPASS_MIRRORS.length - 1) continue;
+          throw new Error('Request timed out. Your route may be very long — try again or check your connection.');
+        }
+        if (m < OVERPASS_MIRRORS.length - 1) continue;
+        throw fetchErr;
+      }
+    }
+    throw new Error('All map servers are busy (504). Please try again in a minute.');
+  };
+
   try {
     const coords = currentRouteData.coords;
-
-    // Sample points along the route (every ~30 miles or evenly spaced up to 8 points)
-    const samplePoints = sampleRoutePoints(coords, 8);
-
-    // Build Overpass query — find fuel stations within ~8km of sampled points
-    // Include both node and way elements (some stations are mapped as areas)
-    const buildQuery = (pts, radius, timeout) => {
-      const parts = pts.flatMap(p => [
-        `node["amenity"="fuel"](around:${radius},${p.lat},${p.lng});`,
-        `way["amenity"="fuel"](around:${radius},${p.lat},${p.lng});`
-      ]).join('\n');
-      return `[out:json][timeout:${timeout}];\n(\n${parts}\n);\nout center;`;
-    };
-
-    const query = buildQuery(samplePoints, 8000, 25);
-
-    const res  = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body:   'data=' + encodeURIComponent(query)
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error('Overpass API error ' + res.status + ': ' + errText.substring(0, 120));
-    }
-
-    let data;
-    try {
-      data = await res.json();
-    } catch(parseErr) {
-      const raw = await res.clone().text().catch(() => '(unreadable)');
-      throw new Error('Gas station search returned an unexpected response. The map data service may be temporarily busy — try again in a moment. (' + raw.substring(0, 80) + ')');
-    }
+    const samplePoints = sampleRoutePoints(coords, 4); // 4 pts keeps query small
+    const query = buildQuery(samplePoints);
+    const data  = await overpassFetch(query);
 
     if (!data.elements || !data.elements.length) {
       list.innerHTML = '<div style="padding:16px;text-align:center;font-size:15px;font-weight:normal;color:#888;">No gas stations found along this route.</div>';
@@ -11086,21 +11134,13 @@ async function findGasStations() {
       return;
     }
 
-    // Deduplicate by id; normalise lat/lon (way elements use .center)
+    // Deduplicate and sort by proximity to nearest route point
     const seen   = new Set();
     const unique = data.elements.filter(el => {
       if (seen.has(el.id)) return false;
       seen.add(el.id);
-      const lat = el.lat ?? el.center?.lat;
-      const lon = el.lon ?? el.center?.lon;
-      return lat != null && lon != null;
-    }).map(el => ({
-      ...el,
-      lat: el.lat ?? el.center?.lat,
-      lon: el.lon ?? el.center?.lon
-    }));
-
-    // Sort by distance to nearest route point
+      return el.lat != null && el.lon != null;
+    });
     unique.forEach(el => {
       el._dist = Math.min(...coords.map(c => haversineMiles(
         { lat: el.lat, lng: el.lon }, { lat: c.lat, lng: c.lng }
@@ -11114,44 +11154,37 @@ async function findGasStations() {
     list.innerHTML = top.map(el => {
       const tags    = el.tags || {};
       const name    = tags.name || tags.brand || 'Gas Station';
-      const brand   = tags.brand || '';
       const street  = tags['addr:street'] ? (tags['addr:housenumber'] ? tags['addr:housenumber'] + ' ' : '') + tags['addr:street'] : '';
       const city    = tags['addr:city'] || '';
       const addr    = [street, city].filter(Boolean).join(', ') || 'See on map';
       const dist    = el._dist.toFixed(1);
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${el.lat},${el.lon}`;
-      const navUrl  = `https://www.google.com/maps/dir/?api=1&destination=${el.lat},${el.lon}`;
-
-      // Fuel types
-      const fuels = [];
-      if (tags['fuel:diesel'])        fuels.push('Diesel');
+      const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + el.lat + ',' + el.lon;
+      const navUrl  = 'https://www.google.com/maps/dir/?api=1&destination=' + el.lat + ',' + el.lon;
+      const fuels   = [];
+      if (tags['fuel:diesel'])                               fuels.push('Diesel');
       if (tags['fuel:octane_91'] || tags['fuel:octane_93']) fuels.push('Premium');
-      if (tags['fuel:e85'])           fuels.push('E85');
-      const fuelStr = fuels.length ? fuels.join(' · ') : '';
+      if (tags['fuel:e85'])                                  fuels.push('E85');
+      const fuelStr = fuels.join(' · ');
 
-      return `<div class="gas-item">
-        <div class="gas-icon">⛽</div>
-        <div class="gas-info">
-          <div class="gas-name">${name}</div>
-          <div class="gas-addr">${addr}</div>
-          ${fuelStr ? '<div style="font-size:11px;font-weight:normal;color:#777;margin-top:1px;">' + fuelStr + '</div>' : ''}
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
-          <div class="gas-dist">${dist} mi off route</div>
-          <div style="display:flex;gap:4px;">
-            <a href="${mapsUrl}" target="_blank">
-              <button class="btn" style="font-size:12px;padding:2px 7px;">📍 View</button>
-            </a>
-            <a href="${navUrl}" target="_blank">
-              <button class="btn btn-submit" style="font-size:12px;padding:2px 7px;">🧭 Go</button>
-            </a>
-          </div>
-        </div>
-      </div>`;
+      return '<div class="gas-item">' +
+        '<div class="gas-icon">⛽</div>' +
+        '<div class="gas-info">' +
+          '<div class="gas-name">' + name + '</div>' +
+          '<div class="gas-addr">' + addr + '</div>' +
+          (fuelStr ? '<div style="font-size:11px;font-weight:normal;color:#777;margin-top:1px;">' + fuelStr + '</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">' +
+          '<div class="gas-dist">' + dist + ' mi off route</div>' +
+          '<div style="display:flex;gap:4px;">' +
+            '<a href="' + mapsUrl + '" target="_blank"><button class="btn" style="font-size:12px;padding:2px 7px;">📍 View</button></a>' +
+            '<a href="' + navUrl  + '" target="_blank"><button class="btn btn-submit" style="font-size:12px;padding:2px 7px;">🧭 Go</button></a>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }).join('');
 
   } catch(err) {
-    list.innerHTML = '<div style="padding:12px;color:#cc0000;font-size:15px;font-weight:normal;">Error: ' + err.message + '</div>';
+    list.innerHTML = '<div style="padding:12px;color:#cc0000;font-size:15px;font-weight:normal;">⚠ ' + err.message + '</div>';
     cnt.textContent = '';
   }
 
@@ -11170,34 +11203,43 @@ function sampleRoutePoints(coords, maxPoints) {
 }
 
 function openInGoogleMaps() {
-  const addrs = getAddresses();
-  if (!addrs) return;
-  const all   = [addrs.origin, ...addrs.stops, addrs.dest];
-  const origin = encodeURIComponent(all[0]);
-  const dest   = encodeURIComponent(all[all.length - 1]);
-  const waypts = all.slice(1, -1).map(encodeURIComponent).join('|');
-  let url = `https://www.google.com/maps/dir/${origin}/${dest}`;
-  if (waypts) url = `https://www.google.com/maps/dir/${origin}/${waypts}/${dest}`;
+  const url = buildCoordMapsUrl();
+  if (!url) { showError('Plan a route first.'); return; }
   window.open(url, '_blank');
 }
 
 // ══════════════════════════════
 //  SHARE ROUTE
 // ══════════════════════════════
+function buildCoordMapsUrl() {
+  // Build a Google Maps directions URL using exact geocoded coordinates.
+  // This opens directly to the correct route without any geocoding ambiguity.
+  if (!currentRouteData || !currentRouteData.coords || currentRouteData.coords.length < 2) {
+    // Fall back to address-based URL
+    var addrs = getAddresses();
+    if (!addrs) return null;
+    var all = [addrs.origin].concat(addrs.stops).concat([addrs.dest]);
+    return 'https://www.google.com/maps/dir/' + all.map(function(a) { return encodeURIComponent(a); }).join('/');
+  }
+  var c = currentRouteData.coords;
+  // Format: origin/waypoint1/waypoint2/dest  each as lat,lng
+  var parts = c.map(function(p) { return p.lat.toFixed(6) + ',' + p.lng.toFixed(6); });
+  return 'https://www.google.com/maps/dir/' + parts.join('/');
+}
+
 function buildRouteMessage(locationLine) {
   var addrs = getAddresses();
   if (!addrs) return null;
-  var all = [addrs.origin].concat(addrs.stops).concat([addrs.dest]);
   var name = document.getElementById('shareContactName').value.trim();
   var greeting = name ? 'Hey ' + name + ',' : 'Hey,';
 
-  var mapsUrl = 'https://www.google.com/maps/dir/' +
-    all.map(function(a) { return encodeURIComponent(a); }).join('/');
+  // Coordinate-pinned link — drops the recipient into the exact planned route
+  var mapsUrl = buildCoordMapsUrl();
 
   var miles = document.getElementById('statMiles').textContent;
   var time  = document.getElementById('statTime').textContent;
   var statLine = (miles && miles !== '—')
-    ? '\n\u{1F4CF} ' + miles + ' mi  \u23F1 ' + time
+    ? '\n\uD83D\uDCCF ' + miles + ' mi  \u23F1 ' + time
     : '';
 
   var stops = '\nRoute:\n';
@@ -11209,7 +11251,7 @@ function buildRouteMessage(locationLine) {
 
   return greeting + "\n\nI'm sharing my moving route with you." +
     stops + statLine +
-    '\n\nGoogle Maps: ' + mapsUrl +
+    '\n\nOpen route (pinned to exact coordinates):\n' + mapsUrl +
     locLine +
     "\n\n- Sent from Moving '95";
 }
