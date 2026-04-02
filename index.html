@@ -4447,9 +4447,12 @@ document.addEventListener('DOMContentLoaded', function() {
           </select>
         </div>
         <div class="field">
-          <label for="binBoxNumber">Bin/Box #</label>
-          <input type="text" id="binBoxNumber" placeholder="e.g. B-12" autocomplete="off">
+          <label for="containerAssign">Assign to Container <span style="font-weight:normal;font-size:12px;">(optional)</span></label>
+          <select id="containerAssign" onchange="onContainerAssign(this.value)" style="width:100%;">
+            <option value="">— None / Standalone —</option>
+          </select>
         </div>
+        <input type="hidden" id="binBoxNumber">
         <div class="field">
           <label for="itemWeight">Weight</label>
           <select id="itemWeight">
@@ -4480,23 +4483,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <div class="win-card">
-    <div class="win-card-title">📦 Assign to Box / Bin</div>
-    <div class="win-card-body">
-      <div class="field-row">
-        <div class="field wide">
-          <label for="containerAssign">Select Container <span style="font-weight:normal;font-size:13px;">(optional)</span></label>
-          <select id="containerAssign" onchange="onContainerAssign(this.value)" style="width:100%;">
-            <option value="">— None / Standalone Item —</option>
-          </select>
-        </div>
-        <div class="field" style="flex:0 0 auto;align-self:flex-end;">
-          <button class="btn" onclick="openContainerManager()" style="font-size:15px;white-space:nowrap;">⚙ Manage</button>
-        </div>
-      </div>
-      <div id="containerAssignInfo" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(0,0,128,0.07);border-left:3px solid var(--blue);font-family:'VT323',monospace;font-size:16px;"></div>
-    </div>
-  </div>
+  <div id="containerAssignInfo" style="display:none;margin:0 0 6px 0;padding:8px 10px;background:rgba(0,0,128,0.07);border-left:3px solid var(--blue);font-family:'VT323',monospace;font-size:16px;"></div>
 
   <div class="win-card">
     <div class="win-card-title">🏠 Location &amp; Status</div>
@@ -8565,41 +8552,50 @@ var ROOM_PREFIX = {
   'Other':         'OT'
 };
 
-// Get next sequential number for a given prefix across all existing containers
-function nextContainerSeq(prefix, containers) {
+// Get next sequential number for a given typeCode+roomSuffix combo
+// IDs are like "BX001LV" — typeCode(2) + seq(3) + roomSuffix(2)
+function nextContainerSeq(typeCode, roomSuffix, containers) {
+  var pattern = typeCode.toUpperCase();
+  var suffix  = (roomSuffix || '').toUpperCase();
   var used = containers
-    .map(function(c) { return c.id || ''; })
-    .filter(function(id) { return id.toUpperCase().startsWith(prefix.toUpperCase()); })
+    .map(function(c) { return (c.id || '').toUpperCase(); })
+    .filter(function(id) {
+      return id.startsWith(pattern) && id.endsWith(suffix) && id.length === 7;
+    })
     .map(function(id) {
-      var n = parseInt(id.slice(prefix.length));
+      var n = parseInt(id.slice(2, 5));
       return isNaN(n) ? 0 : n;
     });
   var max = used.length ? Math.max.apply(null, used) : 0;
   return max + 1;
 }
 
-// Generate a padded ID like "KT-001"
-function makeContainerId(prefix, seq) {
-  return prefix + '-' + String(seq).padStart(3, '0');
+// Generate a padded ID like "BX001LV" (type prefix + seq + room suffix)
+// typeStr: 'Box'|'Bin'|'Crate'|'Bag'|'Other', seq: number, roomSuffix: 2-letter room code
+function makeContainerId(typeStr, seq, roomSuffix) {
+  var typeCode = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG', Other:'CT' }[typeStr] || 'CT';
+  return typeCode + String(seq).padStart(3, '0') + (roomSuffix || 'XX');
 }
 
 // Preview IDs in the form as room/type/qty changes
 function previewContainerId() {
+  var type  = document.getElementById('newContainerType').value || 'Box';
   var room  = document.getElementById('newContainerRoom').value;
   var qty   = parseInt(document.getElementById('newContainerQty').value) || 1;
   var preview = document.getElementById('containerIdPreview');
   if (!preview) return;
 
-  var prefix = room ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase()) : null;
-  if (!prefix) { preview.style.display = 'none'; return; }
+  var typeCode   = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG', Other:'CT' }[type] || 'CT';
+  var roomSuffix = room ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase()) : null;
+  if (!roomSuffix) { preview.style.display = 'none'; return; }
 
   var containers = loadContainers();
-  var start = nextContainerSeq(prefix, containers);
+  var start = nextContainerSeq(typeCode, roomSuffix, containers);
   var ids = [];
   for (var i = 0; i < Math.min(qty, 5); i++) {
-    ids.push(makeContainerId(prefix, start + i));
+    ids.push(makeContainerId(type, start + i, roomSuffix));
   }
-  var label = ids.join(', ') + (qty > 5 ? ' … ' + makeContainerId(prefix, start + qty - 1) : '');
+  var label = ids.join(', ') + (qty > 5 ? ' … ' + makeContainerId(type, start + qty - 1, roomSuffix) : '');
   preview.textContent = '🏷 IDs will be: ' + label;
   preview.style.display = 'block';
 }
@@ -8612,17 +8608,18 @@ function createContainer() {
   var notes = document.getElementById('newContainerNotes').value.trim();
   var qty   = parseInt(document.getElementById('newContainerQty').value) || 1;
 
-  var prefix = room
+  var typeCode   = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG', Other:'CT' }[type] || 'CT';
+  var roomSuffix = room
     ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase())
-    : (type || 'BX').substring(0,2).toUpperCase();
+    : 'XX';
 
   var containers = loadContainers();
-  var start = nextContainerSeq(prefix, containers);
+  var start = nextContainerSeq(typeCode, roomSuffix, containers);
   var created = new Date().toLocaleString();
   var newIds = [];
 
   for (var i = 0; i < qty; i++) {
-    var id = makeContainerId(prefix, start + i);
+    var id = makeContainerId(type, start + i, roomSuffix);
     containers.push({ type: type || 'Box', id: id, name: name, room: room, notes: notes, created: created });
     newIds.push(id);
   }
@@ -8716,11 +8713,12 @@ function autoRegisterContainerIfNeeded(payload) {
   if (payload.binBoxNumber) {
     if (containers.find(function(c) { return c.id.toLowerCase() === payload.binBoxNumber.toLowerCase(); })) return;
   }
-  var prefix = room
+  var typeCode   = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG', Other:'CT' }[type] || 'CT';
+  var roomSuffix = room
     ? (ROOM_PREFIX[room] || room.replace(/\s+/g,'').substring(0,2).toUpperCase())
-    : (type || 'BX').substring(0,2).toUpperCase();
-  var seq = nextContainerSeq(prefix, containers);
-  var id = makeContainerId(prefix, seq);
+    : 'XX';
+  var seq = nextContainerSeq(typeCode, roomSuffix, containers);
+  var id = makeContainerId(type, seq, roomSuffix);
   containers.push({
     type: type,
     id: id,
@@ -8742,7 +8740,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //  CLEAR FORM
 // ══════════════════════════════
 function clearForm() {
-  ['itemName','itemType','location','itemOrigin','binBoxNumber','itemWeight','description','estCost'].forEach(id => {
+  ['itemName','itemType','location','itemOrigin','itemWeight','description','estCost'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('quantity').value = 1;
@@ -8758,6 +8756,8 @@ function clearForm() {
   if (caSel) caSel.value = '';
   var caInfo = document.getElementById('containerAssignInfo');
   if (caInfo) caInfo.style.display = 'none';
+  var hidBin = document.getElementById('binBoxNumber');
+  if (hidBin) hidBin.value = '';
   setStatus('Form cleared.');
 }
 
