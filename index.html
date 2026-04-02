@@ -2914,12 +2914,22 @@ async function deleteInventoryItem() {
 
     stat.textContent = '✅ Deleted!';
     stat.style.color = '#006400';
-    setTimeout(closeEditDialog, 600);
+    // Reload from sheet after a short delay to ensure any phantom rows are cleared
+    setTimeout(() => {
+      closeEditDialog();
+      allItems = []; filtered = [];
+      loadViewerData();
+    }, 800);
 
   } catch(e) {
     stat.textContent = '⚠ Local delete done. Sheet sync failed: ' + e.message;
     stat.style.color = '#cc0000';
-    setTimeout(closeEditDialog, 2500);
+    // Still reload to clean up any phantoms
+    setTimeout(() => {
+      closeEditDialog();
+      allItems = []; filtered = [];
+      loadViewerData();
+    }, 2500);
   }
 }
 
@@ -7785,6 +7795,9 @@ function applyLogin(user) {
   renderChecklist();
   updateCkProgress();
   renderDeliveryList();
+  renderSavedRoutes();
+  if (typeof renderBudget   === 'function') renderBudget();
+  if (typeof renderSchedule === 'function') renderSchedule();
   updateProfileScriptStatus();
   populateProfileTab(user);
 
@@ -7858,6 +7871,13 @@ function applyProfileData(data, user) {
     _restoreArr(p._deliveryEvents, 'deliveryEvents');
     _restoreArr(p._containers,     'movingContainers');
 
+    // Sync in-memory variables so UI reflects restored data immediately
+    try { savedRoutes    = JSON.parse(localStorage.getItem('savedRoutes')    || '[]'); } catch(e) {}
+    try { checklistItems = JSON.parse(localStorage.getItem('checklistItems') || '[]'); } catch(e) {}
+    try { budgetItems    = JSON.parse(localStorage.getItem('budgetItems')    || '[]'); } catch(e) {}
+    try { scheduleEvents = JSON.parse(localStorage.getItem('scheduleEvents') || '[]'); } catch(e) {}
+    try { deliveryEvents = JSON.parse(localStorage.getItem('deliveryEvents') || '[]'); } catch(e) {}
+
     // Strip all bundled keys so they don't pollute the personal info display
     ['_radioPlaylists','_radioMeta','_savedRoutes','_checklistItems',
      '_budgetItems','_scheduleEvents','_deliveryEvents','_containers'
@@ -7876,6 +7896,13 @@ function applyProfileData(data, user) {
   updateSyncReadiness();
   populateProfileTab(user);
   updateProfileScriptStatus();
+  // Re-render data views with restored data
+  if (typeof renderSavedRoutes   === 'function') renderSavedRoutes();
+  if (typeof renderChecklist     === 'function') renderChecklist();
+  if (typeof renderBudget        === 'function') renderBudget();
+  if (typeof renderSchedule      === 'function') renderSchedule();
+  if (typeof renderDeliveryList  === 'function') renderDeliveryList();
+  if (typeof refreshContainerDropdown === 'function') refreshContainerDropdown();
 }
 
 function gatherConfig() {
@@ -8177,6 +8204,9 @@ async function syncProfileFromSheet(fromProfile) {
       if (allItems.length === 0 && localStorage.getItem('sheetId') && localStorage.getItem('apiKey')) {
         loadViewerData();
       }
+      // Parse the personal blob to check what app data came back
+      let _pBlob = {};
+      try { _pBlob = JSON.parse(data.personal || '{}'); } catch(e) {}
       const loaded = [
         data.sheetUrl      ? 'Script URL'     : '',
         data.sheetId       ? 'Sheet ID'       : '',
@@ -8184,7 +8214,12 @@ async function syncProfileFromSheet(fromProfile) {
         data.gcalId        ? 'Calendar ID'    : '',
         hasPersonal        ? 'Personal Info'  : '',
         data.radioPlaylists && data.radioPlaylists !== '{}' ? 'Radio Playlists' : '',
-        data.radioMeta      && data.radioMeta      !== '{}' ? 'Radio Config'    : ''
+        data.radioMeta      && data.radioMeta      !== '{}' ? 'Radio Config'    : '',
+        _pBlob._savedRoutes    && _pBlob._savedRoutes.length    ? 'Routes ('    + _pBlob._savedRoutes.length    + ')' : '',
+        _pBlob._checklistItems && _pBlob._checklistItems.length ? 'Tasks ('     + _pBlob._checklistItems.length + ')' : '',
+        _pBlob._budgetItems    && _pBlob._budgetItems.length    ? 'Budget ('    + _pBlob._budgetItems.length    + ')' : '',
+        _pBlob._scheduleEvents && _pBlob._scheduleEvents.length ? 'Schedule ('  + _pBlob._scheduleEvents.length + ')' : '',
+        _pBlob._containers     && _pBlob._containers.length     ? 'Containers (' + _pBlob._containers.length   + ')' : ''
       ].filter(Boolean).join(', ');
       stat.textContent = '✅ Pulled: ' + (loaded || 'profile found') + ' — saved to this device!';
       stat.style.color = '#006400';
@@ -9747,7 +9782,11 @@ async function loadViewerData() {
       const obj = {};
       headers.forEach((h, i) => { obj[h.trim()] = (row[i] || '').trim(); });
       return obj;
-    }).filter(item => Object.values(item).some(v => v));
+    }).filter(item =>
+      // Must have at least an Item Name or Item # — filters phantom/empty rows
+      (item['Item Name'] && item['Item Name'].trim()) ||
+      (item['Item #']    && item['Item #'].trim())
+    );
     (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = allItems.length + ' items — live';
     document.getElementById('headerRefreshBtn').textContent = '↺ Refresh';
     applyFilters();
@@ -9877,6 +9916,8 @@ function quickDeleteItem(rowIdx) {
       tabName: localStorage.getItem('tabName') || 'Inventory'
     })
   }).catch(function(){});
+  // Reload after a delay to clear any phantom rows the GS may have created
+  setTimeout(() => { allItems = []; filtered = []; loadViewerData(); }, 1500);
 }
 
 function buildItemRowHtml(item, rc) {
@@ -11003,6 +11044,7 @@ function saveCurrentRoute() {
     origin:  currentRouteData.origin,
     dest:    currentRouteData.dest,
     stops:   currentRouteData.stops || [],
+    coords:  currentRouteData.coords || [],   // exact geocoded coordinates
     miles:   currentRouteData.miles,
     time:    currentRouteData.time,
     saved:   new Date().toLocaleDateString()
@@ -11084,14 +11126,20 @@ function renderSavedRoutes() {
 function openSavedInMaps(id) {
   const route = savedRoutes.find(r => r.id === id);
   if (!route) return;
-  const all    = [route.origin, ...(route.stops || []), route.dest];
-  const origin = encodeURIComponent(all[0]);
-  const dest   = encodeURIComponent(all[all.length - 1]);
-  const waypts = all.slice(1, -1).map(encodeURIComponent).join('/');
-  const url    = waypts
-    ? `https://www.google.com/maps/dir/${origin}/${waypts}/${dest}`
-    : `https://www.google.com/maps/dir/${origin}/${dest}`;
-  window.open(url, '_blank');
+  // Use exact coordinates if stored (precise pin), otherwise fall back to addresses
+  if (route.coords && route.coords.length >= 2) {
+    const parts = route.coords.map(p => p.lat.toFixed(6) + ',' + p.lng.toFixed(6));
+    window.open('https://www.google.com/maps/dir/' + parts.join('/'), '_blank');
+  } else {
+    const all    = [route.origin, ...(route.stops || []), route.dest];
+    const origin = encodeURIComponent(all[0]);
+    const dest   = encodeURIComponent(all[all.length - 1]);
+    const waypts = all.slice(1, -1).map(encodeURIComponent).join('/');
+    const url    = waypts
+      ? 'https://www.google.com/maps/dir/' + origin + '/' + waypts + '/' + dest
+      : 'https://www.google.com/maps/dir/' + origin + '/' + dest;
+    window.open(url, '_blank');
+  }
 }
 
 // Init saved routes on page load
