@@ -3418,6 +3418,7 @@ const BUDGET_CAT_COLORS = {
 
 function saveBudget() {
   localStorage.setItem('budgetItems', JSON.stringify(budgetItems));
+  silentPushProfile();
 }
 
 function addBudgetItem() {
@@ -7823,20 +7824,46 @@ function applyProfileData(data, user) {
     }
   });
   console.log('Profile applied:', applied, 'fields for user:', user);
-  // Extract radio data bundled inside the personal blob, then clean it back out
+  // Extract all bundled app data from the personal blob, then clean it back out
   try {
     const p = JSON.parse(localStorage.getItem('personalInfo') || '{}');
-    if (p._radioPlaylists && Object.keys(p._radioPlaylists).length) {
+
+    // Radio
+    if (p._radioPlaylists && Object.keys(p._radioPlaylists).length)
       localStorage.setItem('radioPlaylistUrls', JSON.stringify(p._radioPlaylists));
-    }
-    if (p._radioMeta && Object.keys(p._radioMeta).length) {
+    if (p._radioMeta && Object.keys(p._radioMeta).length)
       localStorage.setItem('radioStationMeta', JSON.stringify(p._radioMeta));
-    }
-    // Remove the hidden radio keys so they don't pollute the personal info display
-    delete p._radioPlaylists;
-    delete p._radioMeta;
+
+    // App data — only restore if the cloud copy is non-empty
+    // Merge strategy: cloud wins for routes/tasks/budget/schedule (they are the source of truth)
+    // For containers, merge by id so locally-created ones aren't wiped
+    const _restoreArr = (cloudVal, key) => {
+      if (!cloudVal || !cloudVal.length) return;
+      if (key === 'movingContainers') {
+        // Merge: keep local entries not in cloud, add cloud entries
+        let local = [];
+        try { local = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+        const cloudIds = new Set(cloudVal.map(c => c.id));
+        const merged = [...cloudVal, ...local.filter(c => !cloudIds.has(c.id))];
+        localStorage.setItem(key, JSON.stringify(merged));
+      } else {
+        localStorage.setItem(key, JSON.stringify(cloudVal));
+      }
+    };
+
+    _restoreArr(p._savedRoutes,    'savedRoutes');
+    _restoreArr(p._checklistItems, 'checklistItems');
+    _restoreArr(p._budgetItems,    'budgetItems');
+    _restoreArr(p._scheduleEvents, 'scheduleEvents');
+    _restoreArr(p._deliveryEvents, 'deliveryEvents');
+    _restoreArr(p._containers,     'movingContainers');
+
+    // Strip all bundled keys so they don't pollute the personal info display
+    ['_radioPlaylists','_radioMeta','_savedRoutes','_checklistItems',
+     '_budgetItems','_scheduleEvents','_deliveryEvents','_containers'
+    ].forEach(k => delete p[k]);
     localStorage.setItem('personalInfo', JSON.stringify(p));
-  } catch(e) {}
+  } catch(e) { console.warn('applyProfileData bundle restore error:', e); }
   // If the login overlay is still showing, this is a login flow — complete it
   const overlay = document.getElementById('loginOverlay');
   if (overlay && !overlay.classList.contains('hidden')) {
@@ -7862,15 +7889,34 @@ function gatherConfig() {
     if (val) localStorage.setItem(storageKey, val);
     return val;
   }
-  // Bundle radio data inside personal so it travels through the GS sync column
+  // Bundle everything that needs to survive a new device/incognito into personal
   let personal = {};
   try { personal = JSON.parse(localStorage.getItem('personalInfo') || '{}'); } catch(e) {}
-  // Strip any previously-bundled radio keys from the clean copy first
-  delete personal._radioPlaylists;
-  delete personal._radioMeta;
-  // Now embed the current radio data for the push
+
+  // Strip any previously-bundled keys so we start clean each push
+  const _BUNDLE_KEYS = ['_radioPlaylists','_radioMeta','_savedRoutes',
+    '_checklistItems','_budgetItems','_scheduleEvents','_deliveryEvents','_containers'];
+  _BUNDLE_KEYS.forEach(k => delete personal[k]);
+
+  // Radio
   try { personal._radioPlaylists = JSON.parse(localStorage.getItem('radioPlaylistUrls') || '{}'); } catch(e) {}
   try { personal._radioMeta      = JSON.parse(localStorage.getItem('radioStationMeta')  || '{}'); } catch(e) {}
+
+  // App data — bundle if non-empty so a fresh device gets everything on login
+  const _safeArr = key => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; } };
+  const routes    = _safeArr('savedRoutes');
+  const tasks     = _safeArr('checklistItems');
+  const budget    = _safeArr('budgetItems');
+  const schedule  = _safeArr('scheduleEvents');
+  const delivs    = _safeArr('deliveryEvents');
+  const conts     = _safeArr('movingContainers');
+  if (routes.length)   personal._savedRoutes     = routes;
+  if (tasks.length)    personal._checklistItems  = tasks;
+  if (budget.length)   personal._budgetItems     = budget;
+  if (schedule.length) personal._scheduleEvents  = schedule;
+  if (delivs.length)   personal._deliveryEvents  = delivs;
+  if (conts.length)    personal._containers      = conts;
+
   return {
     sheetUrl: getLive('sheetUrl',     'sheetUrl', ''),
     sheetId:  getLive('cfgSheetId',   'sheetId',  ''),
@@ -8866,6 +8912,7 @@ function loadContainers() {
 
 function saveContainers(list) {
   localStorage.setItem(CONTAINERS_KEY, JSON.stringify(list));
+  silentPushProfile();
 }
 
 // Remove any legacy/malformed container entries (e.g. old "003-Misc Bin" format).
@@ -10066,6 +10113,7 @@ let ckFilter = 'all';
 
 function saveChecklist() {
   localStorage.setItem('checklistItems', JSON.stringify(checklistItems));
+  silentPushProfile();
 }
 
 function autoAddItemTasks(payload) {
@@ -10237,6 +10285,7 @@ let scheduleEvents = JSON.parse(localStorage.getItem('scheduleEvents') || '[]');
 
 function saveScheduleEvents() {
   localStorage.setItem('scheduleEvents', JSON.stringify(scheduleEvents));
+  silentPushProfile();
 }
 
 function renderCalendar() {
@@ -10517,6 +10566,7 @@ let editingDeliveryId = null;
 
 function saveDeliveryEvents() {
   localStorage.setItem('deliveryEvents', JSON.stringify(deliveryEvents));
+  silentPushProfile();
 }
 
 function renderDeliveryList() {
@@ -10649,6 +10699,7 @@ let savedRoutes     = JSON.parse(localStorage.getItem('savedRoutes') || '[]');
 
 function saveSavedRoutes() {
   localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
+  silentPushProfile();
 }
 
 function addStop() {
