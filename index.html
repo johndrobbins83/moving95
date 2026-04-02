@@ -2691,6 +2691,59 @@ async function saveEditedItem() {
   }
 }
 
+
+// ══════════════════════════════
+//  DELETE INVENTORY ITEM
+// ══════════════════════════════
+async function deleteInventoryItem() {
+  const rowIdx  = parseInt(document.getElementById('editRowIndex').value);
+  const item    = allItems[rowIdx];
+  if (!item) return;
+
+  const name = item['Item Name'] || '(unnamed)';
+  if (!confirm('Delete "' + name + '"?\n\nThis will remove it from the Google Sheet.')) return;
+
+  const stat = document.getElementById('editSaveStatus');
+  stat.textContent = 'Deleting...';
+  stat.style.color = '#555';
+
+  // 1. Remove from local array immediately
+  allItems.splice(rowIdx, 1);
+  applyFilters();
+  renderStats();
+
+  // 2. Send delete request to Apps Script
+  const scriptUrl = localStorage.getItem('sheetUrl') || '';
+  if (!scriptUrl) {
+    stat.textContent = '⚠ Deleted locally — no Script URL to sync to sheet.';
+    stat.style.color = '#cc6600';
+    setTimeout(closeEditDialog, 1800);
+    return;
+  }
+
+  try {
+    await fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'deleteRow',
+        item: { 'Item #': item['Item #'], 'Item Name': item['Item Name'] },
+        tabName: localStorage.getItem('tabName') || 'Inventory'
+      })
+    });
+
+    stat.textContent = '✅ Deleted!';
+    stat.style.color = '#006400';
+    setTimeout(closeEditDialog, 600);
+
+  } catch(e) {
+    stat.textContent = '⚠ Local delete done. Sheet sync failed: ' + e.message;
+    stat.style.color = '#cc0000';
+    setTimeout(closeEditDialog, 2500);
+  }
+}
+
 // ══════════════════════════════
 //  PDF EXPORT
 // ══════════════════════════════
@@ -7005,6 +7058,9 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="display:flex;gap:8px;">
         <button class="btn danger" onclick="closeEditDialog()" style="flex:1;">✕ Cancel</button>
         <button class="btn btn-submit" onclick="saveEditedItem()" style="flex:2;">💾 Save Changes</button>
+      </div>
+      <div style="margin-top:8px;">
+        <button class="btn" onclick="deleteInventoryItem()" style="width:100%;color:#cc0000;border-color:#cc000055;font-size:16px;">🗑 Delete Item</button>
       </div>
     </div>
   </div>
