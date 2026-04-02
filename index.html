@@ -2619,15 +2619,160 @@ async function saveEditedItem() {
   const itemNum = document.getElementById('editItemNum').value;
   const stat    = document.getElementById('editSaveStatus');
 
+  const itemName   = document.getElementById('editItemName').value.trim();
+  const itemType   = document.getElementById('editItemType').value;
+  const location   = document.getElementById('editLocation').value;
+  const binBoxVal  = (document.getElementById('editBinBox').value || '').trim();
+  const qty        = parseInt(document.getElementById('editQty').value) || 1;
+
+  const CONTAINER_ITEM_TYPES = new Set(['Box', 'Bin', 'Crate', 'Bag']);
+  const isContainer = CONTAINER_ITEM_TYPES.has(itemType);
+
+  // If this is a container with qty > 1, expand into individual containers
+  if (isContainer && qty > 1) {
+    if (!confirm(
+      'Expand "' + itemName + '" into ' + qty + ' individual ' + itemType + 's?\n\n' +
+      'Each will get its own auto-generated ID (e.g. BN001LR, BN002LR...) ' +
+      'and be added as a separate row in the sheet.\n\n' +
+      'OK = Expand   Cancel = Save as single item'
+    )) {
+      // Fall through to normal single-item save
+    } else {
+      stat.textContent = 'Expanding into ' + qty + ' containers...';
+      stat.style.color = '#555';
+
+      const scriptUrl = localStorage.getItem('sheetUrl') || '';
+      const tabName   = localStorage.getItem('tabName')  || 'Inventory';
+      const baseItem  = {
+        itemType:    itemType,
+        itemName:    itemName,
+        location:    location,
+        itemWeight:  document.getElementById('editWeight').value,
+        estCost:     document.getElementById('editEstCost').value,
+        description: document.getElementById('editDescription').value.trim(),
+        wrapped:     document.querySelector('input[name="editWrapped"]:checked')?.value || 'No',
+        fragile:     document.querySelector('input[name="editFragile"]:checked')?.value || 'No',
+        itemStatus:  ['editStatusPacked','editStatusLoaded','editStatusUnpacked']
+                       .filter(id => document.getElementById(id).checked)
+                       .map(id => document.getElementById(id).value).join(', '),
+        loadAction:  document.getElementById('editLoadAction')?.value || '',
+        loadWho:     document.getElementById('editLoadWho')?.value    || '',
+        quantity:    1,
+        tabName:     tabName
+      };
+
+      // Generate IDs for all qty containers
+      const typeCode   = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG' }[itemType] || 'CT';
+      const roomSuffix = location
+        ? (ROOM_PREFIX[location] || location.replace(/\s+/g,'').substring(0,2).toUpperCase())
+        : 'XX';
+      const containers = loadContainers();
+
+      // Remove the original single entry for this item if it exists
+      const existingIdx = containers.findIndex(c =>
+        c.id === binBoxVal ||
+        (c.name === itemName && c.room === location && c.type === itemType)
+      );
+      if (existingIdx >= 0) containers.splice(existingIdx, 1);
+
+      const startSeq = nextContainerSeq(typeCode, roomSuffix, containers);
+      const newIds   = [];
+      for (let i = 0; i < qty; i++) {
+        const id = makeContainerId(itemType, startSeq + i, roomSuffix);
+        newIds.push(id);
+        containers.push({
+          type: itemType, id, name: itemName,
+          room: location, notes: baseItem.description.substring(0, 60),
+          created: new Date().toLocaleString()
+        });
+      }
+      saveContainers(containers);
+      refreshContainerDropdown();
+
+      // Update the original row in the sheet to be the first container
+      const firstUpdated = {
+        'Item #':    itemNum,
+        'Item Name': itemName,
+        'Type':      itemType,
+        'Location':  location,
+        'Bin/Box #': newIds[0],
+        'Weight':    baseItem.itemWeight,
+        'Est. Cost': baseItem.estCost,
+        'Quantity':  1,
+        'Description': baseItem.description,
+        'Wrapped?':  baseItem.wrapped,
+        'Fragile?':  baseItem.fragile,
+        'Status':    baseItem.itemStatus,
+        'loadAction': baseItem.loadAction,
+        'loadWho':   baseItem.loadWho
+      };
+      if (rowIdx >= 0 && allItems[rowIdx]) Object.assign(allItems[rowIdx], firstUpdated);
+
+      if (scriptUrl) {
+        // Update original row
+        await fetch(scriptUrl, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'updateRow', item: firstUpdated, tabName })
+        });
+        // Append remaining containers as new rows
+        for (let i = 1; i < qty; i++) {
+          const newItemNum = String(itemCounter).padStart(4, '0');
+          itemCounter++;
+          localStorage.setItem('itemCounter', itemCounter);
+          const payload = {
+            ...baseItem,
+            itemNumber:   newItemNum,
+            binBoxNumber: newIds[i],
+            timestamp:    new Date().toISOString()
+          };
+          await fetch(scriptUrl, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          // Add to local allItems too
+          const newLocalItem = {
+            'Item #':    newItemNum,
+            'Item Name': itemName,
+            'Type':      itemType,
+            'Location':  location,
+            'Bin/Box #': newIds[i],
+            'Weight':    baseItem.itemWeight,
+            'Est. Cost': baseItem.estCost,
+            'Quantity':  1,
+            'Description': baseItem.description,
+            'Wrapped?':  baseItem.wrapped,
+            'Fragile?':  baseItem.fragile,
+            'Status':    baseItem.itemStatus
+          };
+          allItems.push(newLocalItem);
+        }
+        updateItemNumberDisplay();
+      }
+
+      applyFilters();
+      renderStats();
+      stat.textContent = '✅ Created ' + qty + ' ' + itemType + 's: ' + newIds[0] + ' – ' + newIds[qty - 1];
+      stat.style.color = '#006400';
+      setTimeout(() => {
+        closeEditDialog();
+        allItems = []; filtered = [];
+        loadViewerData();
+      }, 1800);
+      return;
+    }
+  }
+
   const updated = {
     'Item #':       itemNum,
-    'Item Name':    document.getElementById('editItemName').value.trim(),
-    'Type':         document.getElementById('editItemType').value,
-    'Location':     document.getElementById('editLocation').value,
-    'Bin/Box #':    (document.getElementById('editBinBox').value || '').trim(),
+    'Item Name':    itemName,
+    'Type':         itemType,
+    'Location':     location,
+    'Bin/Box #':    binBoxVal,
     'Weight':       document.getElementById('editWeight').value,
     'Est. Cost':    document.getElementById('editEstCost').value,
-    'Quantity':     document.getElementById('editQty').value || 1,
+    'Quantity':     qty,
     'Description':  document.getElementById('editDescription').value.trim(),
     'Wrapped?':     document.querySelector('input[name="editWrapped"]:checked')?.value || 'No',
     'Fragile?':     document.querySelector('input[name="editFragile"]:checked')?.value || 'No',
