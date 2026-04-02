@@ -1629,6 +1629,23 @@
   .budget-item-del:hover { color: #800000; }
   .calc-eq:active { background: var(--blue2); }
 
+  /* ── INLINE DELETE BUTTON ── */
+  .row-delete-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #cc0000;
+    font-size: 17px;
+    padding: 6px 8px;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: opacity 0.15s;
+    line-height: 1;
+    align-self: center;
+  }
+  .row-delete-btn:hover, .row-delete-btn:active { opacity: 1; }
+  body.rave-mode .row-delete-btn { color: #ff4444; }
+
   /* ── SNAKE GAME ── */
   .snake-dpad {
     display: grid;
@@ -4591,20 +4608,17 @@ document.addEventListener('DOMContentLoaded', function() {
 ══════════════════════════════ -->
 <div class="page active" id="page-viewer">
 
-  <div class="win-card">
-    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
-      <span style="color:white;">🗂️ Inventory</span>
-      <span style="color:rgba(255,255,255,0.75);font-size:14px;font-weight:normal;" id="viewerItemCount"></span>
-      <button onclick="showPage('form')" style="margin-left:auto;font-family:'VT323',monospace;font-size:17px;font-weight:bold;padding:4px 12px;cursor:pointer;background:rgba(255,255,255,0.2);color:#fff;border-top:2px solid rgba(255,255,255,0.5);border-left:2px solid rgba(255,255,255,0.5);border-right:2px solid rgba(0,0,0,0.3);border-bottom:2px solid rgba(0,0,0,0.3);letter-spacing:1px;flex-shrink:0;white-space:nowrap;">&#10133; Add Item</button>
-    </div>
-  </div>
+
 
   <div class="win-card">
-    <div class="win-card-title">
-      🔍 Filter &amp; Sort
-      <span id="resultCount" style="font-size:14px; font-weight:normal; opacity:0.8;"></span>
+    <div class="win-card-title" onclick="toggleFilterSection()" style="cursor:pointer;user-select:none;" title="Tap to expand/collapse filters">
+      <span>🔍 Filter &amp; Sort</span>
+      <span style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+        <span id="resultCount" style="font-size:14px;font-weight:normal;opacity:0.8;"></span>
+        <span id="filterToggleArrow" style="font-size:14px;opacity:0.7;">▶</span>
+      </span>
     </div>
-    <div class="win-card-body">
+    <div class="win-card-body" id="filterBody" style="display:none;">
       <div class="filter-bar">
         <div class="filter-group wide">
           <label>Search</label>
@@ -4657,7 +4671,9 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="win-card">
     <div class="win-card-title">
       <span>📦 Items</span>
-      <div style="display:flex;gap:4px;">
+      <span style="color:rgba(0,0,0,0.45);font-size:13px;font-weight:normal;margin-left:6px;" id="viewerItemCount"></span>
+      <div style="display:flex;gap:4px;margin-left:auto;">
+        <button class="cal-nav-btn" onclick="showPage('form')" title="Add new item" style="font-size:15px;padding:3px 10px;background:var(--blue);color:white;border-color:var(--blue2);">&#10133; Add Item</button>
         <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" title="Refresh inventory" style="font-size:18px;padding:3px 10px;">↺</button>
         <button class="cal-nav-btn" onclick="downloadInventoryPDF()" title="Download PDF" style="font-size:15px;padding:3px 10px;">⬇ PDF</button>
         <button class="cal-nav-btn" onclick="resetInventoryFull()" title="Clear sheet &amp; reset counter" style="font-size:15px;padding:3px 10px;color:#cc0000;border-color:#cc000066;">🗑 Reset</button>
@@ -7424,7 +7440,7 @@ function applyLogin(user) {
   // Navigate to viewer — handles both fresh-page and already-on-viewer cases
   const currentActive = (document.querySelector('.page.active') || {}).id;
   if (currentActive !== 'page-viewer') {
-    showPage('viewer');   // showPage triggers loadViewerData internally
+    showPage('viewer');
   }
 
   loadItemCounter();
@@ -9253,6 +9269,15 @@ function toggleChip(id) {
   applyFilters();
 }
 
+function toggleFilterSection() {
+  var body  = document.getElementById('filterBody');
+  var arrow = document.getElementById('filterToggleArrow');
+  if (!body) return;
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  if (arrow) arrow.textContent = open ? '▶' : '▼';
+}
+
 function applyFilters() {
   const search    = document.getElementById('filterSearch').value.toLowerCase();
   const room      = document.getElementById('filterRoom').value;
@@ -9319,6 +9344,32 @@ function roomClass(loc) { return 'room-' + (loc || 'default').replace(/\s+/g, '-
 const CONTAINER_TYPES = new Set(['Box', 'Bin', 'Crate', 'Bag']);
 
 // Build one regular item-row HTML string
+
+function quickDeleteItem(rowIdx) {
+  const item = allItems[rowIdx];
+  if (!item) return;
+  const name = item['Item Name'] || '(unnamed)';
+  if (!confirm('Delete "' + name + '"?')) return;
+
+  // Remove locally
+  allItems.splice(rowIdx, 1);
+  applyFilters();
+  renderStats();
+
+  // Sync to sheet
+  const scriptUrl = localStorage.getItem('sheetUrl') || '';
+  if (!scriptUrl) return;
+  fetch(scriptUrl, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'deleteRow',
+      item: { 'Item #': item['Item #'], 'Item Name': item['Item Name'] },
+      tabName: localStorage.getItem('tabName') || 'Inventory'
+    })
+  }).catch(function(){});
+}
+
 function buildItemRowHtml(item, rc) {
   const name    = item['Item Name'] || '(unnamed)';
   const num     = item['Item #'] || '?';
@@ -9344,10 +9395,11 @@ function buildItemRowHtml(item, rc) {
 
   const rowIdx = allItems.indexOf(item);
   var typeIcon = getTypeIcon(type);
-  return '<div class="item-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" style="cursor:pointer;" title="Tap to edit">' +
-    '<div class="cell-num" style="font-size:20px;line-height:1.2;">' + typeIcon + '</div>' +
-    '<div class="cell-name-block"><span class="cell-name-text">' + name + '</span>' + imgLink + wrapBadge + fragBadge + '</div>' +
-    '<div class="cell-meta">' + metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') + '</div>' +
+  return '<div class="item-row ' + rc + '" style="cursor:pointer;">' +
+    '<div class="cell-num" style="font-size:20px;line-height:1.2;" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit">' + typeIcon + '</div>' +
+    '<div class="cell-name-block" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit"><span class="cell-name-text">' + name + '</span>' + imgLink + wrapBadge + fragBadge + '</div>' +
+    '<div class="cell-meta" onclick="openEditDialog(' + rowIdx + ')">' + metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') + '</div>' +
+    '<button class="row-delete-btn" onclick="event.stopPropagation();quickDeleteItem(' + rowIdx + ')" title="Delete item">🗑</button>' +
   '</div>';
 }
 
@@ -9454,9 +9506,9 @@ function renderItems() {
         if (notes)  metaParts.push(notes);
 
         html += '<div class="container-row-wrap">';
-        html += '<div class="container-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit">' +
-          '<div class="cell-num">' + icon + '</div>' +
-          '<div class="container-row-body">' +
+        html += '<div class="container-row ' + rc + '">' +
+          '<div class="cell-num" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit" style="cursor:pointer;">' + icon + '</div>' +
+          '<div class="container-row-body" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit" style="cursor:pointer;">' +
             '<div class="container-row-name">' + name + (item['Bin/Box #'] ? ' <span style="font-weight:normal;font-size:13px;opacity:0.7;"># ' + item['Bin/Box #'] + '</span>' : '') + '</div>' +
             '<div class="container-row-meta">' + metaParts.join(' · ') + '</div>' +
           '</div>' +
@@ -9464,6 +9516,7 @@ function renderItems() {
             'data-ctype="' + type + '" data-count="' + cnt + '">' +
             icon + ' ' + cnt + ' item' + (cnt !== 1 ? 's' : '') + ' ▼' +
           '</button>' +
+          '<button class="row-delete-btn" onclick="event.stopPropagation();quickDeleteItem(' + rowIdx + ')" title="Delete container">🗑</button>' +
         '</div>';
 
         // --- Container contents (hidden until expanded) ---
