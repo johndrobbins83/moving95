@@ -2630,14 +2630,7 @@ async function saveEditedItem() {
 
   // If this is a container with qty > 1, expand into individual containers
   if (isContainer && qty > 1) {
-    if (!confirm(
-      'Expand "' + itemName + '" into ' + qty + ' individual ' + itemType + 's?\n\n' +
-      'Each will get its own auto-generated ID (e.g. BN001LR, BN002LR...) ' +
-      'and be added as a separate row in the sheet.\n\n' +
-      'OK = Expand   Cancel = Save as single item'
-    )) {
-      // Fall through to normal single-item save
-    } else {
+    {
       stat.textContent = 'Expanding into ' + qty + ' containers...';
       stat.style.color = '#555';
 
@@ -8675,41 +8668,26 @@ async function submitItem() {
   const itemName = document.getElementById('itemName').value.trim();
   const itemType = document.getElementById('itemType').value;
   const location = document.getElementById('location').value;
-  const quantity = document.getElementById('quantity').value;
+  const quantity = parseInt(document.getElementById('quantity').value) || 1;
   if (!itemName || !itemType || !location || !quantity) {
     showError('Please fill in required fields:\n• Item Name\n• Type\n• Location\n• Quantity'); return;
   }
 
-  const wrapped      = document.querySelector('input[name="wrapped"]:checked')?.value || 'No';
-  const fragile      = document.querySelector('input[name="fragile"]:checked')?.value || 'No';
-  const description  = document.getElementById('description').value.trim();
-  const itemWeight   = document.getElementById('itemWeight').value;
-  const itemOrigin   = document.getElementById('itemOrigin').value;
-  const itemNumber   = String(itemCounter).padStart(4, '0');
+  const wrapped     = document.querySelector('input[name="wrapped"]:checked')?.value || 'No';
+  const fragile     = document.querySelector('input[name="fragile"]:checked')?.value || 'No';
+  const description = document.getElementById('description').value.trim();
+  const itemWeight  = document.getElementById('itemWeight').value;
+  const itemOrigin  = document.getElementById('itemOrigin').value;
+  const estCost     = document.getElementById('estCost').value.trim();
+  const loadAction  = document.getElementById('loadAction').value;
+  const loadWho     = document.getElementById('loadWho').value;
+  const itemStatus  = Array.from(document.querySelectorAll('input[name="itemStatus"]:checked')).map(el => el.value).join(', ');
+  const tabName     = localStorage.getItem('tabName') || 'Inventory';
 
-  // If this item IS a container (Box/Bin/Crate/Bag) and hasn't been assigned
-  // to an existing container, pre-generate its own container ID so it gets
-  // written to the sheet correctly and children can reference it.
   const CONTAINER_ITEM_TYPES = new Set(['Box', 'Bin', 'Crate', 'Bag']);
-  const binBoxEl = document.getElementById('binBoxNumber');
-  if (CONTAINER_ITEM_TYPES.has(itemType) && !binBoxEl.value.trim()) {
-    const existingContainers = loadContainers();
-    const tCode = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG' }[itemType] || 'CT';
-    const rSuffix = location ? (ROOM_PREFIX[location] || location.replace(/\s+/g,'').substring(0,2).toUpperCase()) : 'XX';
-    const seq = nextContainerSeq(tCode, rSuffix, existingContainers);
-    const newId = makeContainerId(itemType, seq, rSuffix);
-    binBoxEl.value = newId;
-    // Register in containers list now so it's available immediately
-    existingContainers.push({
-      type: itemType, id: newId,
-      name: itemName || '', room: location || '',
-      notes: description ? description.substring(0, 60) : '',
-      created: new Date().toLocaleString()
-    });
-    saveContainers(existingContainers);
-    refreshContainerDropdown();
-  }
-  const binBoxNumber = binBoxEl.value.trim();
+  const isContainer = CONTAINER_ITEM_TYPES.has(itemType);
+  const binBoxEl    = document.getElementById('binBoxNumber');
+  const assignedBin = binBoxEl.value.trim(); // manually assigned to existing container
 
   setStatus('Preparing...'); showProgress(20);
 
@@ -8718,22 +8696,101 @@ async function submitItem() {
     imageDataArray = await Promise.all(selectedImages.map(fileToBase64));
   } catch(e) { showError('Image error: ' + e.message); hideProgress(); return; }
 
+  showProgress(40);
+
+  // ── CONTAINER with qty > 1: expand into N individual containers ──
+  if (isContainer && !assignedBin && quantity > 1) {
+    const tCode    = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG' }[itemType] || 'CT';
+    const rSuffix  = location ? (ROOM_PREFIX[location] || location.replace(/\s+/g,'').substring(0,2).toUpperCase()) : 'XX';
+    const existing = loadContainers();
+    const startSeq = nextContainerSeq(tCode, rSuffix, existing);
+    const newIds   = [];
+
+    // Pre-register all containers in localStorage
+    for (let i = 0; i < quantity; i++) {
+      const id = makeContainerId(itemType, startSeq + i, rSuffix);
+      newIds.push(id);
+      existing.push({ type: itemType, id, name: itemName, room: location,
+        notes: description.substring(0, 60), created: new Date().toLocaleString() });
+    }
+    saveContainers(existing);
+    refreshContainerDropdown();
+
+    setStatus('Sending ' + quantity + ' containers to Sheets...');
+    showProgress(55);
+
+    // Send each as a separate row
+    for (let i = 0; i < quantity; i++) {
+      const num = String(itemCounter).padStart(4, '0');
+      const payload = {
+        itemNumber: num, itemName, itemType, binBoxNumber: newIds[i],
+        itemWeight, itemOrigin, location, quantity: 1, description,
+        estCost: estCost ? parseFloat(estCost) : '',
+        wrapped, fragile, itemStatus, loadAction, loadWho,
+        images: i === 0 ? imageDataArray : [],  // only attach images to first
+        timestamp: new Date().toISOString(), tabName
+      };
+      try {
+        await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      } catch(err) {
+        hideProgress();
+        showError('Network error on container ' + (i+1) + ': ' + err.message);
+        return;
+      }
+      // Register each in session
+      sessionItems.push(payload);
+      addToLog(payload);
+      itemCounter++;
+      localStorage.setItem('itemCounter', itemCounter);
+      showProgress(55 + Math.round(((i + 1) / quantity) * 40));
+    }
+
+    updateItemNumberDisplay();
+    document.getElementById('itemCountStatus').textContent = 'Logged: ' + sessionItems.length;
+    setStatus('✅ Created ' + quantity + ' ' + itemType + 's: ' + newIds[0] + ' – ' + newIds[quantity - 1]);
+    showSuccess(quantity + ' ' + itemType + 's logged!\n' + newIds[0] + ' to ' + newIds[quantity - 1] + '\n\nNext: #' + String(itemCounter).padStart(4,'0'));
+    // Reset form
+    document.getElementById('itemName').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+    document.getElementById('imageCount').textContent = '';
+    document.getElementById('imageInput').value = '';
+    selectedImages = [];
+    document.getElementById('quantity').value = 1;
+    binBoxEl.value = '';
+    var caSel = document.getElementById('containerAssign');
+    if (caSel) caSel.value = '';
+    var caInfo = document.getElementById('containerAssignInfo');
+    if (caInfo) caInfo.style.display = 'none';
+    allItems = []; filtered = [];
+    setTimeout(hideProgress, 800);
+    return;
+  }
+
+  // ── SINGLE CONTAINER or regular item ──
+  if (isContainer && !assignedBin) {
+    const existingContainers = loadContainers();
+    const tCode   = { Box:'BX', Bin:'BN', Crate:'CR', Bag:'BG' }[itemType] || 'CT';
+    const rSuffix = location ? (ROOM_PREFIX[location] || location.replace(/\s+/g,'').substring(0,2).toUpperCase()) : 'XX';
+    const seq     = nextContainerSeq(tCode, rSuffix, existingContainers);
+    const newId   = makeContainerId(itemType, seq, rSuffix);
+    binBoxEl.value = newId;
+    existingContainers.push({ type: itemType, id: newId, name: itemName, room: location,
+      notes: description ? description.substring(0, 60) : '', created: new Date().toLocaleString() });
+    saveContainers(existingContainers);
+    refreshContainerDropdown();
+  }
+  const binBoxNumber = binBoxEl.value.trim();
+
   showProgress(55); setStatus('Sending to Sheets...');
 
-  const estCost = document.getElementById('estCost').value.trim();
-
-  const loadAction = document.getElementById('loadAction').value;
-  const loadWho    = document.getElementById('loadWho').value;
-
+  const itemNumber = String(itemCounter).padStart(4, '0');
   const payload = {
     itemNumber, itemName, itemType, binBoxNumber, itemWeight, itemOrigin,
-    location, quantity: parseInt(quantity), description,
+    location, quantity, description,
     estCost: estCost ? parseFloat(estCost) : '',
-    wrapped, fragile,
-    itemStatus: Array.from(document.querySelectorAll('input[name="itemStatus"]:checked')).map(el => el.value).join(', '),
-    loadAction, loadWho,
-    images: imageDataArray, timestamp: new Date().toISOString(),
-    tabName: localStorage.getItem('tabName') || 'Inventory'
+    wrapped, fragile, itemStatus, loadAction, loadWho,
+    images: imageDataArray, timestamp: new Date().toISOString(), tabName
   };
 
   try {
