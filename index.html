@@ -2732,7 +2732,7 @@ function downloadInventoryPDF() {
     const bg = COLORS[loc] || '#e0e0e0';
     tableRows += `<tr>
       <td colspan="8" style="background:${bg};font-weight:bold;font-size:13px;padding:6px 8px;border:1px solid #999;letter-spacing:0.5px;">
-        📦 ${loc} &nbsp;·&nbsp; <span style="font-weight:normal;">${roomItems.length} item${roomItems.length!==1?'s':''}</span>
+        ${getRoomEmoji(loc)} ${loc} &nbsp;·&nbsp; <span style="font-weight:normal;">${roomItems.length} item${roomItems.length!==1?'s':''}</span>
       </td>
     </tr>`;
 
@@ -2846,12 +2846,10 @@ function downloadInventoryPDF() {
 </body>
 </html>`;
 
-  const win = window.open('', '_blank', 'width=900,height=700');
+  const win = window.open('', '_blank');
   if (!win) { showError('Pop-up blocked. Please allow pop-ups for this site and try again.'); return; }
   win.document.write(html);
   win.document.close();
-  // Trigger print dialog automatically
-  setTimeout(() => win.print(), 600);
 }
 
 // ══════════════════════════════
@@ -3657,6 +3655,13 @@ function calcUseResult() {
   const COLS = 20, ROWS = 20;   // square grid
   var CELL = 14;                // recalculated on init
   var snake, dir, nextDir, food, running, gameLoop, snakeHiScore;
+  var FOOD_EMOJIS = ['🍕','🌮','🍔','🍜','🍣','🌯','🧆','🥪','🍉','🫐','🍩','🧁','🍪','🥨','🍫','🥐','🍦','🥗','🍖','🌽'];
+  var currentFoodEmoji = '🍕';
+  function pickFoodEmoji() {
+    var prev = currentFoodEmoji;
+    do { currentFoodEmoji = FOOD_EMOJIS[Math.floor(Math.random()*FOOD_EMOJIS.length)]; }
+    while (currentFoodEmoji === prev && FOOD_EMOJIS.length > 1);
+  }
 
   function getCanvas() { return document.getElementById('snakeCanvas'); }
   function getCtx()    { return getCanvas() ? getCanvas().getContext('2d') : null; }
@@ -3689,6 +3694,7 @@ function calcUseResult() {
     do {
       pos = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*COLS)};
     } while (snake && snake.some(function(s){ return s.x===pos.x && s.y===pos.y; }));
+    pickFoodEmoji();
     return pos;
   }
 
@@ -3696,14 +3702,15 @@ function calcUseResult() {
     var ctx = getCtx();
     if (!ctx) return;
     var canvas = getCanvas();
-    // Background — green normally, neon pink in rave mode
-    var isRave   = document.body.classList.contains('rave-mode');
-    var bgColor  = isRave ? '#ff007f' : '#9bbc0f';
-    var dotColor = isRave ? '#cc0066' : '#8bac0f';
+    var isRave = document.body.classList.contains('rave-mode');
+
+    // ── Background ──────────────────────────────────────────────────────────
+    var bgColor  = isRave ? '#ff007f' : '#f5c9a0';   // flesh in light/dark, neon pink in rave
+    var dotColor = isRave ? '#cc0066' : '#e0a882';   // darker flesh dot in normal modes
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Grid dots (subtle)
+    // Grid dots (subtle texture)
     ctx.fillStyle = dotColor;
     var dot = Math.max(1, Math.floor(CELL/6));
     var off = Math.floor(CELL/3);
@@ -3717,46 +3724,55 @@ function calcUseResult() {
     var wrap = document.querySelector('.snake-screen-wrap');
     if (wrap) wrap.style.background = bgColor;
 
-    // Food
-    ctx.fillStyle = isRave ? '#ffff00' : '#0f380f';
-    ctx.fillRect(food.x*CELL+1, food.y*CELL+1, CELL-2, CELL-2);
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(food.x*CELL+3, food.y*CELL+3, CELL-6, CELL-6);
+    // ── Food ────────────────────────────────────────────────────────────────
+    if (isRave) {
+      // Rave: solid neon yellow square
+      ctx.fillStyle = '#ffff00';
+      ctx.fillRect(food.x*CELL+1, food.y*CELL+1, CELL-2, CELL-2);
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(food.x*CELL+3, food.y*CELL+3, CELL-6, CELL-6);
+    } else {
+      // Normal: food emoji centered in the cell
+      var emojiSize = Math.max(10, CELL - 2);
+      ctx.font = emojiSize + 'px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(currentFoodEmoji, food.x*CELL + CELL/2, food.y*CELL + CELL/2 + 1);
+      // Reset baseline for other drawing
+      ctx.textBaseline = 'alphabetic';
+    }
 
-    // Rave neon colors — pulse offset shifts each frame via Date.now()
+    // ── Rave neon colors ─────────────────────────────────────────────────────
     var RAVE_COLORS = ['#00ffff','#ffff00','#ff6600','#cc00ff','#00ff66'];
     var pulseOffset = isRave ? Math.floor(Date.now() / 120) : 0;
 
-    // Snake
+    // ── Snake ────────────────────────────────────────────────────────────────
     snake.forEach(function(seg, i) {
       if (i === 0) {
         // Head
         if (isRave) {
-          var hIdx = (pulseOffset) % RAVE_COLORS.length;
-          ctx.fillStyle = RAVE_COLORS[hIdx];
+          ctx.fillStyle = RAVE_COLORS[pulseOffset % RAVE_COLORS.length];
         } else {
-          ctx.fillStyle = '#0f380f';
+          ctx.fillStyle = '#ffffff';   // white worm
         }
         ctx.fillRect(seg.x*CELL, seg.y*CELL, CELL, CELL);
         // Eyes
-        ctx.fillStyle = isRave ? '#000' : bgColor;
-        ctx.fillRect(seg.x*CELL+2, seg.y*CELL+2, Math.max(2,Math.floor(CELL/5)), Math.max(2,Math.floor(CELL/5)));
-        ctx.fillRect(seg.x*CELL+CELL-4, seg.y*CELL+2, Math.max(2,Math.floor(CELL/5)), Math.max(2,Math.floor(CELL/5)));
+        ctx.fillStyle = isRave ? '#000' : '#c8957a';   // flesh-toned eyes in normal mode
+        var eyeSize = Math.max(2, Math.floor(CELL/5));
+        ctx.fillRect(seg.x*CELL+2, seg.y*CELL+2, eyeSize, eyeSize);
+        ctx.fillRect(seg.x*CELL+CELL-4, seg.y*CELL+2, eyeSize, eyeSize);
       } else {
         if (isRave) {
-          // Each segment picks a color based on its position + pulse offset
-          // The offset shifts forward each frame so colors flow tail→head
           var cIdx = (i + pulseOffset) % RAVE_COLORS.length;
           ctx.fillStyle = RAVE_COLORS[cIdx];
           ctx.fillRect(seg.x*CELL, seg.y*CELL, CELL, CELL);
-          // Inner darker square for segmented look
           ctx.fillStyle = 'rgba(0,0,0,0.3)';
           ctx.fillRect(seg.x*CELL+1, seg.y*CELL+1, CELL-2, CELL-2);
-          // Re-apply color for the visible part
           ctx.fillStyle = RAVE_COLORS[cIdx];
           ctx.fillRect(seg.x*CELL+2, seg.y*CELL+2, CELL-4, CELL-4);
         } else {
-          ctx.fillStyle = i%2===0 ? '#0f380f' : '#306230';
+          // White worm body — alternate slightly for segmented look
+          ctx.fillStyle = i%2===0 ? '#ffffff' : '#f0f0f0';
           ctx.fillRect(seg.x*CELL+1, seg.y*CELL+1, CELL-2, CELL-2);
         }
       }
@@ -3802,9 +3818,10 @@ function calcUseResult() {
     // Flash effect
     var ctx = getCtx();
     if (ctx) {
-      ctx.fillStyle = 'rgba(15,56,15,0.5)';
+      var isRaveGO = document.body.classList.contains('rave-mode');
+      ctx.fillStyle = isRaveGO ? 'rgba(200,0,60,0.6)' : 'rgba(150,80,40,0.55)';
       ctx.fillRect(0, 0, getCanvas().width, getCanvas().height);
-      ctx.fillStyle = '#9bbc0f';
+      ctx.fillStyle = isRaveGO ? '#ffff00' : '#ffffff';
       ctx.font = 'bold 14px "VT323", monospace';
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', getCanvas().width/2, getCanvas().height/2 - 8);
@@ -4525,6 +4542,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
       <span style="color:white;">🗂️ Inventory</span>
       <span style="color:rgba(255,255,255,0.75);font-size:14px;font-weight:normal;" id="viewerItemCount"></span>
+      <button onclick="showPage('form')" style="margin-left:auto;font-family:'VT323',monospace;font-size:17px;font-weight:bold;padding:4px 12px;cursor:pointer;background:rgba(255,255,255,0.2);color:#fff;border-top:2px solid rgba(255,255,255,0.5);border-left:2px solid rgba(255,255,255,0.5);border-right:2px solid rgba(0,0,0,0.3);border-bottom:2px solid rgba(0,0,0,0.3);letter-spacing:1px;flex-shrink:0;white-space:nowrap;">&#10133; Add Item</button>
     </div>
   </div>
 
@@ -8346,6 +8364,50 @@ function getContainerIcon(type) {
   return { Box:'📦', Bin:'🗃️', Crate:'🪵', Bag:'🛍️' }[type] || '📁';
 }
 
+function getTypeIcon(type) {
+  var map = {
+    'Art/Wall':          '🖼️',
+    'Clothing':          '👕',
+    'Crafting':          '✂️',
+    'Dishes/Bar':        '🍽️',
+    'Electronics':       '📺',
+    'Furniture':         '🛋️',
+    'Instruments':       '🎸',
+    'Kitchen Appliance': '🍳',
+    'Linens':            '🛏️',
+    'Pet Supplies':      '🐾',
+    'Plants':            '🪴',
+    'Box':               '📦',
+    'Bin':               '🗃️',
+    'Crate':             '🪵',
+    'Bag':               '🛍️',
+    'Other':             '📎'
+  };
+  return map[type] || '📎';
+}
+
+function getRoomEmoji(room) {
+  var map = {
+    'Bathroom':       '🚿',
+    'Bedroom':        '🛏️',
+    'Closet 1':       '🚪',
+    'Closet 2':       '🚪',
+    'Closet 3':       '🚪',
+    'Closet 4':       '🚪',
+    'Kitchen':        '🍳',
+    'Listening Room': '🎧',
+    'Living Room':    '🛋️',
+    'Mini Office':    '💻',
+    'Office':         '💻',
+    'Plant Area':     '🪴',
+    'Sitting Room':   '☕',
+    'Studio':         '🎙️',
+    'Workshop':       '🔧',
+    'Other':          '📦'
+  };
+  return map[room] || '📦';
+}
+
 // Populate the "Assign to Box/Bin" dropdown on the form page
 function refreshContainerDropdown() {
   var sel = document.getElementById('containerAssign');
@@ -9225,8 +9287,9 @@ function buildItemRowHtml(item, rc) {
   if (qty)    metaParts.push(qty);
 
   const rowIdx = allItems.indexOf(item);
+  var typeIcon = getTypeIcon(type);
   return '<div class="item-row ' + rc + '" onclick="openEditDialog(' + rowIdx + ')" style="cursor:pointer;" title="Tap to edit">' +
-    '<div class="cell-num">' + String(num).padStart(4,'0') + '</div>' +
+    '<div class="cell-num" style="font-size:20px;line-height:1.2;">' + typeIcon + '</div>' +
     '<div class="cell-name-block"><span class="cell-name-text">' + name + '</span>' + imgLink + wrapBadge + fragBadge + '</div>' +
     '<div class="cell-meta">' + metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') + '</div>' +
   '</div>';
@@ -9310,7 +9373,7 @@ function renderItems() {
     const totalCount = items.length + childCount;
 
     html += '<div class="room-divider ' + rc + '">' +
-      '<span>📦 ' + loc + '</span>' +
+      '<span>' + getRoomEmoji(loc) + ' ' + loc + '</span>' +
       '<span class="room-divider-count">' + totalCount + ' item' + (totalCount !== 1 ? 's' : '') + '</span>' +
     '</div>';
 
@@ -9350,7 +9413,7 @@ function renderItems() {
         // --- Container contents (hidden until expanded) ---
         html += '<div class="container-contents">';
         if (children.length) {
-          html += '<div class="container-contents-header">📦 Contents of ' + name + '</div>';
+          html += '<div class="container-contents-header">' + icon + ' Contents of ' + name + '</div>';
           children.forEach(child => { html += buildItemRowHtml(child, rc); });
         } else {
           html += '<div class="container-empty-note">This container has no items assigned to it yet.</div>';
@@ -10809,7 +10872,7 @@ function downloadInventoryPDF() {
     const bg = COLORS[loc] || '#e0e0e0';
     tableRows += `<tr>
       <td colspan="8" style="background:${bg};font-weight:bold;font-size:13px;padding:6px 8px;border:1px solid #999;letter-spacing:0.5px;">
-        📦 ${loc} &nbsp;·&nbsp; <span style="font-weight:normal;">${roomItems.length} item${roomItems.length!==1?'s':''}</span>
+        ${getRoomEmoji(loc)} ${loc} &nbsp;·&nbsp; <span style="font-weight:normal;">${roomItems.length} item${roomItems.length!==1?'s':''}</span>
       </td>
     </tr>`;
 
@@ -12892,11 +12955,8 @@ function solMakeCard(card, source, cardIdx, isTop) {
     if (rave) {
       // In rave mode: black background, neon color per suit, no red/black class
       div.className = 'sol-card sol-rave-card';
-      div.style.color = SOL_RAVE_COLORS[card.suit];
       div.style.background = '#0a0a0a';
-      div.style.border = '1px solid ' + SOL_RAVE_COLORS[card.suit];
-      div.style.boxShadow = '0 0 6px ' + SOL_RAVE_COLORS[card.suit] + '88';
-      div.style.textShadow = '0 0 4px ' + SOL_RAVE_COLORS[card.suit];
+      // color/border/shadow set below in the faceUp block to neon yellow
     } else {
       div.className = 'sol-card' + (solIsRed(card.suit) ? ' red' : ' black');
     }
@@ -12909,13 +12969,38 @@ function solMakeCard(card, source, cardIdx, isTop) {
 
   if (card.faceUp) {
     var sym = solGetSuitSymbol(card.suit);
+
+    // Corner rank (top-left) — rank only
     var rank = document.createElement('span'); rank.className = 'sol-rank';
-    rank.textContent = SOL_RANKS[card.rank] + sym;
+    rank.textContent = SOL_RANKS[card.rank];
+
+    // Center suit symbol
     var center = document.createElement('span'); center.className = 'sol-center';
     center.style.fontSize = '24px';
     center.textContent = sym;
+
+    // Bottom-right corner — suit symbol only
     var suitBot = document.createElement('span'); suitBot.className = 'sol-suit';
-    suitBot.textContent = SOL_RANKS[card.rank] + sym;
+    suitBot.textContent = sym;
+
+    // In rave mode: rank = neon yellow, suit symbols = neon blue (black suits) or pink (red suits)
+    if (rave) {
+      var suitColor = solIsRed(card.suit) ? '#ff00ff' : '#00ffff';
+      // Rank: neon yellow
+      rank.style.color      = '#ffff00';
+      rank.style.textShadow = '0 0 6px #ffff00';
+      // Center and bottom suit: suit color
+      center.style.color      = suitColor;
+      center.style.textShadow = '0 0 8px ' + suitColor;
+      suitBot.style.color      = suitColor;
+      suitBot.style.textShadow = '0 0 6px ' + suitColor;
+      // Card border + glow: suit color
+      div.style.color     = suitColor;
+      div.style.border    = '1px solid ' + suitColor;
+      div.style.boxShadow = '0 0 6px ' + suitColor + '88';
+      div.style.textShadow = 'none';
+    }
+
     div.appendChild(rank); div.appendChild(center); div.appendChild(suitBot);
 
     if (isTop) {
@@ -12994,9 +13079,10 @@ function solRenderAll() {
     if (s.foundations[fi].length === 0) {
       fEl.textContent = foundSuitSymbols[fi];
       if (solIsRave()) {
-        fEl.style.color = SOL_RAVE_COLORS[fi];
-        fEl.style.textShadow = '0 0 8px ' + SOL_RAVE_COLORS[fi];
-        fEl.style.borderColor = SOL_RAVE_COLORS[fi];
+        var fSuitColor = (fi === 1 || fi === 2) ? '#ff00ff' : '#00ffff';
+        fEl.style.color = fSuitColor;
+        fEl.style.textShadow = '0 0 8px ' + fSuitColor;
+        fEl.style.borderColor = fSuitColor;
       } else {
         fEl.style.color = ''; fEl.style.textShadow = ''; fEl.style.borderColor = '';
       }
