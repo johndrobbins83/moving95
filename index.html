@@ -4979,8 +4979,10 @@ document.addEventListener('DOMContentLoaded', function() {
         <div id="radio-config-list">
         <!-- Dynamically rendered by buildRadioConfigList() -->
         </div>
-        <div style="margin-top:12px;">
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
           <button class="btn btn-submit" onclick="saveRadioConfig()" style="width:100%;font-size:18px;">💾 Save Radio Config</button>
+          <button class="btn btn-submit" onclick="pushRadioDefaults()" style="width:100%;font-size:18px;background:#2e7d32;border-color:#1b5e20;">📡 Push as Universal Defaults (All Users)</button>
+          <button class="btn" onclick="addCustomStation()" style="width:100%;font-size:18px;">➕ Add New Station</button>
         </div>
         <div id="radioConfigStatus" class="config-note" style="margin-top:8px;display:none;"></div>
 
@@ -7730,8 +7732,10 @@ function gatherConfig() {
     gcalId:   getLive('gcalId',       'gcalId',   ''),
     gcalDur:  getLive('gcalDuration', 'gcalDuration', '2'),
     personal: JSON.stringify(personal),
-    radioPlaylists: localStorage.getItem('radioPlaylistUrls') || '{}',
-    radioMeta:      localStorage.getItem('radioStationMeta')  || '{}'
+    radioPlaylists:     localStorage.getItem('radioPlaylistUrls')    || '{}',
+    radioMeta:          localStorage.getItem('radioStationMeta')      || '{}',
+    radioDefaultMeta:   localStorage.getItem('radioDefaultMeta')      || '{}',
+    radioCustomStations:localStorage.getItem('radioCustomStations')   || '[]'
   };
 }
 
@@ -7963,6 +7967,8 @@ async function syncProfileFromSheet(fromProfile) {
       // Always explicitly restore radio data
       if (data.radioPlaylists && data.radioPlaylists !== '{}') {
         localStorage.setItem('radioPlaylistUrls', data.radioPlaylists);
+        if (data.radioDefaultMeta)    localStorage.setItem('radioDefaultMeta', data.radioDefaultMeta);
+        if (data.radioCustomStations) localStorage.setItem('radioCustomStations', data.radioCustomStations);
       }
       if (data.radioMeta && data.radioMeta !== '{}') {
         localStorage.setItem('radioStationMeta', data.radioMeta);
@@ -13486,6 +13492,32 @@ var RADIO_GENRES = [
   { id:'velvetlounge', label:'Velvet Lounge',          icon:'🎷' },
 ];
 
+// ── Universal defaults set by admin — all users inherit these ────────────────
+// Populated by "Push as Universal Defaults" in admin Radio Config.
+// Stored in localStorage key 'radioDefaultMeta' so it syncs via profile sheet.
+var RADIO_DEFAULT_META = {};
+function loadRadioDefaultMeta() {
+  try { RADIO_DEFAULT_META = JSON.parse(localStorage.getItem('radioDefaultMeta') || '{}'); } catch(e) { RADIO_DEFAULT_META = {}; }
+}
+function saveRadioDefaultMeta() {
+  localStorage.setItem('radioDefaultMeta', JSON.stringify(RADIO_DEFAULT_META));
+}
+
+// ── Custom stations added by admin ────────────────────────────────────────────
+var RADIO_CUSTOM_STATIONS = [];
+function loadCustomStations() {
+  try { RADIO_CUSTOM_STATIONS = JSON.parse(localStorage.getItem('radioCustomStations') || '[]'); } catch(e) { RADIO_CUSTOM_STATIONS = []; }
+  // Merge into RADIO_GENRES (deduplicate by id)
+  RADIO_CUSTOM_STATIONS.forEach(function(s) {
+    if (!RADIO_GENRES.find(function(g){ return g.id === s.id; })) {
+      RADIO_GENRES.push(s);
+    }
+  });
+}
+function saveCustomStations() {
+  localStorage.setItem('radioCustomStations', JSON.stringify(RADIO_CUSTOM_STATIONS));
+}
+
 // Radio station metadata: name overrides, image, genre, explicit, description
 var radioMeta = {};
 function loadRadioMeta() {
@@ -13495,7 +13527,14 @@ function saveRadioMeta() {
   localStorage.setItem('radioStationMeta', JSON.stringify(radioMeta));
 }
 function getStationMeta(id) {
-  return radioMeta[id] || {};
+  // User's own overrides > admin universal defaults > empty
+  var userMeta    = radioMeta[id]         || {};
+  var defaultMeta = RADIO_DEFAULT_META[id] || {};
+  // Merge: user values take priority, defaults fill in anything missing
+  var merged = {};
+  Object.keys(defaultMeta).forEach(function(k) { merged[k] = defaultMeta[k]; });
+  Object.keys(userMeta).forEach(function(k)    { merged[k] = userMeta[k]; });
+  return merged;
 }
 function getStationLabel(genre) {
   var m = getStationMeta(genre.id);
@@ -13512,7 +13551,9 @@ function loadRadioUrls() {
   try {
     radioUrls = JSON.parse(localStorage.getItem('radioPlaylistUrls') || '{}');
   } catch(e) { radioUrls = {}; }
+  loadRadioDefaultMeta();
   loadRadioMeta();
+  mergeDefaultRadioUrls();
 }
 
 function saveRadioPlaylists() {
@@ -13867,6 +13908,8 @@ function highlightPlaylistRow(idx) {
 }
 
 function renderRadioGrid() {
+  loadRadioDefaultMeta();
+  loadCustomStations();
   loadRadioUrls();
   applyRadioLayout();
   renderRadioPlaylist();
@@ -14104,6 +14147,85 @@ function _unused() { // placeholder
 
 // ── RADIO CONFIG ─────────────────────────────────────────────────────────────
 var inputStyle = 'font-family:VT323,monospace;font-size:13px;min-height:32px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);padding:4px 6px;color:var(--blue);letter-spacing:0;width:100%;box-sizing:border-box;';
+
+
+// ── Push current radio config as universal defaults for all users ─────────────
+function pushRadioDefaults() {
+  if (!confirm('Push your current radio config (artwork, names, URLs) as the universal default for ALL users?\n\nUsers can still override individually in their own settings.')) return;
+
+  // Save current config first
+  saveRadioConfig();
+
+  // Copy current meta + urls into the default slots
+  loadRadioMeta();
+  loadRadioUrls();
+  RADIO_DEFAULT_META = {};
+  RADIO_GENRES.forEach(function(g) {
+    var m = Object.assign({}, radioMeta[g.id] || {});
+    if (radioUrls[g.id]) m.url = radioUrls[g.id];
+    if (Object.keys(m).length) RADIO_DEFAULT_META[g.id] = m;
+  });
+  saveRadioDefaultMeta();
+
+  // Also save radioPlaylistUrls defaults
+  localStorage.setItem('radioDefaultUrls', JSON.stringify(radioUrls));
+
+  // Push via profile sync so it propagates to other devices
+  silentPushProfile();
+
+  var st = document.getElementById('radioConfigStatus');
+  if (st) {
+    st.style.display = 'block';
+    st.textContent = '📡 Defaults pushed! Other users will receive this on next login.';
+    st.style.borderLeftColor = '#2e7d32';
+    st.style.color = '#2e7d32';
+    setTimeout(function(){ st.style.display = 'none'; }, 3500);
+  }
+}
+
+// ── Add a custom station ───────────────────────────────────────────────────────
+function addCustomStation() {
+  var id    = prompt('Station ID (no spaces, lowercase, e.g. "mystation"):');
+  if (!id) return;
+  id = id.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!id) { alert('Invalid ID.'); return; }
+  if (RADIO_GENRES.find(function(g){ return g.id === id; })) {
+    alert('A station with that ID already exists.'); return;
+  }
+  var label = prompt('Station name (e.g. "My Station"):') || id;
+  var icon  = prompt('Emoji icon (e.g. 🎵):') || '📻';
+
+  var newStation = { id: id, label: label.trim(), icon: icon.trim() };
+  RADIO_GENRES.push(newStation);
+
+  // Save to custom stations list
+  loadCustomStations();
+  RADIO_CUSTOM_STATIONS.push(newStation);
+  saveCustomStations();
+
+  // Rebuild the config list and radio grid
+  buildRadioConfigList();
+  if (document.getElementById('radio-grid')) renderRadioGrid();
+
+  var st = document.getElementById('radioConfigStatus');
+  if (st) {
+    st.style.display = 'block';
+    st.textContent = '✅ Station "' + label + '" added. Set its URL and artwork, then Save.';
+    st.style.borderLeftColor = '#006400';
+    st.style.color = '#006400';
+    setTimeout(function(){ st.style.display = 'none'; }, 4000);
+  }
+}
+
+// Also load default URLs into radioUrls if user has none set
+function mergeDefaultRadioUrls() {
+  try {
+    var defaultUrls = JSON.parse(localStorage.getItem('radioDefaultUrls') || '{}');
+    Object.keys(defaultUrls).forEach(function(id) {
+      if (!radioUrls[id]) radioUrls[id] = defaultUrls[id];
+    });
+  } catch(e) {}
+}
 
 function buildRadioConfigList() {
   var list = document.getElementById('radio-config-list');
@@ -14347,6 +14469,8 @@ function buildRadioConfigList() {
 }
 
 function loadRadioConfig() {
+  loadRadioDefaultMeta();
+  loadCustomStations();
   loadRadioUrls();
   renderRaveShowList();
   loadRaveRadioUrl();
