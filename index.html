@@ -577,8 +577,7 @@
     border-bottom: 2px solid var(--darker);
     margin: 10px;
     box-shadow: 2px 2px 0 var(--black);
-    overflow-x: hidden;
-    overflow-y: visible;
+    /* No overflow here — it breaks position:sticky on room dividers */
     max-width: 100%;
     box-sizing: border-box;
   }
@@ -804,7 +803,7 @@
 
   /* ── ITEM LIST ── */
   /* ── INVENTORY LIST ── */
-  #itemGrid { display: flex; flex-direction: column; gap: 0; overflow: hidden; }
+  #itemGrid { display: flex; flex-direction: column; gap: 0; overflow-x: clip; }
 
   .list-header {
     display: grid;
@@ -855,7 +854,7 @@
     grid-template-rows: auto auto;
     align-items: stretch;
     min-height: 52px;
-    overflow: hidden;
+    overflow-x: clip;
     max-width: 100%;
     box-sizing: border-box;
   }
@@ -931,7 +930,7 @@
     grid-template-rows: auto;
     align-items: stretch;
     min-height: 56px;
-    overflow: hidden;
+    overflow-x: clip;
     max-width: 100%;
     box-sizing: border-box;
     cursor: default;
