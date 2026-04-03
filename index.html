@@ -930,7 +930,7 @@
     overflow: hidden;
   }
   .container-row-name {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: bold;
     color: var(--black);
     white-space: nowrap;
@@ -10332,8 +10332,8 @@ function renderItems() {
         html += '<div class="container-row ' + rc + '">' +
           '<div class="cell-num" onclick="openItemDetail(' + rowIdx + ')" style="cursor:pointer;">' + icon + '</div>' +
           '<div class="container-row-body" onclick="openItemDetail(' + rowIdx + ')" style="cursor:pointer;">' +
-            '<div class="container-row-name">' + name + (item['Bin/Box #'] ? ' <span style="font-weight:normal;font-size:13px;opacity:0.7;"># ' + item['Bin/Box #'] + '</span>' : '') + '</div>' +
-            '<div class="container-row-meta">' + metaParts.join(' · ') + '</div>' +
+            '<div class="container-row-name">' + name + '</div>' +
+            '<div class="container-row-meta">' + (item['Bin/Box #'] ? item['Bin/Box #'] + (metaParts.length ? ' · ' : '') : '') + metaParts.join(' · ') + '</div>' +
           '</div>' +
           '<button class="container-expand-btn" onclick="event.stopPropagation();toggleContainerContents(this)" ' +
             'data-ctype="' + type + '" data-count="' + cnt + '">' +
