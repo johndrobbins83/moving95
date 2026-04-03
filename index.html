@@ -386,6 +386,28 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overscroll-behavior: none; }
 
+  /* ── PULL TO REFRESH ── */
+  #pullToRefresh {
+    position: fixed;
+    top: var(--header-h);
+    left: 0; right: 0;
+    height: 0;
+    overflow: hidden;
+    background: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 90;
+    transition: height 0.15s ease;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  #pullToRefresh.ptr-visible { height: 48px; }
+  #pullToRefresh.ptr-loading { height: 48px; background: var(--blue2); }
+
   body {
     background: var(--bg);
     font-family: 'VT323', 'Courier New', monospace;
@@ -555,7 +577,8 @@
     border-bottom: 2px solid var(--darker);
     margin: 10px;
     box-shadow: 2px 2px 0 var(--black);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
     max-width: 100%;
     box-sizing: border-box;
   }
@@ -4657,6 +4680,52 @@ document.addEventListener('DOMContentLoaded', function() {
       loadViewerData();
     }
   }, 60000);
+
+  // ── Pull-to-refresh ─────────────────────────────────────────
+  var ptrEl       = document.getElementById('pullToRefresh');
+  var ptrStartY   = 0;
+  var ptrDist     = 0;
+  var ptrActive   = false;
+  var PTR_THRESH  = 72;   // px to pull before triggering
+
+  document.addEventListener('touchstart', function(e) {
+    // Only active on viewer tab and when scrolled to very top
+    var activePage = document.querySelector('.page.active');
+    if (!activePage || activePage.id !== 'page-viewer') return;
+    if (window.scrollY > 10) return;
+    ptrStartY = e.touches[0].clientY;
+    ptrActive = true;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!ptrActive) return;
+    ptrDist = e.touches[0].clientY - ptrStartY;
+    if (ptrDist <= 0) { ptrActive = false; return; }
+    // Only prevent default scroll when pulling down from top
+    var pct = Math.min(ptrDist / PTR_THRESH, 1);
+    if (ptrEl) {
+      ptrEl.style.height = Math.min(ptrDist * 0.5, 56) + 'px';
+      ptrEl.textContent  = ptrDist > PTR_THRESH ? '↑ Release to refresh' : '↓ Pull to refresh';
+      ptrEl.className    = ptrDist > PTR_THRESH ? 'ptr-visible' : '';
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function() {
+    if (!ptrActive) return;
+    ptrActive = false;
+    if (ptrDist > PTR_THRESH) {
+      if (ptrEl) { ptrEl.className = 'ptr-loading'; ptrEl.textContent = '↻ Refreshing...'; }
+      allItems = []; filtered = [];
+      _deletePendingUntil = 0; // clear any suppress lock
+      loadViewerData();
+      setTimeout(function() {
+        if (ptrEl) { ptrEl.style.height = '0'; ptrEl.className = ''; }
+      }, 1200);
+    } else {
+      if (ptrEl) { ptrEl.style.height = '0'; ptrEl.className = ''; }
+    }
+    ptrDist = 0;
+  });
 });
 
 </script>
@@ -5038,6 +5107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ══════════════════════════════
      PAGE: VIEWER
 ══════════════════════════════ -->
+<div id="pullToRefresh">↓ Pull to refresh</div>
 <div class="page active" id="page-viewer">
 
 
