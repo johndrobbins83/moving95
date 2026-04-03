@@ -5188,10 +5188,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div class="win-card">
     <div class="win-card-title">
-      <span>📦 Items</span>
-      <span style="color:rgba(0,0,0,0.45);font-size:13px;font-weight:normal;margin-left:6px;" id="viewerItemCount"></span>
+      <span id="viewerItemCount" style="font-family:VT323,monospace;font-size:20px;font-weight:bold;letter-spacing:1px;">Items</span>
       <div style="display:flex;gap:4px;margin-left:auto;">
-        <button class="cal-nav-btn" onclick="showPage('form')" title="Add new item" style="font-size:15px;padding:3px 10px;background:var(--blue);color:white;border-color:var(--blue2);">&#10133; Add Item</button>
+        <button class="cal-nav-btn" onclick="showPage('form')" title="Add new item" style="font-size:clamp(15px,4vw,18px);padding:clamp(6px,2vw,10px) clamp(12px,3vw,20px);background:var(--blue);color:white;border-color:var(--blue2);font-weight:bold;min-height:40px;">&#10133; Add Item</button>
         <button class="cal-nav-btn" onclick="loadViewerData()" id="inlineRefreshBtn" title="Refresh inventory" style="font-size:18px;padding:3px 10px;">↺</button>
         <button class="cal-nav-btn" onclick="downloadInventoryPDF()" title="Download PDF" style="font-size:15px;padding:3px 10px;">⬇ PDF</button>
         <button class="cal-nav-btn" onclick="resetInventoryFull()" title="Clear sheet &amp; reset counter" style="font-size:15px;padding:3px 10px;color:#cc0000;border-color:#cc000066;">🗑 Reset</button>
@@ -5267,6 +5266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
+  <div id="adminCard-profileSync">
   <div class="win-card">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secProfile','btnProfile')">
       <span>&#128100; Profile &amp; Sync</span>
@@ -5316,6 +5316,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
   </div>
+  </div><!-- /adminCard-profileSync -->
 
   <div class="win-card">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secColorModes','btnColorModes')">
@@ -7922,7 +7923,8 @@ const ADMIN_ONLY_CARDS = [
   'adminCard-sessionLog',
   'adminCard-inventoryViewer',
   'adminCard-myCredentials',
-  'adminCard-radioPlaylists'
+  'adminCard-radioPlaylists',
+  'adminCard-profileSync'
 ];
 
 // ── ADMIN NOTIFICATIONS ───────────────────────────────────────
@@ -10099,7 +10101,7 @@ async function loadViewerData() {
       (item['Item Name'] && item['Item Name'].trim()) ||
       (item['Item #']    && item['Item #'].trim())
     );
-    (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = allItems.length + ' items — live';
+    (document.getElementById('viewerItemCount') || document.getElementById('headerStatus') || {}).textContent = '📦 ' + allItems.length;
     document.getElementById('headerRefreshBtn').textContent = '↺ Refresh';
     applyFilters();
     _viewerLoadInFlight = false;
@@ -10506,7 +10508,12 @@ function renderStats() {
     .sort((a,b) => b[1]-a[1])
     .map(([r,n]) => `<span class="stat-chip">${r}: ${n}</span>`).join('');
   const vc = document.getElementById('viewerItemCount');
-  if (vc) vc.textContent = filtered.length + ' of ' + allItems.length + ' items';
+  if (vc) {
+    const sameCount = filtered.length === allItems.length;
+    vc.textContent = sameCount
+      ? '📦 ' + allItems.length
+      : '📦 ' + filtered.length + ' / ' + allItems.length;
+  }
 }
 
 // ══════════════════════════════
