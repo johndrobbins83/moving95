@@ -903,8 +903,8 @@
   .container-row {
     border-bottom: 2px solid rgba(0,0,128,0.18);
     display: grid;
-    /* icon | name | expand | edit(34px) | delete(34px) */
-    grid-template-columns: 44px 1fr minmax(60px,90px) 34px 34px;
+    /* icon | name | expand(fixed) | edit | delete */
+    grid-template-columns: 44px 1fr 72px 34px 34px;
     grid-template-rows: auto;
     align-items: stretch;
     min-height: 56px;
@@ -10189,7 +10189,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 function buildItemRowHtml(item, rc) {
-  const name     = item['Item Name'] || '(unnamed)';
+  const name     = (item['Item Name'] || '').trim() || '(unnamed)';
   const type     = item['Type']      || '';
   const weight   = item['Weight']    || '';
   const wrapped  = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
@@ -10243,7 +10243,7 @@ function renderItems() {
     return;
   }
 
-  const header = '<div class="list-header"><span>#</span><span>Item Name &amp; Details</span></div>';
+  const header = '<div class="list-header" style="grid-template-columns:44px 1fr 34px 34px;"><span>📦</span><span>Item Name &amp; Details</span><span style="text-align:center;">✏️</span><span style="text-align:center;">🗑</span></div>';
 
   // --- Identify container items and their contents ---
   // A container item: its Bin/Box # matches its own identity (it IS the box)
@@ -10315,7 +10315,7 @@ function renderItems() {
 
       if (isContainer) {
         // --- Render container row ---
-        const name   = item['Item Name'] || '(unnamed)';
+        const name   = (item['Item Name'] || '').trim() || '(unnamed)';
         const num    = item['Item #'] || '?';
         const type   = item['Type'] || 'Box';
         const icon   = getContainerIcon(type);
@@ -10337,7 +10337,7 @@ function renderItems() {
           '</div>' +
           '<button class="container-expand-btn" onclick="event.stopPropagation();toggleContainerContents(this)" ' +
             'data-ctype="' + type + '" data-count="' + cnt + '">' +
-            icon + ' ' + cnt + ' ▼' +
+            cnt + ' items ▼' +
           '</button>' +
           '<button class="row-edit-btn" style="grid-column:4;" onclick="event.stopPropagation();openEditDialog(' + rowIdx + ')" title="Edit container">✏️</button>' +
           '<button class="row-delete-btn" style="grid-column:5;" onclick="event.stopPropagation();quickDeleteItem(' + rowIdx + ')" title="Delete container">🗑</button>' +
