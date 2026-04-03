@@ -5751,8 +5751,9 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="win-card">
     <div class="win-card-title" style="padding:4px 8px;">
       <div style="display:flex;gap:4px;flex-wrap:wrap;width:100%;">
-        <button class="ck-filter-btn active" id="ckf-all"     onclick="filterChecklist('all')">All</button>
-        <button class="ck-filter-btn"         id="ckf-Pack"   onclick="filterChecklist('Pack')">📦 Pack</button>
+        <button class="ck-filter-btn active" id="ckf-all"        onclick="filterChecklist('all')">All</button>
+        <button class="ck-filter-btn"         id="ckf-unfinished" onclick="filterChecklist('unfinished')">⏳ Unfinished</button>
+        <button class="ck-filter-btn"         id="ckf-Pack"       onclick="filterChecklist('Pack')">📦 Pack</button>
         <button class="ck-filter-btn"         id="ckf-Load"   onclick="filterChecklist('Load')">🚛 Load</button>
         <button class="ck-filter-btn"         id="ckf-Moving" onclick="filterChecklist('Moving')">🏃 Moving</button>
         <button class="ck-filter-btn"         id="ckf-Cleaning" onclick="filterChecklist('Cleaning')">🧹 Clean</button>
@@ -7211,9 +7212,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <div id="dialHandle" style="position:absolute;top:50%;width:16px;height:16px;background:var(--face);border-top:2px solid #ffffff;border-left:2px solid #ffffff;border-right:2px solid #404040;border-bottom:2px solid #404040;transform:translate(-50%,-50%);left:50%;transition:left 0.4s cubic-bezier(0.25,0.46,0.45,0.94);cursor:grab;z-index:10;"></div>
       </div>
 
-      <!-- Station labels strip -->
-      <div id="dialLabels" style="position:relative;height:22px;overflow:hidden;"></div>
-
       <!-- Prev / Next buttons -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px;">
         <button id="dialPrevBtn" onclick="dialStep(-1)" style="font-family:'VT323',monospace;font-size:20px;padding:4px 18px;cursor:pointer;background:var(--face);color:#000080;border-top:2px solid #ffffff;border-left:2px solid #ffffff;border-right:2px solid #404040;border-bottom:2px solid #404040;letter-spacing:1px;flex-shrink:0;">◀ PREV</button>
@@ -7253,15 +7251,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <button onclick="closeRavePlayer()" style="background:none;border:none;color:#000;font-size:16px;font-weight:bold;cursor:pointer;font-family:'VT323',monospace;padding:0 2px;">&#10005;</button>
       </div>
       <div style="background:#000;padding:8px 10px 4px;border-bottom:1px solid #ff00ff44;">
-        <div style="overflow:hidden;white-space:nowrap;background:#001100;border:1px solid #00ff0033;padding:4px 6px;">
-          <div id="raveMarquee" style="display:inline-block;font-size:15px;color:#00ff00;letter-spacing:1px;white-space:nowrap;">
-            &#9733; MOVING &#8217;95 RAVE RADIO &#9733; 8 HOURS OF CONTINUOUS MIX &#9733; LIVE FROM THE MOVING TRUCK &#9733; DO NOT TOUCH THE DIAL &#9733; &nbsp;&nbsp;&nbsp;&nbsp;
-          </div>
-        </div>
-        <div id="raveVU" style="display:flex;gap:2px;margin-top:6px;height:28px;align-items:flex-end;"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
           <span id="raveTimeElapsed" style="font-size:22px;color:#ff00ff;letter-spacing:2px;">0:00:00</span>
-          <span id="raveShowInfo" style="font-size:13px;color:#ffff00;text-align:center;flex:1;padding:0 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">&#127897;&#65039; LOADING...</span>
           <span id="raveTimeDuration" style="font-size:22px;color:#00ffff;letter-spacing:2px;">8:00:00</span>
         </div>
       </div>
@@ -10650,13 +10641,15 @@ function renderChecklist() {
 
   if (ckFilter === 'done') {
     items = items.filter(i => i.done);
+  } else if (ckFilter === 'unfinished') {
+    items = items.filter(i => !i.done);
   } else if (ckFilter !== 'all') {
     items = items.filter(i => i.cat === ckFilter);
   }
 
   if (!items.length) {
     list.innerHTML = '<div style="padding:16px;text-align:center;color:#888;font-size:16px;font-weight:normal;">' +
-      (ckFilter === 'done' ? 'No completed tasks yet.' : ckFilter === 'all' ? 'No tasks yet. Add one above.' : 'No tasks in this category.') +
+      (ckFilter === 'done' ? 'No completed tasks yet.' : ckFilter === 'unfinished' ? '🎉 All tasks are done!' : ckFilter === 'all' ? 'No tasks yet. Add one above.' : 'No tasks in this category.') +
       '</div>';
     return;
   }
@@ -10664,7 +10657,7 @@ function renderChecklist() {
   // Group by category
   const cats = ckFilter === 'all'
     ? ['Pack','Load','Moving','Cleaning','Paint/Repair']
-    : ckFilter === 'done'
+    : (ckFilter === 'done' || ckFilter === 'unfinished')
     ? [...new Set(items.map(i => i.cat))]
     : [ckFilter];
 
@@ -14950,7 +14943,50 @@ function addCustomStation() {
 }
 
 // Also load default URLs into radioUrls if user has none set
+// ── HARDCODED default URLs (universal across all users) ──────────────────────
+// IDs must match the id fields in RADIO_GENRES exactly.
+var RADIO_HARDCODED_URLS = {
+  'deepend':       'https://open.spotify.com/playlist/4A90mFHPB7jLNoVMnNZEyO?si=771a30584806427b',
+  'funkalicious':  'https://open.spotify.com/playlist/4A90mFHPB7jLNoVMnNZEyO?si=771a30584806427b',
+  'discofever':    'https://open.spotify.com/playlist/0IEvGZLHaCfMS9r3nrz9m3?si=4029833bf66d43cd',
+  'velvetlounge':  'https://open.spotify.com/playlist/7IoGGEyKxdHdvUnUu4eF6s?si=822ed5e774754e96',
+  'mainstage':     'https://open.spotify.com/playlist/4JBjPUU2MHNuf7o3C1nmrD?si=46261e809984468f',
+  'jncoyears':     'https://open.spotify.com/playlist/7LXARbOr3RFzcPQ5Wk3Ttp?si=cfc5ab48ba1f45e9',
+  'closeedge':     'https://open.spotify.com/playlist/0ePLQBtEUzG64DVFQKlzhU?si=17d5208e59464f6c',
+  'rapisdead':     'https://open.spotify.com/playlist/39KG5MzTrBZZfZRVLfx9WI?si=cdea05a321e24aad',
+  'nightmode':     'https://open.spotify.com/playlist/67DqQAh15I3jTxQdv5f6yt?si=ffc8e90e563942b4',
+  'thirdwave':     'https://open.spotify.com/playlist/1TDcnu8UI43wnpnlcn2Nse?si=3c0071e22e374ee0',
+  'totallyrad':    'https://open.spotify.com/playlist/5Y95TsxbkRyurMv9uxegEO?si=cecc49c226494c99',
+  'rockinyacht':   'https://open.spotify.com/playlist/3WPkaPeBu6iDyTv3HGX2ZR?si=ee5bb9d1c0ec4a9a',
+  'openmic':       'https://open.spotify.com/playlist/2Nt3Nd7C969lKSaJJw5gPs?si=fc5652f941524a86',
+  'thequad':       'https://open.spotify.com/playlist/40NLGnVD2QXYuCkMrd2e3Q?si=4f0ffa2404434518',
+  'islandsoul':    'https://open.spotify.com/playlist/3AvDHpGRtgCJGkc8NzTpUh?si=765070e69e8248c3',
+  'darkroom':      'https://open.spotify.com/playlist/2vTZdKWmt7EBAQzVrOzpAr?si=cda51e4398e34caf',
+  'cocktailhour':  'https://open.spotify.com/playlist/3eIh3YXYWs3r1Dz11nPhBC?si=2f1bc33420b14864',
+  'chelsea':       'https://open.spotify.com/playlist/3S5xy6HSFTlb3yEyhYQEHE?si=18a76e62f13d48f2',
+  'deltavibes':    'https://open.spotify.com/playlist/77vNC12Z2P3Pne8xMJpfBu?si=b0ef404edfbf4120',
+  'trippydippy':   'https://open.spotify.com/playlist/2zR4F4TU4rbCs9BsU4VUOk?si=fc644dd8ab0743cb',
+  'candynecklace': 'https://open.spotify.com/playlist/1wrJ9RsZm3s7SBev1g6P7b?si=0d3a78482c1a42b4',
+  'jazzclub':      'https://open.spotify.com/playlist/2kYfHKMrU4LDfnmaLfs1Tb?si=0d39f96db9ea4b43',
+  'synapse':       'https://open.spotify.com/playlist/3uNjtwmlNxflXkGKxfrtiF?si=1b87fd22e7184e25',
+  'bigrewind':     'https://open.spotify.com/playlist/7jeuBzjOW3RzjzG7MUrJal?si=6d19dde6d572422c',
+  'bassment':      'https://open.spotify.com/playlist/1T9dCY0VO2Gwza7737ZEta?si=0e45c28b235a40fc',
+  'liquiddrip':    'https://open.spotify.com/playlist/714KjoSsJ38vC16t9qsuFI?si=f7df261b7293415c',
+  'intojungle':    'https://open.spotify.com/playlist/3SSbyFlBXgl7agFWL9kRHd?si=79263a1736024b3b',
+  'swoophead':     'https://open.spotify.com/playlist/1vuZupbPaM0J9RQHl37F7B?si=f606ed1bab304987',
+  'soundsystem':   'https://open.spotify.com/playlist/6pYT0dUegXP9RWTQkYnScf?si=0bbc6bc0a69b48da',
+  'theloop':       'https://open.spotify.com/playlist/7dKrKKG6GN8Cqb6Sa7t7mc?si=0386c49999234a51',
+  'circlepit':     'https://open.spotify.com/playlist/6s3LovQObrrU9Hk1QzxRMM?si=6a944097451c4070',
+  'skatepark':     'https://open.spotify.com/playlist/1o7snjo3azzNHFfyhLpJnQ?si=fadec8daad854649',
+  'thegutter':     'https://open.spotify.com/playlist/3nIxYaEiWeI9TWwUlx2HRn?si=472a79e3628045fc'
+};
+
 function mergeDefaultRadioUrls() {
+  // 1. Apply hardcoded URLs first — these are universal and always present
+  Object.keys(RADIO_HARDCODED_URLS).forEach(function(id) {
+    if (!radioUrls[id]) radioUrls[id] = RADIO_HARDCODED_URLS[id];
+  });
+  // 2. Also pull in any admin-saved defaults from localStorage (legacy support)
   try {
     var defaultUrls = JSON.parse(localStorage.getItem('radioDefaultUrls') || '{}');
     Object.keys(defaultUrls).forEach(function(id) {
