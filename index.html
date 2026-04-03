@@ -555,6 +555,9 @@
     border-bottom: 2px solid var(--darker);
     margin: 10px;
     box-shadow: 2px 2px 0 var(--black);
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .win-card-title {
     background: linear-gradient(to right, var(--darker), var(--dark));
@@ -778,11 +781,11 @@
 
   /* ── ITEM LIST ── */
   /* ── INVENTORY LIST ── */
-  #itemGrid { display: flex; flex-direction: column; gap: 0; }
+  #itemGrid { display: flex; flex-direction: column; gap: 0; overflow: hidden; }
 
   .list-header {
     display: grid;
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: 44px 1fr;
     gap: 0;
     background: var(--blue);
     color: white;
@@ -824,16 +827,21 @@
   .item-row {
     border-bottom: 1px solid rgba(0,0,0,0.1);
     display: grid;
-    grid-template-columns: 48px 1fr;
+    /* icon | content | edit(34px) | delete(34px) — buttons fixed so content never overflows */
+    grid-template-columns: 44px 1fr 34px 34px;
     grid-template-rows: auto auto;
     align-items: stretch;
     min-height: 52px;
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .item-row:last-child { border-bottom: none; }
   .item-row:hover { filter: brightness(0.93); cursor: pointer; }
 
-  /* # column — spans both rows */
+  /* icon column — spans both rows */
   .cell-num {
+    grid-column: 1;
     grid-row: 1 / 3;
     color: var(--blue);
     font-size: 13px;
@@ -842,24 +850,26 @@
     display: flex; align-items: center; justify-content: center;
     background: rgba(255,255,255,0.45);
     border-right: 1px solid rgba(0,0,0,0.1);
-    padding: 6px 4px;
+    padding: 6px 2px;
+    min-width: 0;
   }
 
   /* Top row: name + badges */
   .cell-name-block {
     grid-column: 2;
     grid-row: 1;
-    padding: 6px 8px 3px;
+    padding: 6px 4px 3px;
     font-size: 16px;
     font-weight: bold;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    overflow: hidden;
     border-bottom: 1px solid rgba(0,0,0,0.08);
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 4px;
+    min-width: 0;
   }
-  .cell-name-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cell-name-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .cell-badge {
-    font-size: 12px; font-weight: bold; flex-shrink: 0;
-    padding: 1px 7px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.15);
+    font-size: 11px; font-weight: bold; flex-shrink: 0;
+    padding: 1px 5px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.15);
     white-space: nowrap;
   }
   .badge-wrap  { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
@@ -869,12 +879,13 @@
   .cell-meta {
     grid-column: 2;
     grid-row: 2;
-    padding: 3px 8px 6px;
+    padding: 2px 4px 6px;
     font-size: 13px;
     font-weight: normal;
     color: #333;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    display: flex; align-items: center; gap: 6px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: flex; align-items: center; gap: 4px;
+    min-width: 0;
   }
   .meta-tag {
     display: inline-flex; align-items: center; gap: 3px;
@@ -892,10 +903,14 @@
   .container-row {
     border-bottom: 2px solid rgba(0,0,128,0.18);
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    /* icon | name | expand | edit(34px) | delete(34px) */
+    grid-template-columns: 44px 1fr minmax(60px,90px) 34px 34px;
     grid-template-rows: auto;
     align-items: stretch;
     min-height: 56px;
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
     cursor: default;
   }
   .container-row .cell-num {
@@ -906,11 +921,13 @@
   }
   .container-row-body {
     grid-column: 2;
-    padding: 8px 8px 8px 10px;
+    padding: 8px 6px 8px 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 2px;
+    min-width: 0;
+    overflow: hidden;
   }
   .container-row-name {
     font-size: 17px;
@@ -932,18 +949,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 14px;
+    padding: 0 6px;
     background: var(--blue);
     color: white;
     font-family: 'VT323', monospace;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: bold;
     border: none;
     cursor: pointer;
     white-space: nowrap;
-    gap: 5px;
-    letter-spacing: 0.5px;
+    overflow: hidden;
+    gap: 3px;
+    letter-spacing: 0;
     border-left: 2px solid rgba(255,255,255,0.2);
+    min-width: 0;
+    text-align: center;
   }
   .container-expand-btn:active { filter: brightness(0.85); }
   .container-contents {
@@ -1629,19 +1649,137 @@
   .budget-item-del:hover { color: #800000; }
   .calc-eq:active { background: var(--blue2); }
 
+  /* ── ITEM DETAIL SHEET ── */
+  #itemDetailSheet {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    pointer-events: none;
+  }
+  #itemDetailSheet.open { pointer-events: all; }
+  #itemDetailSheet .detail-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.25s ease;
+  }
+  #itemDetailSheet.open .detail-backdrop { background: rgba(0,0,0,0.45); }
+  #itemDetailSheet .detail-panel {
+    position: relative;
+    background: var(--face);
+    border-top: 3px solid var(--darker);
+    border-left: 3px solid var(--light);
+    border-right: 3px solid var(--darker);
+    max-height: 82vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+  }
+  #itemDetailSheet.open .detail-panel { transform: translateY(0); }
+  .detail-titlebar {
+    background: linear-gradient(to right, var(--blue), var(--blue2));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 17px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .detail-body { padding: 12px 14px 20px; }
+  .detail-photo {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border: 2px solid var(--darker);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+    margin-bottom: 10px;
+  }
+  .detail-field label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1px;
+  }
+  .detail-field span {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--black);
+  }
+  .detail-desc {
+    background: rgba(0,0,0,0.04);
+    border-left: 3px solid var(--blue);
+    padding: 7px 10px;
+    font-size: 15px;
+    font-weight: normal;
+    color: var(--black);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .detail-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
   /* ── INLINE DELETE BUTTON ── */
-  .row-delete-btn {
+  .row-edit-btn {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-size: 15px;
+    padding: 0;
+    width: 34px;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.15s;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
     flex-shrink: 0;
+    border-left: 1px solid rgba(0,0,0,0.07);
+  }
+  .row-edit-btn:hover, .row-edit-btn:active { opacity: 1; background: rgba(0,0,128,0.08); }
+  .row-delete-btn {
+    grid-column: 4;
+    grid-row: 1 / 3;
     background: none;
     border: none;
     color: #cc0000;
-    font-size: 17px;
-    padding: 6px 8px;
+    font-size: 15px;
+    padding: 0;
+    width: 34px;
     cursor: pointer;
-    opacity: 0.45;
+    opacity: 0.4;
     transition: opacity 0.15s;
     line-height: 1;
-    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    flex-shrink: 0;
+    border-left: 1px solid rgba(0,0,0,0.07);
   }
   .row-delete-btn:hover, .row-delete-btn:active { opacity: 1; }
   body.rave-mode .row-delete-btn { color: #ff4444; }
@@ -1794,8 +1932,8 @@
   }
   @media (min-width: 1000px) {
     .win-card { max-width: 1100px; }
-    .list-header { grid-template-columns: 56px 1fr; }
-    .item-row { grid-template-columns: 56px 1fr; }
+    .list-header { grid-template-columns: 44px 1fr; }
+    .item-row { grid-template-columns: 44px 1fr 34px 34px; }
     .cell-name-block { font-size: 17px; }
     .cell-meta { font-size: 14px; }
   }
@@ -7464,6 +7602,18 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
+<!-- ── ITEM DETAIL SHEET ── -->
+<div id="itemDetailSheet">
+  <div class="detail-backdrop" onclick="closeItemDetail()"></div>
+  <div class="detail-panel">
+    <div class="detail-titlebar">
+      <span id="detailTitle">Item Details</span>
+      <button onclick="closeItemDetail()" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;font-family:'VT323',monospace;padding:0 4px;">✕</button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
 <!-- ── DIALOGS ── -->
 <div class="dialog-overlay" id="successDialog">
   <div class="dialog-box">
@@ -9962,35 +10112,116 @@ function quickDeleteItem(rowIdx) {
   }).catch(function(){});
 }
 
+// ══════════════════════════════
+//  ITEM DETAIL SHEET
+// ══════════════════════════════
+function openItemDetail(rowIdx) {
+  const item = allItems[rowIdx];
+  if (!item) return;
+
+  const name        = item['Item Name']   || '(unnamed)';
+  const type        = item['Type']        || '—';
+  const location    = item['Location']    || '—';
+  const weight      = item['Weight']      || '—';
+  const cost        = item['Est. Cost']   ? '$' + parseFloat(item['Est. Cost']).toFixed(2) : '—';
+  const qty         = item['Quantity']    || '1';
+  const bin         = item['Bin/Box #']   || '—';
+  const origin      = item['Origin']      || '—';
+  const desc        = item['Description'] || '';
+  const wrapped     = (item['Wrapped?']   || 'No').toLowerCase() === 'yes';
+  const fragile     = (item['Fragile?']   || 'No').toLowerCase() === 'yes';
+  const status      = item['Status']      || '';
+  const loadAction  = item['loadAction']  || item['Load Action'] || '';
+  const loadWho     = item['loadWho']     || item['Who']         || '';
+  const imgUrls     = item['Image URL(s)'] || '';
+  const itemNum     = item['Item #']      || '';
+  const ts          = item['Timestamp']   || '';
+
+  // Photo — first URL if multiple pipe-separated
+  const firstImg = imgUrls ? imgUrls.split('|')[0].trim() : '';
+  const photoHtml = firstImg
+    ? '<a href="' + firstImg + '" target="_blank"><img class="detail-photo" src="' + firstImg + '" onerror="this.style.display=\'none\'" alt="Item photo"></a>'
+    : '';
+
+  // Loader icon
+  const loaderIcon = loadWho === 'Movers' ? ' 🚛' : loadWho === 'Friends & Family' ? ' 👥' : '';
+  const loadLine = loadAction ? loadAction + (loadWho ? ' · ' + loadWho : '') : '';
+
+  document.getElementById('detailTitle').textContent = '📦 ' + name;
+
+  document.getElementById('detailBody').innerHTML =
+    photoHtml +
+    '<div class="detail-grid">' +
+      '<div class="detail-field"><label>Item #</label><span>' + (itemNum || '—') + '</span></div>' +
+      '<div class="detail-field"><label>Type</label><span>' + type + '</span></div>' +
+      '<div class="detail-field"><label>Location</label><span>' + location + '</span></div>' +
+      '<div class="detail-field"><label>Bin / Box</label><span>' + bin + '</span></div>' +
+      '<div class="detail-field"><label>Weight</label><span>' + weight + '</span></div>' +
+      '<div class="detail-field"><label>Est. Cost</label><span>' + cost + '</span></div>' +
+      '<div class="detail-field"><label>Quantity</label><span>' + qty + '</span></div>' +
+      '<div class="detail-field"><label>Origin</label><span>' + origin + '</span></div>' +
+      (loadLine ? '<div class="detail-field" style="grid-column:1/-1"><label>Loading</label><span>' + loadLine + loaderIcon + '</span></div>' : '') +
+      (status   ? '<div class="detail-field" style="grid-column:1/-1"><label>Status</label><span>' + status + '</span></div>' : '') +
+    '</div>' +
+    (wrapped || fragile ? '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+      (wrapped ? '<span class="cell-badge badge-wrap" style="font-size:14px;padding:3px 10px;">✔ Wrapped</span>' : '') +
+      (fragile ? '<span class="cell-badge badge-frag" style="font-size:14px;padding:3px 10px;">⚠ Fragile</span>' : '') +
+    '</div>' : '') +
+    (desc ? '<div class="detail-desc">' + desc + '</div>' : '') +
+    (ts ? '<div style="font-size:12px;color:#aaa;margin-bottom:10px;">Added: ' + ts + '</div>' : '') +
+    '<div class="detail-actions">' +
+      '<button class="btn btn-submit" onclick="closeItemDetail();openEditDialog(' + rowIdx + ');" style="font-size:16px;">✏️ Edit Item</button>' +
+      '<button class="btn" onclick="closeItemDetail();quickDeleteItem(' + rowIdx + ');" style="font-size:16px;color:#cc0000;border-color:#cc000055;">🗑 Delete</button>' +
+    '</div>';
+
+  document.getElementById('itemDetailSheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeItemDetail() {
+  document.getElementById('itemDetailSheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeItemDetail();
+});
+
 function buildItemRowHtml(item, rc) {
-  const name    = item['Item Name'] || '(unnamed)';
-  const num     = item['Item #'] || '?';
-  const type    = item['Type'] || '';
-  const wrapped = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
-  const fragile = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
-  const bin     = item['Bin/Box #'] || '';
-  const weight  = item['Weight'] || '';
-  const cost    = item['Est. Cost'] ? '$' + parseFloat(item['Est. Cost']).toFixed(0) : '';
-  const qty     = item['Quantity'] && item['Quantity'] != 1 ? 'x' + item['Quantity'] : '';
-  const imgUrl  = item['Image URL(s)'] || '';
+  const name     = item['Item Name'] || '(unnamed)';
+  const type     = item['Type']      || '';
+  const weight   = item['Weight']    || '';
+  const wrapped  = (item['Wrapped?'] || 'No').toLowerCase() === 'yes';
+  const fragile  = (item['Fragile?'] || 'No').toLowerCase() === 'yes';
+  const loadWho  = item['loadWho']   || item['Who'] || '';
+  const hasPhoto = !!(item['Image URL(s)'] || '').trim();
 
-  const imgLink   = imgUrl ? '<a href="' + imgUrl + '" target="_blank" style="font-size:13px;color:var(--blue);text-decoration:none;" onclick="event.stopPropagation()">📷</a>' : '';
-  const wrapBadge = wrapped ? '<span class="cell-badge badge-wrap">✔ Wrap</span>' : '';
-  const fragBadge = fragile ? '<span class="cell-badge badge-frag">⚠ Frag</span>' : '';
-
+  // Compact meta: type · weight · badges · loader icon — nothing long
   const metaParts = [];
   if (type)   metaParts.push(type);
-  if (bin)    metaParts.push(bin);
   if (weight) metaParts.push(weight);
-  if (cost)   metaParts.push(cost);
-  if (qty)    metaParts.push(qty);
+  const meta = metaParts.join('<span style="color:rgba(0,0,0,0.25);padding:0 3px;">·</span>');
 
-  const rowIdx = allItems.indexOf(item);
-  var typeIcon = getTypeIcon(type);
-  return '<div class="item-row ' + rc + '" style="cursor:pointer;">' +
-    '<div class="cell-num" style="font-size:20px;line-height:1.2;" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit">' + typeIcon + '</div>' +
-    '<div class="cell-name-block" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit"><span class="cell-name-text">' + name + '</span>' + imgLink + wrapBadge + fragBadge + '</div>' +
-    '<div class="cell-meta" onclick="openEditDialog(' + rowIdx + ')">' + metaParts.join('<span style="color:#bbb;padding:0 2px;">·</span>') + '</div>' +
+  const wrapBadge  = wrapped ? '<span class="cell-badge badge-wrap">Wrap</span>' : '';
+  const fragBadge  = fragile ? '<span class="cell-badge badge-frag">Frag</span>' : '';
+  const loaderIcon = loadWho === 'Movers' ? '<span title="Movers" style="font-size:15px;">🚛</span>' : '';
+  const photoIcon  = hasPhoto ? '<span title="Has photo" style="font-size:13px;opacity:0.6;">📷</span>' : '';
+
+  const rowIdx   = allItems.indexOf(item);
+  const typeIcon = getTypeIcon(type);
+
+  // Row: [icon] [name+meta — flex fills] [edit btn 34px] [delete btn 34px]
+  // Tap anywhere on name/meta → opens detail sheet
+  // Edit button → opens edit dialog directly
+  return '<div class="item-row ' + rc + '">' +
+    '<div class="cell-num" style="font-size:20px;line-height:1.2;cursor:pointer;" onclick="openItemDetail(' + rowIdx + ')">' + typeIcon + '</div>' +
+    '<div class="cell-name-block" style="cursor:pointer;" onclick="openItemDetail(' + rowIdx + ')">' +
+      '<span class="cell-name-text">' + name + '</span>' +
+      wrapBadge + fragBadge + loaderIcon + photoIcon +
+    '</div>' +
+    '<div class="cell-meta" style="cursor:pointer;" onclick="openItemDetail(' + rowIdx + ')">' + meta + '</div>' +
+    '<button class="row-edit-btn" onclick="event.stopPropagation();openEditDialog(' + rowIdx + ')" title="Edit item">✏️</button>' +
     '<button class="row-delete-btn" onclick="event.stopPropagation();quickDeleteItem(' + rowIdx + ')" title="Delete item">🗑</button>' +
   '</div>';
 }
@@ -10095,20 +10326,21 @@ function renderItems() {
 
         const metaParts = [type];
         if (weight) metaParts.push(weight);
-        if (notes)  metaParts.push(notes);
+        // Note: no description in row — visible in detail sheet
 
         html += '<div class="container-row-wrap">';
         html += '<div class="container-row ' + rc + '">' +
-          '<div class="cell-num" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit" style="cursor:pointer;">' + icon + '</div>' +
-          '<div class="container-row-body" onclick="openEditDialog(' + rowIdx + ')" title="Tap to edit" style="cursor:pointer;">' +
+          '<div class="cell-num" onclick="openItemDetail(' + rowIdx + ')" style="cursor:pointer;">' + icon + '</div>' +
+          '<div class="container-row-body" onclick="openItemDetail(' + rowIdx + ')" style="cursor:pointer;">' +
             '<div class="container-row-name">' + name + (item['Bin/Box #'] ? ' <span style="font-weight:normal;font-size:13px;opacity:0.7;"># ' + item['Bin/Box #'] + '</span>' : '') + '</div>' +
             '<div class="container-row-meta">' + metaParts.join(' · ') + '</div>' +
           '</div>' +
           '<button class="container-expand-btn" onclick="event.stopPropagation();toggleContainerContents(this)" ' +
             'data-ctype="' + type + '" data-count="' + cnt + '">' +
-            icon + ' ' + cnt + ' item' + (cnt !== 1 ? 's' : '') + ' ▼' +
+            icon + ' ' + cnt + ' ▼' +
           '</button>' +
-          '<button class="row-delete-btn" onclick="event.stopPropagation();quickDeleteItem(' + rowIdx + ')" title="Delete container">🗑</button>' +
+          '<button class="row-edit-btn" style="grid-column:4;" onclick="event.stopPropagation();openEditDialog(' + rowIdx + ')" title="Edit container">✏️</button>' +
+          '<button class="row-delete-btn" style="grid-column:5;" onclick="event.stopPropagation();quickDeleteItem(' + rowIdx + ')" title="Delete container">🗑</button>' +
         '</div>';
 
         // --- Container contents (hidden until expanded) ---
