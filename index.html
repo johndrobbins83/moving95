@@ -668,70 +668,111 @@
   }
 
   /* ── BOOMER TOOLTIP SYSTEM ── */
+  /* ── Boomer Tips: inline ? badge ── */
   .boomer-tip-wrap {
-    position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
   }
   .boomer-tip-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     background: #1a5276;
     color: #fff;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 900;
     font-family: 'Lato', Georgia, serif !important;
-    cursor: help;
-    margin-left: 0;
-    vertical-align: middle;
+    cursor: pointer;
+    margin-left: 8px;
     flex-shrink: 0;
     border: 2px solid #2471a3;
     line-height: 1;
     user-select: none;
+    transition: background 0.15s, transform 0.1s;
   }
-  .boomer-tip-icon:hover + .boomer-tip-bubble,
-  .boomer-tip-icon:focus + .boomer-tip-bubble {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
+  .boomer-tip-icon:hover,
+  .boomer-tip-icon:focus {
+    background: #2471a3;
+    transform: scale(1.12);
+    outline: none;
   }
-  .boomer-tip-bubble {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 10px);
-    transform: translateX(-50%) translateY(6px);
+  /* Modal overlay */
+  .boomer-tip-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: boomerFadeIn 0.18s ease;
+  }
+  @keyframes boomerFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .boomer-tip-modal {
+    background: #fff;
+    border-top: 6px solid #1a5276;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    max-width: 420px;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    animation: boomerSlideUp 0.2s ease;
+  }
+  @keyframes boomerSlideUp {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .boomer-tip-modal-header {
     background: #1a5276;
     color: #fff;
-    font-size: 15px !important;
-    font-weight: 400 !important;
+    padding: 14px 18px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .boomer-tip-modal-title {
     font-family: 'Lato', Georgia, serif !important;
-    line-height: 1.5;
-    padding: 10px 14px;
-    border-radius: 6px;
-    width: 240px;
-    max-width: 80vw;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    z-index: 9999;
-    white-space: normal;
+    font-size: 18px;
+    font-weight: 900;
+    flex: 1;
   }
-  .boomer-tip-bubble::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 7px solid transparent;
-    border-top-color: #1a5276;
+  .boomer-tip-modal-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background 0.15s;
   }
-  /* Hide tooltips when NOT in boomer mode */
+  .boomer-tip-modal-close:hover { background: rgba(255,255,255,0.35); }
+  .boomer-tip-modal-body {
+    padding: 20px 20px 22px;
+    font-family: 'Lato', Georgia, serif !important;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: #1a1a1a;
+  }
+  /* Hide in non-boomer mode */
   body:not(.boomer-mode) .boomer-tip-icon { display: none !important; }
-  body:not(.boomer-mode) .boomer-tip-bubble { display: none !important; }
+  body:not(.boomer-mode) .boomer-tip-modal-overlay { display: none !important; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overscroll-behavior: none; }
@@ -848,6 +889,41 @@
   }
 
   /* ── BOTTOM NAV ── */
+  /* ── Contacts FAB ── */
+  #contactsFab {
+    position: fixed;
+    bottom: calc(var(--nav-h) + 14px);
+    right: 16px;
+    z-index: 850;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--blue);
+    border-top: 3px solid var(--blue2);
+    border-left: 3px solid var(--blue2);
+    border-right: 3px solid var(--darker);
+    border-bottom: 3px solid var(--darker);
+    box-shadow: 3px 3px 0 #000000;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s, box-shadow 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #contactsFab:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 #000000; }
+  #contactsFab:active { transform: translateY(1px); box-shadow: 1px 1px 0 #000000; }
+  /* Boomer mode — bigger */
+  body.boomer-mode #contactsFab {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    bottom: calc(var(--nav-h) + 18px);
+  }
+
   .bottom-nav {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -3570,6 +3646,275 @@ async function migrateInventoryFormat() {
   }
 }
 
+
+// ══════════════════════════════════════════════════════════
+//  CONTACTS & EMAIL  (localStorage key: 'movingContacts')
+//  Completely isolated — no overlap with any existing keys.
+// ══════════════════════════════════════════════════════════
+
+function loadContacts() {
+  try { return JSON.parse(localStorage.getItem('movingContacts') || '[]'); } catch(e) { return []; }
+}
+function saveContacts(list) {
+  localStorage.setItem('movingContacts', JSON.stringify(list));
+}
+
+function renderContactList() {
+  // Update sender banner from Personal Info
+  var pi = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+  var senderEl = document.getElementById('senderEmailDisplay');
+  if (senderEl) {
+    if (pi.email) {
+      senderEl.textContent = (pi.name ? pi.name + ' <' + pi.email + '>' : pi.email);
+    } else {
+      senderEl.innerHTML = '<span style="color:#ffcdd2;">No email saved &mdash; add one in Personal Info above.</span>';
+    }
+  }
+  // Also pre-fill subject with real name
+  var subjectEl = document.getElementById('emailSubject');
+  if (subjectEl && pi.name && subjectEl.value.indexOf('[Your Name]') !== -1) {
+    subjectEl.value = 'Moving Update from ' + pi.name;
+  }
+
+  var list = document.getElementById('contactList');
+  if (!list) return;
+  var contacts = loadContacts();
+  if (!contacts.length) {
+    list.innerHTML = '<div style="padding:8px 0;color:#888;font-size:16px;font-weight:normal;">No contacts yet. Add one below.</div>';
+    renderEmailToChips();
+    return;
+  }
+  list.innerHTML = '';
+  contacts.forEach(function(c, i) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px;background:white;' +
+      'border-top:2px solid var(--darker);border-left:2px solid var(--darker);' +
+      'border-right:2px solid var(--light);border-bottom:2px solid var(--light);';
+
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0;';
+    info.innerHTML =
+      '<div style="font-size:17px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(c.name) + '</div>' +
+      (c.phone ? '<div style="font-size:14px;font-weight:normal;color:#555;">' + escHtml(c.phone) + '</div>' : '') +
+      (c.email ? '<div style="font-size:14px;font-weight:normal;color:#555;">' + escHtml(c.email) + '</div>' : '');
+
+    var editBtn = document.createElement('button');
+    editBtn.className = 'cal-nav-btn';
+    editBtn.textContent = '✏️';
+    editBtn.title = 'Edit contact';
+    editBtn.style.cssText = 'flex-shrink:0;font-size:16px;padding:4px 8px;';
+    (function(idx){ editBtn.onclick = function(){ showContactForm(idx); }; })(i);
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'cal-nav-btn';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete contact';
+    delBtn.style.cssText = 'flex-shrink:0;color:var(--red);border-color:rgba(128,0,0,0.4);font-size:16px;padding:4px 8px;';
+    (function(idx){ delBtn.onclick = function(){ deleteContact(idx); }; })(i);
+
+    row.appendChild(info);
+    row.appendChild(editBtn);
+    row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+  renderEmailToChips();
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&' + 'amp;').replace(/</g,'&' + 'lt;').replace(/>/g,'&' + 'gt;').replace(/"/g,'&' + 'quot;');
+}
+
+function renderEmailToChips() {
+  var wrap = document.getElementById('emailToChips');
+  if (!wrap) return;
+  var contacts = loadContacts().filter(function(c){ return c.email; });
+  wrap.innerHTML = '';
+  if (!contacts.length) {
+    wrap.innerHTML = '<span style="color:#aaa;font-size:14px;font-weight:normal;padding:4px;">Add contacts with email addresses above to select recipients.</span>';
+    return;
+  }
+  contacts.forEach(function(c, i) {
+    var chip = document.createElement('label');
+    chip.className = 'check-pill';
+    chip.style.cssText = 'font-size:15px;padding:4px 10px;cursor:pointer;';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.dataset.email = c.email;
+    cb.dataset.name = c.name;
+    chip.appendChild(cb);
+    chip.appendChild(document.createTextNode(' ' + c.name));
+    wrap.appendChild(chip);
+  });
+}
+
+function showContactForm(idx) {
+  var wrap = document.getElementById('contactFormWrap');
+  var title = document.getElementById('contactFormTitle');
+  var idxField = document.getElementById('contactEditIdx');
+  if (!wrap) return;
+  wrap.style.display = 'block';
+  if (idx === null) {
+    title.textContent = 'New Contact';
+    idxField.value = '';
+    document.getElementById('cName').value = '';
+    document.getElementById('cPhone').value = '';
+    document.getElementById('cEmail').value = '';
+  } else {
+    var contacts = loadContacts();
+    var c = contacts[idx] || {};
+    title.textContent = 'Edit Contact';
+    idxField.value = idx;
+    document.getElementById('cName').value = c.name || '';
+    document.getElementById('cPhone').value = c.phone || '';
+    document.getElementById('cEmail').value = c.email || '';
+  }
+  document.getElementById('contactSaveStatus').textContent = '';
+  document.getElementById('cName').focus();
+}
+
+function cancelContactForm() {
+  var wrap = document.getElementById('contactFormWrap');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function saveContact() {
+  var name  = (document.getElementById('cName').value || '').trim();
+  var phone = (document.getElementById('cPhone').value || '').trim();
+  var email = (document.getElementById('cEmail').value || '').trim();
+  var st    = document.getElementById('contactSaveStatus');
+  if (!name) { if (st) st.textContent = '⚠️ Name is required.'; return; }
+  var contacts = loadContacts();
+  var idxField = document.getElementById('contactEditIdx');
+  var idx = idxField.value !== '' ? parseInt(idxField.value) : -1;
+  var entry = { name: name, phone: phone, email: email };
+  if (idx >= 0 && idx < contacts.length) {
+    contacts[idx] = entry;
+  } else {
+    contacts.push(entry);
+  }
+  saveContacts(contacts);
+  renderContactList();
+  cancelContactForm();
+  if (st) { st.textContent = '✅ Contact saved!'; setTimeout(function(){ st.textContent = ''; }, 2000); }
+}
+
+function deleteContact(idx) {
+  var contacts = loadContacts();
+  contacts.splice(idx, 1);
+  saveContacts(contacts);
+  renderContactList();
+}
+
+// ── Email Composer ─────────────────────────────────────────
+function composeContactEmail() {
+  // Pull sender from Personal Info
+  var pi = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+  if (!pi.email) {
+    alert('Please add your email address in Personal Info (Settings > Personal Info) before sending.');
+    return;
+  }
+
+  // Gather selected recipients
+  var chips = document.querySelectorAll('#emailToChips input[type="checkbox"]:checked');
+  var toAddrs = [];
+  chips.forEach(function(cb) {
+    var name  = cb.dataset.name  || '';
+    var email = cb.dataset.email || '';
+    if (email) toAddrs.push(name ? name + ' <' + email + '>' : email);
+  });
+
+  if (!toAddrs.length) {
+    alert('Please select at least one recipient. Add contacts with email addresses using the + Add Contact button.');
+    return;
+  }
+
+  var subject = (document.getElementById('emailSubject').value || '').trim() || 'Moving Update';
+  var body    = (document.getElementById('emailBody').value || '').trim();
+
+  // PDF checkboxes — download each selected PDF first
+  var pdfChecks = [
+    { id: 'pdfInventory', fn: 'downloadInventoryPDF', label: 'Inventory PDF' },
+    { id: 'pdfTasks',     fn: 'downloadTasksPDF',     label: 'Tasks PDF'     },
+    { id: 'pdfSchedule',  fn: 'downloadSchedulePDF',  label: 'Schedule PDF'  },
+    { id: 'pdfBudget',    fn: 'downloadBudgetPDF',    label: 'Budget PDF'    }
+  ];
+  var downloaded = [];
+  pdfChecks.forEach(function(p) {
+    var cb = document.getElementById(p.id);
+    if (cb && cb.checked) {
+      if (typeof window[p.fn] === 'function') {
+        window[p.fn]();
+        downloaded.push(p.label);
+      }
+    }
+  });
+
+  // App link
+  var incLink = document.getElementById('incAppLink');
+  var appUrl  = window.location.href.split('?')[0];
+
+  // Build mailto body
+  var mailBody = body;
+  if (downloaded.length) {
+    mailBody += '\n\n---\nAttachments to add: ' + downloaded.join(', ') + '\n(Download from your browser, then attach manually.)';
+  }
+  if (incLink && incLink.checked) {
+    mailBody += '\n\n---\nApp link: ' + appUrl;
+  }
+
+  // Add sender signature
+  var sig = '\n\n--\n' + (pi.name || '') + (pi.phone1 ? '\n' + pi.phone1 : '') + '\n' + pi.email;
+  mailBody += sig;
+
+  var mailto = 'mailto:' + encodeURIComponent(toAddrs.join(', '))
+    + '?subject=' + encodeURIComponent(subject)
+    + '&body='    + encodeURIComponent(mailBody);
+
+  // mailto has a ~2000 char limit in many mail clients; trim gracefully
+  if (mailto.length > 2000) {
+    var overflow = mailto.length - 2000;
+    mailBody = mailBody.slice(0, mailBody.length - overflow - 10) + '\n...[truncated]';
+    mailto = 'mailto:' + encodeURIComponent(toAddrs.join(', '))
+      + '?subject=' + encodeURIComponent(subject)
+      + '&body='    + encodeURIComponent(mailBody);
+  }
+
+  window.location.href = mailto;
+}
+
+// Stub PDF generators for pages that don't have one yet
+function downloadTasksPDF() {
+  var items = JSON.parse(localStorage.getItem('checklistItems') || '[]');
+  var rows = items.map(function(it) {
+    return '<tr><td style="padding:4px 8px;">' + escHtml(it.category||'') + '</td>' +
+           '<td style="padding:4px 8px;">' + escHtml(it.text||'') + '</td>' +
+           '<td style="padding:4px 8px;text-align:center;">' + (it.done ? '✔' : '') + '</td></tr>';
+  }).join('');
+  var html = '<html><head><title>Tasks</title><style>body{font-family:sans-serif;font-size:13px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;}th{background:#000080;color:#fff;padding:4px 8px;}</style></head>' +
+    '<body><h2>Moving Tasks</h2><table><thead><tr><th>Category</th><th>Task</th><th>Done</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<button onclick="window.print()" style="margin-top:12px;padding:8px 20px;background:#000080;color:white;border:none;cursor:pointer;">🖨️ Print / Save as PDF</button></body></html>';
+  var win = window.open('', '_blank');
+  if (win) { win.document.write(html); win.document.close(); setTimeout(function(){ win.print(); }, 600); }
+}
+
+function downloadSchedulePDF() {
+  var events = JSON.parse(localStorage.getItem('scheduleEvents') || '[]');
+  var rows = events.map(function(ev) {
+    return '<tr><td style="padding:4px 8px;">' + escHtml(ev.date||'') + '</td>' +
+           '<td style="padding:4px 8px;">' + escHtml(ev.title||ev.text||ev.desc||'') + '</td></tr>';
+  }).join('');
+  var html = '<html><head><title>Schedule</title><style>body{font-family:sans-serif;font-size:13px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;}th{background:#000080;color:#fff;padding:4px 8px;}</style></head>' +
+    '<body><h2>Moving Schedule</h2><table><thead><tr><th>Date</th><th>Event</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<button onclick="window.print()" style="margin-top:12px;padding:8px 20px;background:#000080;color:white;border:none;cursor:pointer;">🖨️ Print / Save as PDF</button></body></html>';
+  var win = window.open('', '_blank');
+  if (win) { win.document.write(html); win.document.close(); setTimeout(function(){ win.print(); }, 600); }
+}
+
+// Load contacts when Settings page is shown
+document.addEventListener('DOMContentLoaded', function() {
+  renderContactList();
+});
+
 // ══════════════════════════════
 //  PDF EXPORT
 // ══════════════════════════════
@@ -4357,9 +4702,7 @@ var BOOMER_TIPS = [
   { sel: '#page-inventory [onclick*="sortList"], .list-header span[onclick]', tip: 'Tap a column header to sort the list by that field.' },
   { sel: '#page-inventory [onclick*="clearForm"], [id*="clearBtn"]', tip: 'Clear all the fields in the form so you can add a brand-new item.' },
   { sel: '#page-inventory [onclick*="exportCSV"], [onclick*="export"]', tip: 'Download your entire inventory as a spreadsheet file you can open in Excel.' },
-  { sel: '[id="headerRefreshBtn"], .header-refresh-btn', tip: 'Refresh — reload data from the cloud (Google Sheets) to make sure everything is up to date.' },
-  { sel: '#headerBellBtn',           tip: 'Notifications — shows recent reminders and alerts about upcoming moving tasks.' },
-  { sel: '#userBadge',               tip: 'Your profile — tap to switch users or view your active profile settings.' },
+
 
   // ── ITEM FORM FIELDS ──
   { sel: '[id="fieldItemName"], [name="itemName"]',     tip: 'Type the name of the item you are adding, e.g. "Blue Couch" or "Kitchen Mixer".' },
@@ -4433,10 +4776,57 @@ var BOOMER_TIPS = [
   { sel: '[onclick*="printInventory"], [onclick*="print"]', tip: 'Print a paper copy of your inventory list — useful on moving day.' },
   { sel: '[onclick*="syncToSheet"], [onclick*="pushToSheets"]', tip: 'Upload your local inventory data to your connected Google Sheet for cloud backup.' },
   { sel: '[onclick*="loadFromSheet"], [onclick*="pullFromSheets"]', tip: 'Download the latest data from your Google Sheet into the app.' },
-  { sel: '#headerClock',             tip: 'Current time — tap to open date & time settings.' },
-  { sel: '#headerWeather',           tip: 'Current weather at your location — helpful for planning outdoor move days.' },
-  { sel: '#headerLogo',              tip: 'Tap the logo to cycle through color modes: Light → Dark → Rave → Boomer.' },
+
 ];
+
+// ── Boomer Tip Modal ───────────────────────────────────────────
+function showBoomerTipModal(tipText) {
+  // Remove any existing modal
+  var old = document.getElementById('boomerTipModalOverlay');
+  if (old) old.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'boomerTipModalOverlay';
+  overlay.className = 'boomer-tip-modal-overlay';
+
+  var modal = document.createElement('div');
+  modal.className = 'boomer-tip-modal';
+
+  var header = document.createElement('div');
+  header.className = 'boomer-tip-modal-header';
+
+  var title = document.createElement('div');
+  title.className = 'boomer-tip-modal-title';
+  title.textContent = '\u2139\uFE0F Help';
+
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'boomer-tip-modal-close';
+  closeBtn.textContent = '\u00D7';
+  closeBtn.setAttribute('aria-label', 'Close help');
+  closeBtn.onclick = function() { overlay.remove(); };
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+
+  var body = document.createElement('div');
+  body.className = 'boomer-tip-modal-body';
+  body.textContent = tipText;
+
+  modal.appendChild(header);
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+
+  // Close on overlay click
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+  // Close on Escape
+  document.addEventListener('keydown', function handler(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', handler); }
+  });
+
+  document.body.appendChild(overlay);
+}
 
 function injectBoomerTips() {
   BOOMER_TIPS.forEach(function(entry) {
@@ -4447,29 +4837,37 @@ function injectBoomerTips() {
       if (el.dataset.boomerTipped) return;
       el.dataset.boomerTipped = '1';
 
-      // Build the icon + bubble wrapper
+      var tipText = entry.tip;
+
+      // Build the icon wrapper
       var wrap = document.createElement('span');
       wrap.className = 'boomer-tip-wrap';
 
       var icon = document.createElement('span');
       icon.className = 'boomer-tip-icon';
       icon.setAttribute('tabindex', '0');
-      icon.setAttribute('aria-label', 'Help: ' + entry.tip);
+      icon.setAttribute('role', 'button');
+      icon.setAttribute('aria-label', 'Help');
       icon.textContent = '?';
 
-      var bubble = document.createElement('span');
-      bubble.className = 'boomer-tip-bubble';
-      bubble.setAttribute('role', 'tooltip');
-      bubble.textContent = entry.tip;
+      // Click opens modal
+      icon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        showBoomerTipModal(tipText);
+      });
+      icon.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.stopPropagation();
+          showBoomerTipModal(tipText);
+        }
+      });
 
       wrap.appendChild(icon);
-      wrap.appendChild(bubble);
 
       // Injection strategy:
-      // 1. If the element is a <span> inside a flex header (cfg-toggle-title),
-      //    append the wrap INSIDE the span so it sits tight next to the text.
-      // 2. If it is a block/flex element not in a flex parent, append inside.
-      // 3. Otherwise insert after (inline context).
+      // 1. Span inside flex header — append wrap INSIDE the span
+      // 2. Block not in flex parent — append inside element
+      // 3. Otherwise insert after (inline)
       var parent = el.parentNode;
       if (!parent) return;
       var isSpanInFlexHeader = (
@@ -4478,7 +4876,6 @@ function injectBoomerTips() {
         (parent.classList.contains('cfg-toggle-title') || parent.classList.contains('win-card-title'))
       );
       if (isSpanInFlexHeader) {
-        // Append inside the span so the ? sits right after the label text
         wrap.style.cssText = 'display:inline-flex;vertical-align:middle;margin-left:6px;';
         el.appendChild(wrap);
       } else {
@@ -5427,6 +5824,8 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
   <!-- Refresh shown on viewer tab only -->
   <button class="header-refresh-btn" id="headerRefreshBtn" style="display:none;" onclick="loadViewerData()" title="Refresh inventory">↺</button>
+  <!-- Help button -->
+  <button onclick="showPage('help')" id="headerHelpBtn" title="Help &amp; Guide" style="font-size:18px;padding:2px 8px;background:none;border:none;color:white;cursor:pointer;flex-shrink:0;opacity:0.85;transition:opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❓</button>
 </div>
 
 <!-- ══════════════════════════════
@@ -6191,6 +6590,91 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <button class="btn" onclick="migrateInventoryFormat()" style="width:100%;color:#005500;border-color:#00550055;font-size:18px;">🔄 Run Migration</button>
           <div id="migrateStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;min-height:18px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       CONTACTS & EMAIL
+  ══════════════════════════════ -->
+  <div class="win-card" id="adminCard-contacts">
+    <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secContacts','btnContacts')">
+      <span>&#128222; Contacts &amp; Email</span>
+      <button class="cal-nav-btn" id="btnContacts">&#9660;</button>
+    </div>
+    <div id="secContacts" style="display:none;">
+      <div class="win-card-body" style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- ── Sender Banner ── -->
+        <div id="contactSenderBanner" style="background:var(--blue);color:white;padding:10px 12px;font-size:15px;font-weight:bold;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="flex:1;min-width:0;">&#128140; Sends from: <span id="senderEmailDisplay" style="font-weight:normal;opacity:0.85;">—</span></span>
+          <button class="cal-nav-btn" onclick="showPage('config');setTimeout(function(){toggleSection('secPersonal','btnPersonal');},120);" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.4);color:white;font-size:13px;padding:3px 10px;flex-shrink:0;">&#9998; Edit Profile</button>
+        </div>
+
+        <!-- ── Contact List ── -->
+        <div>
+          <div style="font-size:16px;font-weight:bold;margin-bottom:8px;">&#128101; Recipients</div>
+          <div id="contactList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+          <button class="btn" onclick="showContactForm(null)" style="width:100%;font-size:18px;">&#43; Add Contact</button>
+        </div>
+
+        <!-- ── Contact Form (hidden by default) ── -->
+        <div id="contactFormWrap" style="display:none;border-top:2px solid var(--dark);padding-top:10px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:8px;" id="contactFormTitle">New Contact</div>
+          <input type="hidden" id="contactEditIdx" value="">
+          <div class="field-row">
+            <div class="field"><label>Name</label><input type="text" id="cName" placeholder="Full name" autocomplete="off"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Phone</label><input type="tel" id="cPhone" placeholder="(555) 000-0000" autocomplete="off"></div>
+            <div class="field"><label>Email</label><input type="email" id="cEmail" placeholder="you@email.com" autocomplete="off"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-submit" onclick="saveContact()" style="flex:1;">&#128190; Save Contact</button>
+            <button class="btn" onclick="cancelContactForm()">Cancel</button>
+          </div>
+          <div id="contactSaveStatus" style="margin-top:6px;font-size:14px;font-weight:normal;color:#555;"></div>
+        </div>
+
+        <!-- ── Email Composer ── -->
+        <div style="border-top:2px solid var(--dark);padding-top:12px;">
+          <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">&#9993; Compose Email</div>
+
+          <div class="field" style="margin-bottom:8px;">
+            <label>To (select recipients)</label>
+            <div id="emailToChips" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;padding:6px;background:white;border-top:2px solid var(--darker);border-left:2px solid var(--darker);border-right:2px solid var(--light);border-bottom:2px solid var(--light);"></div>
+          </div>
+
+          <div class="field" style="margin-bottom:8px;">
+            <label>Subject</label>
+            <input type="text" id="emailSubject" value="Moving Update from [Your Name]">
+          </div>
+
+          <div class="field" style="margin-bottom:8px;">
+            <label>Message</label>
+            <textarea id="emailBody" rows="5" style="resize:vertical;">Hi,
+
+Just wanted to share a quick moving update. Details below.
+
+Thanks!</textarea>
+          </div>
+
+          <div style="font-size:15px;font-weight:bold;margin-bottom:6px;">&#128206; Auto-download PDFs to attach</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+            <label class="check-pill" style="font-size:16px;"><input type="checkbox" id="pdfInventory"> &#128230; Inventory</label>
+            <label class="check-pill" style="font-size:16px;"><input type="checkbox" id="pdfTasks">     &#9989; Tasks</label>
+            <label class="check-pill" style="font-size:16px;"><input type="checkbox" id="pdfSchedule"> &#128197; Schedule</label>
+            <label class="check-pill" style="font-size:16px;"><input type="checkbox" id="pdfBudget">   &#128176; Budget</label>
+            <label class="check-pill" style="font-size:16px;"><input type="checkbox" id="incAppLink" checked> &#128279; App Link</label>
+          </div>
+
+          <button class="btn btn-submit" onclick="composeContactEmail()" style="width:100%;font-size:19px;">&#9993; Open in Mail App</button>
+          <div class="config-note" style="margin-top:8px;font-size:14px;">
+            &#8505;&#65039; Uses the email saved in your <b>Personal Info</b>. Opens your device&#8217;s mail app (Gmail, Apple Mail, Outlook) with everything pre-filled. Checked PDFs download automatically &mdash; attach from your Downloads folder.
+          </div>
         </div>
 
       </div>
@@ -7870,6 +8354,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 
+<!-- ── Contacts FAB ── -->
+<button id="contactsFab" onclick="showPage('config');setTimeout(function(){var s=document.getElementById('secContacts');var b=document.getElementById('btnContacts');if(s&&s.style.display==='none'){toggleSection('secContacts','btnContacts');}document.getElementById('adminCard-contacts')&&document.getElementById('adminCard-contacts').scrollIntoView({behavior:'smooth',block:'start'});},180);" title="Contacts &amp; Email" aria-label="Open Contacts &amp; Email">
+  📇
+</button>
+
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-viewer" onclick="showPage('viewer')">
     <span class="nav-btn-icon">🗂️</span>
@@ -7903,6 +8392,287 @@ document.addEventListener('DOMContentLoaded', function() {
     <span class="nav-btn-icon">⚙️</span>
     <span class="nav-btn-label">Settings</span>
   </button>
+
+</div>
+
+
+<!-- ══════════════════════════════
+     PAGE: HELP
+══════════════════════════════ -->
+<div class="page" id="page-help" style="padding-top:14px;">
+
+  <!-- Hero -->
+  <div class="win-card" style="margin-bottom:0;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));gap:10px;">
+      <span style="color:white;font-size:20px;">❓ Moving'95 — Complete Guide</span>
+    </div>
+    <div class="win-card-body" style="background:var(--blue);color:white;padding:14px 16px 16px;">
+      <p style="font-size:17px;font-weight:normal;line-height:1.6;margin:0;">Welcome to <b>Moving'95</b> — your all-in-one moving organizer. This guide covers every feature so you can get the most out of the app on moving day and beyond.</p>
+    </div>
+  </div>
+
+  <!-- QUICK START -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#1a5276,#2471a3);">
+      <span style="color:white;">🚀 Quick Start (Do This First)</span>
+    </div>
+    <div class="win-card-body">
+      <ol style="padding-left:20px;font-size:16px;font-weight:normal;line-height:1.9;margin:0;">
+        <li><b>Settings → Personal Info</b> — Enter your name, addresses, move-out &amp; move-in dates, email, and phone. This info powers the PDFs, profile page, and email composer.</li>
+        <li><b>Settings → Google Sheets</b> — Paste your Google Apps Script URL to enable cloud sync. Without this your data stays local only.</li>
+        <li><b>Add Item (➕)</b> — Start logging your belongings from the Inventory tab.</li>
+        <li><b>Profile tab (👤)</b> — Review your move summary and stats at a glance.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">🗂️ Inventory</span>
+    </div>
+    <div class="win-card-body" style="display:flex;flex-direction:column;gap:10px;">
+      <p style="font-size:16px;font-weight:normal;line-height:1.6;margin:0;">The heart of the app. Log every item you're moving, assign it to a room, box/bin, and status. Data syncs to your Google Sheet when you tap <b>Refresh</b>.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="config-note"><b>Item Name</b><br>Short description, e.g. "Blue Couch"</div>
+        <div class="config-note"><b>Type / Room</b><br>Category and current room location</div>
+        <div class="config-note"><b>Box / Bin #</b><br>Label on the physical container this item is packed in</div>
+        <div class="config-note"><b>Status</b><br>Not Packed → Packed → Loaded → Delivered</div>
+        <div class="config-note"><b>Weight &amp; Cost</b><br>Estimated weight (lbs) and replacement value ($)</div>
+        <div class="config-note"><b>Qty / Description</b><br>Count and any extra notes or handling instructions</div>
+        <div class="config-note"><b>Fragile / Wrapped</b><br>Toggle flags shown on PDFs and viewer lists</div>
+        <div class="config-note"><b>Load Action / Who</b><br>Assign who loads the item and any load instructions</div>
+      </div>
+      <p style="font-size:15px;font-weight:normal;line-height:1.6;margin:0;color:#555;"><b>Tip:</b> Use the 📦 Boxes &amp; Bins Manager (tap the box icon in the form) to create labeled containers before adding items — then assign items to containers as you pack.</p>
+    </div>
+  </div>
+
+  <!-- VIEWER -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">📋 Inventory Viewer</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Browse, search, filter, sort, and export your full inventory. Tap ↺ Refresh to pull the latest from Google Sheets. Color-coded by room. Tap any row to edit.</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li><b>Filter bar</b> — filter by room, status, keyword, or fragile flag</li>
+        <li><b>Sort</b> — tap column headers to sort by any field</li>
+        <li><b>⬇ PDF</b> — download a printable inventory list</li>
+        <li><b>🗑 Reset</b> — clears the local cache (does not delete Sheet data)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">👤 My Profile</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Your personal move dashboard. Shows your name, addresses, move dates, email, and phone pulled from Personal Info. Also displays live stats:</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li>Total items, tasks, schedule events</li>
+        <li>Task completion rate</li>
+        <li>Outstanding budget amount</li>
+      </ul>
+      <p style="margin:8px 0 0;color:#555;font-size:15px;">Tap <b>✎ Edit Info</b> to jump directly to Personal Info in Settings.</p>
+    </div>
+  </div>
+
+  <!-- TASKS / CHECKLIST -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">✅ Tasks &amp; Checklist</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Build a moving to-do list. Add tasks with a category, description, and due date. Check them off as you go.</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li><b>Categories:</b> Pack, Load, Moving, Cleaning, Paint/Repair, and more</li>
+        <li><b>Filter bar</b> — view All / Unfinished / Done or by category</li>
+        <li><b>Progress bar</b> — shows percentage of tasks completed</li>
+        <li><b>🗑 Clear All</b> — removes every task (cannot be undone)</li>
+      </ul>
+      <p style="margin:8px 0 0;color:#555;font-size:15px;"><b>Tip:</b> Use the Contacts &amp; Email section to send a Tasks PDF to helpers and movers.</p>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">📅 Schedule</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">A calendar of your move-related events — key pickup, truck rental, lease signing, utility transfers, deliveries, etc.</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li><b>+ Add Event</b> — title, date/time, location, notes, category</li>
+        <li><b>Delivery Tracker</b> — log expected deliveries with status (Pending / Delivered)</li>
+        <li><b>Google Calendar sync</b> — if your Google Calendar ID is saved in Settings, events can be pushed to your phone calendar</li>
+        <li><b>Calendar view</b> — browse by month, tap a day to see events</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ROUTE -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">🗺️ Route Planner</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Plan your moving-day drive. Enter origin and destination and get an interactive map with turn-by-turn directions, distance, and estimated drive time.</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li><b>Address autocomplete</b> — powered by OpenStreetMap (no API key needed)</li>
+        <li><b>Save Route</b> — save frequently used routes for quick recall</li>
+        <li><b>⛽ Gas Stations</b> — find gas stations along your route</li>
+        <li><b>🔍 Road Trip Hunt</b> — a scavenger hunt game you play while driving</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">💰 Move Budget</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Track every moving expense — truck rental, movers, packing supplies, deposits, utility transfers, and more.</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li><b>Add Expense</b> — name, amount, category, status (Paid / Unpaid / Pending)</li>
+        <li><b>Running totals</b> — total spent, amount owed, and budget breakdown by category</li>
+        <li><b>Budget PDF</b> — download a summary to share with housemates or keep for records</li>
+        <li><b>Calculator</b> — built-in calculator widget in Settings can send results directly to a budget entry</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- RADIO -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">📻 Radio</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">A curated collection of 33+ Spotify playlist stations organized by genre. Tap a tile to open the playlist in Spotify. Dial through stations with the retro tuner.</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li><b>Tile view</b> — album-art style grid with genre badges</li>
+        <li><b>Retro dial</b> — drag or tap ◀ ▶ to tune through stations</li>
+        <li><b>ⓘ Info button</b> — shows genre, description, and explicit rating for each station</li>
+        <li><b>Custom URLs</b> — paste your own Spotify playlist URL into any station slot in Settings → Radio Stations</li>
+        <li><b>🎉 Rave Radio</b> — special neon mode with an EDM livestream; activate Rave Mode in Settings for the full experience</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GAMES -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">🎮 Games</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Six mini-games to keep everyone entertained on moving day. All run in the browser — no downloads needed.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="config-note"><b>🃏 Solitaire</b><br>Classic Klondike. Drag cards to build suit stacks from Ace to King.</div>
+        <div class="config-note"><b>🔢 Sudoku</b><br>Fill a 9×9 grid so every row, column, and box has 1–9.</div>
+        <div class="config-note"><b>🪱 Tapeworm</b><br>Snake-style game. Eat dots without hitting walls or yourself.</div>
+        <div class="config-note"><b>🍺 Bar Trivia</b><br>Music &amp; EDM trivia. Multiple choice, 4 difficulties.</div>
+        <div class="config-note"><b>🎧 Rave Trivia</b><br>EDM-focused trivia with neon styling.</div>
+        <div class="config-note"><b>🔍 Road Trip Hunt</b><br>Scavenger hunt for the drive — spot items on the road to earn points.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,var(--blue),var(--blue2));">
+      <span style="color:white;">⚙️ Settings</span>
+    </div>
+    <div class="win-card-body" style="display:flex;flex-direction:column;gap:8px;font-size:16px;font-weight:normal;line-height:1.6;">
+      <div class="config-note"><b>👤 Personal Info</b> — Your name, moving addresses, dates, email, and phone. Used in PDFs, the Profile tab, and the email composer. Save here first.</div>
+      <div class="config-note"><b>☁️ Profile / Cloud Sync</b> — Connect to Google Sheets by pasting your Apps Script web app URL. Pull config from the cloud to restore settings on a new device.</div>
+      <div class="config-note"><b>🎨 Color Modes</b> — Switch between Light (classic Win95), Dark (navy), Rave (neon EDM), and Boomer (large text, easy-read fonts with ❓ help tooltips everywhere).</div>
+      <div class="config-note"><b>📻 Radio Stations</b> — Customize any of the 33 stations: paste a Spotify URL, set a custom name, upload artwork, add genre/explicit/description info.</div>
+      <div class="config-note"><b>🔑 Google Credentials</b> — Sheet URL (for reading inventory) and Apps Script URL (for writing data). Both are required for full cloud sync.</div>
+      <div class="config-note"><b>👁 Inventory Viewer</b> — Configure which columns are visible in the viewer list, and set the default sort order.</div>
+      <div class="config-note"><b>📆 Google Calendar</b> — Paste your Google Calendar ID to enable syncing schedule events to your phone calendar.</div>
+      <div class="config-note"><b>🔢 Item Counter</b> — View and manually reset the auto-incrementing item number (format: 0001, 0002…).</div>
+      <div class="config-note"><b>🧮 Calculator</b> — Built-in calculator. Use ➕ Use Result in Budget to send the result directly to a new budget entry.</div>
+      <div class="config-note"><b>📋 Session Log</b> — A running log of actions taken this session — useful for troubleshooting or reviewing changes.</div>
+      <div class="config-note"><b>💾 Backup &amp; Restore</b> — Export all your data (inventory, tasks, schedule, budget, contacts, settings) as a JSON file. Import it back on any device to restore everything.</div>
+      <div class="config-note"><b>📜 Apps Script</b> — Advanced: view or edit your Google Apps Script source code directly from the app.</div>
+      <div class="config-note"><b>📇 Contacts &amp; Email</b> — Store contact details (name, phone, email) and compose emails with PDF attachments using your saved email address. Access via the 📇 button in the bottom-right corner on any page.</div>
+      <div class="config-note" style="background:#fff0f0;border-color:#cc0000;"><b>⚠️ Danger Zone</b> — Irreversible actions: clear viewer cache, delete all Sheet rows, reset item counter, or run the inventory format migration. Use with caution.</div>
+    </div>
+  </div>
+
+  <!-- BOOMER MODE -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#1a5276,#2471a3);">
+      <span style="color:white;">👴 Boomer Mode</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Activate in Settings → Color Modes. Designed for maximum readability:</p>
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li>All text is larger and uses a clean serif font (Lato/Georgia)</li>
+        <li>Buttons and inputs are bigger for easier tapping</li>
+        <li><b>❓ Help badges</b> appear next to every major button and section — tap any ❓ to see a plain-English explanation of what it does, in a large centered popup</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GOOGLE SHEETS SETUP -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#155724,#1e7e34);">
+      <span style="color:white;">☁️ Google Sheets Setup</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <p style="margin:0 0 8px;">Cloud sync requires a free Google account and two things:</p>
+      <ol style="padding-left:20px;margin:0;line-height:2;">
+        <li><b>Google Sheet URL</b> — create a new Google Sheet, copy its URL, paste into Settings → Google Credentials → Sheet URL</li>
+        <li><b>Apps Script Web App URL</b> — open your Sheet, go to Extensions → Apps Script, paste the Moving'95 Apps Script code, deploy as a web app, copy the URL, paste into Settings → Apps Script URL</li>
+      </ol>
+      <p style="margin:8px 0 0;color:#555;font-size:15px;">Once both are saved: use ↺ Refresh on the Inventory tab to load data from the cloud, and the app will auto-sync new items when you tap Save.</p>
+    </div>
+  </div>
+
+  <!-- DATA & PRIVACY -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#4a235a,#7d3c98);">
+      <span style="color:white;">🔒 Data &amp; Privacy</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li>All data is stored <b>locally in your browser</b> (localStorage) — nothing is sent to any third-party server</li>
+        <li>Google Sheets sync goes <b>directly from your browser to your own Google account</b> — Moving'95 never sees your Sheet data</li>
+        <li>The email composer uses your device's <b>default mail app</b> (Gmail, Apple Mail, Outlook) — Moving'95 does not send emails on your behalf</li>
+        <li>To fully erase your data: Settings → Backup &amp; Restore (export first), then Settings → Danger Zone</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TIPS & TRICKS -->
+  <div class="win-card" style="margin-top:10px;">
+    <div class="win-card-title" style="background:linear-gradient(to right,#7d6608,#b7950b);">
+      <span style="color:white;">💡 Tips &amp; Tricks</span>
+    </div>
+    <div class="win-card-body" style="font-size:16px;font-weight:normal;line-height:1.6;">
+      <ul style="padding-left:18px;margin:0;line-height:2;">
+        <li>Tap the <b>Moving'95 logo</b> in the top-left to cycle through all four color modes instantly</li>
+        <li>Tap the <b>bottom nav tab you're already on</b> to scroll back to the top of the page</li>
+        <li>Use <b>Backup &amp; Restore</b> before moving day so you have a local copy of everything</li>
+        <li>Add your <b>movers and helpers</b> to Contacts, then use the email composer to send them the Inventory + Schedule PDFs the night before the move</li>
+        <li>The <b>📦 Boxes &amp; Bins Manager</b> lets you create color-coded container labels — print the PDF to tape onto boxes</li>
+        <li>Enable <b>Boomer Mode</b> for family members who find small text difficult — everything gets bigger with one tap</li>
+        <li>The <b>Rave Mode</b> EDM radio + trivia combo is perfect for long packing sessions</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- VERSION -->
+  <div class="win-card" style="margin-top:10px;margin-bottom:20px;">
+    <div class="win-card-body" style="text-align:center;font-size:15px;font-weight:normal;color:#888;padding:12px;">
+      Moving'95 &nbsp;·&nbsp; Built with ❤️ for your big move &nbsp;·&nbsp; Data stays on your device
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
 </div>
 
 <!-- ── CONTAINER MANAGER OVERLAY ── -->
@@ -9413,7 +10183,7 @@ function showPage(name) {
 
 
   // Update header subtitle
-  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', snake:'🪱 Tapeworm', solitaire:'🃏 Solitaire', edm:'🎧 Rave Trivia', profile:'My Profile', budget:'Move Budget', radio:'📻 Radio' };
+  const subs = { form:'Add Item', viewer:'Browse inventory', config:'⚙ Settings', schedule:'Move Schedule', checklist:'Tasks & Checklist', route:'Route Planner', hunt:'Road Trip Hunt', games:'Games', trivia:'🍺 Bar Trivia', sudoku:'🔢 Sudoku', snake:'🪱 Tapeworm', solitaire:'🃏 Solitaire', edm:'🎧 Rave Trivia', profile:'My Profile', budget:'Move Budget', radio:'📻 Radio', help:'❓ Help & Guide' };
   // headerStatus removed
 
   // Refresh container dropdown when navigating to the form
@@ -9436,6 +10206,11 @@ function showPage(name) {
     if (gamesBtn) gamesBtn.classList.add('active');
   }
   // Load Places API when route tab opens
+  // Refresh profile page whenever navigated to
+  if (name === 'profile') {
+    populateProfileTab(currentUser || 'User');
+    renderContactList();
+  }
   if (name === 'route') {
     loadPlacesAPI();
     // Ensure origin/dest always have autocomplete
