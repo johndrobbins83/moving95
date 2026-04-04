@@ -685,7 +685,7 @@
     font-weight: 900;
     font-family: 'Lato', Georgia, serif !important;
     cursor: help;
-    margin-left: 6px;
+    margin-left: 0;
     vertical-align: middle;
     flex-shrink: 0;
     border: 2px solid #2471a3;
@@ -4465,22 +4465,33 @@ function injectBoomerTips() {
       wrap.appendChild(icon);
       wrap.appendChild(bubble);
 
-      // Always insert inline after the element.
-      // Exception: if the parent is a flex win-card-title, append wrap INSIDE
-      // the span (so it stays with the label text, not floating in the flex row).
+      // Injection strategy:
+      // 1. If the element is a <span> inside a flex header (cfg-toggle-title),
+      //    append the wrap INSIDE the span so it sits tight next to the text.
+      // 2. If it is a block/flex element not in a flex parent, append inside.
+      // 3. Otherwise insert after (inline context).
       var parent = el.parentNode;
       if (!parent) return;
-      var parentStyle = window.getComputedStyle(parent);
-      var parentIsFlex = (parentStyle.display === 'flex' || parentStyle.display === 'inline-flex');
-      var style = window.getComputedStyle(el);
-      var isBlock = (style.display === 'block' || style.display === 'flex' || style.display === 'grid');
-      if (isBlock && !parentIsFlex) {
-        // Block-level element not inside a flex row — append inside
+      var isSpanInFlexHeader = (
+        el.tagName === 'SPAN' &&
+        parent.classList &&
+        (parent.classList.contains('cfg-toggle-title') || parent.classList.contains('win-card-title'))
+      );
+      if (isSpanInFlexHeader) {
+        // Append inside the span so the ? sits right after the label text
+        wrap.style.cssText = 'display:inline-flex;vertical-align:middle;margin-left:6px;';
         el.appendChild(wrap);
       } else {
-        // Inline element OR inside a flex row — insert after, keeping it tight
-        wrap.style.display = 'inline-flex';
-        parent.insertBefore(wrap, el.nextSibling);
+        var parentStyle = window.getComputedStyle(parent);
+        var parentIsFlex = (parentStyle.display === 'flex' || parentStyle.display === 'inline-flex');
+        var style = window.getComputedStyle(el);
+        var isBlock = (style.display === 'block' || style.display === 'flex' || style.display === 'grid');
+        if (isBlock && !parentIsFlex) {
+          el.appendChild(wrap);
+        } else {
+          wrap.style.display = 'inline-flex';
+          parent.insertBefore(wrap, el.nextSibling);
+        }
       }
     });
   });
@@ -5713,7 +5724,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ══════════════════════════════
      PAGE: CONFIG
 ══════════════════════════════ -->
-<div class="page" id="page-config">
+<div class="page" id="page-config" style="padding-top:14px;">
 
   <div class="win-card">
     <div class="win-card-title cfg-toggle-title" onclick="toggleSection('secPersonal','btnPersonal')">
