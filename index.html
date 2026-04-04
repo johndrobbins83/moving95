@@ -383,6 +383,356 @@
   body.rave-mode .sudoku-cell.given { color: #000 !important; }
   body.rave-mode .sudoku-note-digit { color: #222 !important; }
 
+  /* ══════════════════════════════════════════════════════════════════
+     BOOMER MODE — Large, clear, friendly. Easy on the eyes.
+     Font: Georgia/serif for body text; system-ui for UI chrome.
+     All VT323 pixel font replaced site-wide. Text scaled up +2px.
+  ══════════════════════════════════════════════════════════════════ */
+  @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap');
+
+  body.boomer-mode {
+    --bg:      #f5f0e8;
+    --face:    #fdfaf4;
+    --dark:    #9e8e70;
+    --darker:  #6b5d45;
+    --light:   #ffffff;
+    --black:   #1a1a1a;
+    --blue:    #1a5276;
+    --blue2:   #2471a3;
+    --red:     #922b21;
+    --yellow:  #d4ac0d;
+    font-size: 18px !important;
+  }
+
+  /* Override VT323 with Lato everywhere in boomer mode
+     Exclude radio grid so its inline-styled tiles stay intact */
+  body.boomer-mode,
+  body.boomer-mode *:not(.nav-btn-icon):not(.app-header-icon):not(.upload-icon):not(#radio-grid):not(#radio-grid *):not(.radio-mobile-playlist):not(.radio-mobile-playlist *) {
+    font-family: 'Lato', 'Georgia', 'Times New Roman', serif !important;
+    letter-spacing: 0.01em;
+  }
+
+  /* Header */
+  body.boomer-mode .app-header {
+    background: #1a5276 !important;
+  }
+  body.boomer-mode .app-header-title {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.02em !important;
+  }
+  body.boomer-mode .app-header-sub {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Nav bar */
+  body.boomer-mode .bottom-nav {
+    background: #1a5276 !important;
+    border-top: 3px solid #2471a3 !important;
+  }
+  body.boomer-mode .nav-btn-label {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+  }
+  body.boomer-mode .nav-btn.active {
+    background: #2471a3 !important;
+  }
+
+  /* Win cards */
+  body.boomer-mode .win-card {
+    border: 2px solid #9e8e70 !important;
+    background: #fdfaf4 !important;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.15) !important;
+    border-radius: 4px !important;
+  }
+  body.boomer-mode .win-card-title {
+    background: #1a5276 !important;
+    color: #ffffff !important;
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.02em !important;
+    border-radius: 2px 2px 0 0 !important;
+  }
+  body.boomer-mode .win-card-body {
+    font-size: 18px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Buttons */
+  body.boomer-mode .btn {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    min-height: 50px !important;
+    padding: 10px 18px !important;
+    border-radius: 4px !important;
+    letter-spacing: 0.02em !important;
+    border: 2px solid #9e8e70 !important;
+    background: #fdfaf4 !important;
+    color: #1a1a1a !important;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.15) !important;
+  }
+  body.boomer-mode .btn:active {
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2) !important;
+    transform: translateY(1px);
+  }
+  body.boomer-mode .btn-submit {
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    background: #1a5276 !important;
+    color: #fff !important;
+    border: 2px solid #2471a3 !important;
+    min-height: 54px !important;
+    border-radius: 4px !important;
+  }
+  /* In boomer mode, enlarge cal-nav-btn everywhere EXCEPT the settings section toggles */
+  body.boomer-mode .cal-nav-btn:not(.cfg-toggle-title .cal-nav-btn):not(.cfg-toggle-title > .cal-nav-btn) {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+  }
+  /* Keep section-toggle arrows small and proportional in all modes */
+  .cfg-toggle-title .cal-nav-btn {
+    font-size: 14px !important;
+    padding: 2px 8px !important;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  /* Inputs, selects, textareas */
+  body.boomer-mode input,
+  body.boomer-mode textarea,
+  body.boomer-mode select {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    min-height: 48px !important;
+    padding: 10px !important;
+    border: 2px solid #9e8e70 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Field labels */
+  body.boomer-mode .field-label,
+  body.boomer-mode label {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Item list rows */
+  body.boomer-mode .item-row {
+    font-size: 19px !important;
+    min-height: 54px !important;
+    line-height: 1.5 !important;
+  }
+  body.boomer-mode .cell-name-text {
+    font-size: 19px !important;
+    font-weight: 700 !important;
+  }
+  body.boomer-mode .cell-meta {
+    font-size: 16px !important;
+  }
+  body.boomer-mode .cell-num {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+  }
+  body.boomer-mode .list-header span {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+  }
+  body.boomer-mode .room-divider {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.05em !important;
+    padding: 6px 10px !important;
+  }
+
+  /* Check pills & toggles */
+  body.boomer-mode .check-pill {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    padding: 10px 18px !important;
+    border-radius: 4px !important;
+    min-height: 48px !important;
+  }
+  body.boomer-mode .toggle-group label {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    padding: 10px 6px !important;
+  }
+
+  /* Stat chips & badges */
+  body.boomer-mode .stat-chip {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Budget / calendar items */
+  body.boomer-mode .budget-item,
+  body.boomer-mode .ev-item,
+  body.boomer-mode .ck-item {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.6 !important;
+  }
+  body.boomer-mode .cal-day-num {
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+  body.boomer-mode .cal-ev-pill {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Dialogs / modals */
+  body.boomer-mode .dialog-title {
+    font-size: 22px !important;
+    font-weight: 900 !important;
+  }
+  body.boomer-mode .dialog-close {
+    font-size: 26px !important;
+    font-weight: 900 !important;
+  }
+
+  /* Radio tiles */
+  body.boomer-mode .radio-tile-label {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+  }
+  body.boomer-mode .radio-pl-name {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+  }
+  body.boomer-mode .radio-pl-genre {
+    font-size: 15px !important;
+  }
+
+  /* Gas stations, hunt items */
+  body.boomer-mode .gas-item,
+  body.boomer-mode .hunt-item {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Config notes */
+  body.boomer-mode .config-note {
+    font-size: 17px !important;
+    font-weight: 400 !important;
+    line-height: 1.7 !important;
+    background: #eef3f9 !important;
+    color: #1a1a1a !important;
+    border-left: 4px solid #1a5276 !important;
+    padding: 10px 14px !important;
+    border-radius: 0 4px 4px 0 !important;
+  }
+
+  /* Section headers / dividers */
+  body.boomer-mode h2,
+  body.boomer-mode h3,
+  body.boomer-mode h4 {
+    font-size: 22px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  /* Status pills */
+  body.boomer-mode [class*="status-pill"],
+  body.boomer-mode .budget-status-pill {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Saved route items */
+  body.boomer-mode .saved-route-item {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Log / changelog body */
+  body.boomer-mode .log-body {
+    font-size: 17px !important;
+    line-height: 1.7 !important;
+  }
+
+  /* Pull-to-refresh label */
+  body.boomer-mode #pullToRefresh {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+  }
+
+  /* ── BOOMER TOOLTIP SYSTEM ── */
+  .boomer-tip-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .boomer-tip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1a5276;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    font-family: 'Lato', Georgia, serif !important;
+    cursor: help;
+    margin-left: 6px;
+    vertical-align: middle;
+    flex-shrink: 0;
+    border: 2px solid #2471a3;
+    line-height: 1;
+    user-select: none;
+  }
+  .boomer-tip-icon:hover + .boomer-tip-bubble,
+  .boomer-tip-icon:focus + .boomer-tip-bubble {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .boomer-tip-bubble {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%) translateY(6px);
+    background: #1a5276;
+    color: #fff;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    font-family: 'Lato', Georgia, serif !important;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-radius: 6px;
+    width: 240px;
+    max-width: 80vw;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 9999;
+    white-space: normal;
+  }
+  .boomer-tip-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: #1a5276;
+  }
+  /* Hide tooltips when NOT in boomer mode */
+  body:not(.boomer-mode) .boomer-tip-icon { display: none !important; }
+  body:not(.boomer-mode) .boomer-tip-bubble { display: none !important; }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overscroll-behavior: none; }
 
@@ -2433,11 +2783,13 @@
     gap: 12px;
     max-width: 800px;
     margin: 0 auto;
+    align-items: start;
   }
   @media (max-width: 600px) {
     #radio-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
+      align-items: start;
     }
 
     /* ── Mobile Radio: switch to playlist mode ── */
@@ -2574,6 +2926,8 @@
   }
   #radio-grid > div {
     min-height: 0;
+    overflow: hidden;
+    align-self: start;
   }
   #radio-grid > div .radio-label-text {
     font-size: 15px !important;
@@ -3939,9 +4293,10 @@ function downloadMasterPDF() {
 
 // ── COLOR MODES ──
 function setColorMode(mode) {
-  document.body.classList.remove('dark-mode', 'rave-mode');
-  if (mode === 'dark') document.body.classList.add('dark-mode');
-  if (mode === 'rave') document.body.classList.add('rave-mode');
+  document.body.classList.remove('dark-mode', 'rave-mode', 'boomer-mode');
+  if (mode === 'dark')   document.body.classList.add('dark-mode');
+  if (mode === 'rave')   document.body.classList.add('rave-mode');
+  if (mode === 'boomer') document.body.classList.add('boomer-mode');
   localStorage.setItem('colorMode', mode);
   updateColorModeUI(mode);
   // Show/hide rave radio button
@@ -3953,7 +4308,7 @@ function setColorMode(mode) {
 
 function cycleColorMode() {
   var current = localStorage.getItem('colorMode') || 'light';
-  var order = ['light', 'dark', 'rave'];
+  var order = ['light', 'dark', 'rave', 'boomer'];
   var next = order[(order.indexOf(current) + 1) % order.length];
   setColorMode(next);
   // Brief visual feedback on the logo
@@ -3965,18 +4320,18 @@ function cycleColorMode() {
 }
 
 function updateColorModeUI(mode) {
-  const modes = { light: 'btnModeLight', dark: 'btnModeDark', rave: 'btnModeRave' };
-  const labels = { light: '☀️ Light Mode — Active', dark: '🌙 Dark Mode — Active', rave: '🌈 Rave Mode — Active' };
+  const modes  = { light: 'btnModeLight', dark: 'btnModeDark', rave: 'btnModeRave', boomer: 'btnModeBoomer' };
+  const labels = { light: '☀️ Light Mode — Active', dark: '🌙 Dark Mode — Active', rave: '🌈 Rave Mode — Active', boomer: '👴 Boomer Mode — Active' };
   Object.entries(modes).forEach(([m, id]) => {
     const btn = document.getElementById(id);
     if (!btn) return;
     if (m === mode) {
-      btn.style.background = m === 'rave' ? '#ff00ff' : m === 'dark' ? '#000080' : '#2e7d32';
-      btn.style.color = '#fff';
-      btn.style.borderColor = m === 'rave' ? '#ffff00' : m === 'dark' ? '#4fc3f7' : '#a5d6a7';
+      btn.style.background   = m === 'rave' ? '#ff00ff' : m === 'dark' ? '#000080' : m === 'boomer' ? '#1a5276' : '#2e7d32';
+      btn.style.color        = '#fff';
+      btn.style.borderColor  = m === 'rave' ? '#ffff00' : m === 'dark' ? '#4fc3f7' : m === 'boomer' ? '#2471a3' : '#a5d6a7';
     } else {
-      btn.style.background = '';
-      btn.style.color = '';
+      btn.style.background  = '';
+      btn.style.color       = '';
       btn.style.borderColor = '';
     }
   });
@@ -3990,6 +4345,151 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saved !== 'light') setColorMode(saved);
   else updateColorModeUI('light');
 });
+
+// ── BOOMER MODE TOOLTIPS ─────────────────────────────────────────────────────
+// Tooltips are only visible in boomer-mode (CSS hides them otherwise).
+// We inject them once after DOMContentLoaded so we don't litter the HTML.
+
+var BOOMER_TIPS = [
+  // ── INVENTORY PAGE ──
+  { sel: '#page-inventory .btn-submit',          tip: 'Tap here to save a new item to your moving inventory. Fill in the name, room, and any details above first.' },
+  { sel: '#page-inventory .filter-toggle-btn, [onclick="toggleFilterSection()"]', tip: 'Show or hide the filter bar. Use filters to narrow down items by room, status, or keyword.' },
+  { sel: '#page-inventory [onclick*="sortList"], .list-header span[onclick]', tip: 'Tap a column header to sort the list by that field.' },
+  { sel: '#page-inventory [onclick*="clearForm"], [id*="clearBtn"]', tip: 'Clear all the fields in the form so you can add a brand-new item.' },
+  { sel: '#page-inventory [onclick*="exportCSV"], [onclick*="export"]', tip: 'Download your entire inventory as a spreadsheet file you can open in Excel.' },
+  { sel: '[id="headerRefreshBtn"], .header-refresh-btn', tip: 'Refresh — reload data from the cloud (Google Sheets) to make sure everything is up to date.' },
+  { sel: '#headerBellBtn',           tip: 'Notifications — shows recent reminders and alerts about upcoming moving tasks.' },
+  { sel: '#userBadge',               tip: 'Your profile — tap to switch users or view your active profile settings.' },
+
+  // ── ITEM FORM FIELDS ──
+  { sel: '[id="fieldItemName"], [name="itemName"]',     tip: 'Type the name of the item you are adding, e.g. "Blue Couch" or "Kitchen Mixer".' },
+  { sel: '[id="fieldLocation"], [name="location"]',     tip: 'Choose the room this item is currently in. Items are grouped and color-coded by room.' },
+  { sel: '[id="fieldBinBox"], [name="binBoxNumber"]',   tip: 'If the item is packed in a labeled box or bin, enter that number here so you can find it easily.' },
+  { sel: '[id="fieldStatus"], [name="itemStatus"]',     tip: 'Track where this item is in the moving process — Not Packed, Packed, Loaded, or Delivered.' },
+  { sel: '[id="fieldWeight"], [name="itemWeight"]',     tip: 'Estimated weight of the item. Helps calculate total move weight for truck/mover planning.' },
+  { sel: '[id="fieldCost"], [name="estCost"]',          tip: 'Estimated value or replacement cost. Used in the budget and insurance estimate totals.' },
+  { sel: '[id="fieldQuantity"], [name="quantity"]',     tip: 'How many of this item are you moving? Defaults to 1.' },
+  { sel: '[id="fieldDescription"], [name="description"]', tip: 'Any extra notes about the item — condition, color, special handling instructions, etc.' },
+  { sel: '[name="wrapped"], .check-pill[for*="wrap"]',  tip: 'Toggle ON if this item has been wrapped in packing material for protection during the move.' },
+  { sel: '[name="fragile"], .check-pill[for*="frag"]',  tip: 'Toggle ON if this item needs careful handling — it will be flagged as FRAGILE in the list.' },
+
+  // ── SCHEDULE PAGE ──
+  { sel: '#page-schedule .btn-submit, #page-schedule [onclick*="saveEvent"]', tip: 'Save this appointment or moving event to your schedule calendar.' },
+  { sel: '#page-schedule [onclick*="newEvent"], #page-schedule [onclick*="addEvent"]', tip: 'Add a new event — moving day, utility transfer, lease signing, etc.' },
+  { sel: '#page-schedule [id*="gcal"], [onclick*="gcal"]', tip: 'Sync this event to your Google Calendar so it appears on your phone.' },
+  { sel: '#deliveryFormTitle, #page-schedule .win-card-title:contains("Delivery")', tip: 'Log a delivery or utility setup — internet, electricity, appliances, etc.' },
+  { sel: '#eventFormTitle',          tip: 'Add a calendar event — moving day, walk-through, key pickup, or any other important date.' },
+
+  // ── TASKS PAGE ──
+  { sel: '#page-tasks .btn-submit',  tip: 'Add this task to your to-do list. Tasks can be checked off as you complete them.' },
+  { sel: '#page-tasks [onclick*="clearDone"], [onclick*="deleteDone"]', tip: 'Remove all completed (checked-off) tasks from the list to keep it tidy.' },
+  { sel: '.ck-item input[type="checkbox"]', tip: 'Check this box when the task is done. Completed tasks can be cleared from the list.' },
+
+  // ── ROUTE PAGE ──
+  { sel: '#page-route .btn-submit, [onclick*="calcRoute"], [onclick*="calculateRoute"]', tip: 'Calculate the best driving route between your origin and destination addresses.' },
+  { sel: '[id*="routeOrigin"], [name*="origin"]',   tip: 'Enter your starting address — your current home or wherever the movers are picking up.' },
+  { sel: '[id*="routeDest"], [name*="dest"]',       tip: 'Enter your destination address — the new home you are moving into.' },
+  { sel: '[onclick*="saveRoute"], [id*="saveRoute"]', tip: 'Save this route so you can quickly pull it up again on moving day.' },
+  { sel: '[onclick*="gasStations"], [id*="gas"]',   tip: 'Find nearby gas stations along your moving route — handy for long hauls.' },
+  { sel: '.saved-route-item',        tip: 'A previously saved route. Tap to load it back into the planner.' },
+
+  // ── BUDGET PAGE ──
+  { sel: '#page-budget .btn-submit, [onclick*="saveExpense"], [onclick*="addExpense"]', tip: 'Record a moving expense — movers, supplies, deposits, truck rental, etc.' },
+  { sel: '[onclick*="clearBudget"], [id*="clearBudget"]', tip: 'Reset the budget tracker and clear all recorded expenses.' },
+  { sel: '.budget-item',             tip: 'An individual expense entry. Tap to edit or delete it.' },
+  { sel: '[id*="budgetTotal"], [class*="budget-total"]', tip: 'Running total of all your recorded moving expenses.' },
+
+  // ── RADIO PAGE ──
+  { sel: '#page-radio .radio-tile',  tip: 'A radio station. Tap to tune in and play the Spotify playlist for this station.' },
+  { sel: '[onclick*="openRadioInfo"], .radio-pl-info-btn', tip: 'View details about this station — genre, description, and playlist info.' },
+  { sel: '#raveRadioBtn',            tip: 'Open the Rave Radio player — plays a special EDM livestream playlist with a show schedule.' },
+  { sel: '[onclick*="saveRadioPlaylists"], #page-radio .cal-nav-btn', tip: 'Save your radio station URL and customization settings.' },
+
+  // ── SETTINGS PAGE ──
+  { sel: '#btnModeLight',            tip: 'Switch to the default Windows 95-style teal and gray color scheme.' },
+  { sel: '#btnModeDark',             tip: 'Switch to a dark navy theme — easier on the eyes at night.' },
+  { sel: '#btnModeRave',             tip: 'Switch to Rave Mode — neon colors, flashing animations, and EDM energy. 🎉' },
+  { sel: '#btnModeBoomer',           tip: 'You\'re already here! Boomer Mode uses large, clear text and easy-to-read fonts throughout the app.' },
+  { sel: '[onclick*="saveProfile"], [id*="saveProfile"]', tip: 'Save your profile settings — name, PIN, Google Sheets connection, and preferences.' },
+  { sel: '[onclick*="clearProfile"], [id*="clearProfile"]', tip: 'Clear your saved profile and start fresh. You will need to re-enter your Google Sheets URL.' },
+  { sel: '[id*="sheetUrl"], [name*="sheetUrl"]', tip: 'Paste your Google Sheets URL here to connect the app to your inventory spreadsheet in the cloud.' },
+  { sel: '[id*="apiKey"], [name*="apiKey"]', tip: 'Your Google Apps Script Web App URL — this is what sends data to your Google Sheet.' },
+  { sel: '[id*="gcalId"], [name*="gcalId"]', tip: 'Your Google Calendar ID — paste this to enable syncing schedule events to your Google Calendar.' },
+
+  // ── GAMES PAGE ──
+  { sel: '#page-games .win-card-title', tip: 'Mini-games to keep you sane on moving day! Snake, Solitaire, Sudoku, and more.' },
+  { sel: '[onclick*="startSnake"], [id*="snakeStart"]', tip: 'Play Snake — use the D-pad to eat dots and grow your snake without hitting the walls.' },
+  { sel: '[onclick*="startSolitaire"], [id*="solStart"]', tip: 'Play Solitaire — the classic card game. Drag cards to build suit stacks from Ace to King.' },
+  { sel: '[onclick*="startSudoku"], [id*="sudokuStart"]', tip: 'Play Sudoku — fill the grid so every row, column, and 3×3 box contains the numbers 1–9.' },
+
+  // ── SUMMARY / MOVE STATS ──
+  { sel: '[id*="moveSummary"], .win-card-title:contains("Summary")', tip: 'An overview of your entire move — total items, rooms, packed percentage, and estimated value.' },
+  { sel: '.stat-chip',               tip: 'A quick-glance number showing totals for items, rooms, costs, or move progress.' },
+
+  // ── GENERAL UI ──
+  { sel: '.cfg-toggle-title > span:first-child', tip: 'Tap to expand or collapse this section.' },
+  { sel: '.cal-nav-btn[onclick*="prev"], [onclick*="prevMonth"]', tip: 'Go back to the previous month on the calendar.' },
+  { sel: '.cal-nav-btn[onclick*="next"], [onclick*="nextMonth"]', tip: 'Go forward to the next month on the calendar.' },
+  { sel: '[onclick*="printInventory"], [onclick*="print"]', tip: 'Print a paper copy of your inventory list — useful on moving day.' },
+  { sel: '[onclick*="syncToSheet"], [onclick*="pushToSheets"]', tip: 'Upload your local inventory data to your connected Google Sheet for cloud backup.' },
+  { sel: '[onclick*="loadFromSheet"], [onclick*="pullFromSheets"]', tip: 'Download the latest data from your Google Sheet into the app.' },
+  { sel: '#headerClock',             tip: 'Current time — tap to open date & time settings.' },
+  { sel: '#headerWeather',           tip: 'Current weather at your location — helpful for planning outdoor move days.' },
+  { sel: '#headerLogo',              tip: 'Tap the logo to cycle through color modes: Light → Dark → Rave → Boomer.' },
+];
+
+function injectBoomerTips() {
+  BOOMER_TIPS.forEach(function(entry) {
+    var els;
+    try { els = document.querySelectorAll(entry.sel); } catch(e) { return; }
+    els.forEach(function(el) {
+      // Don't double-inject
+      if (el.dataset.boomerTipped) return;
+      el.dataset.boomerTipped = '1';
+
+      // Build the icon + bubble wrapper
+      var wrap = document.createElement('span');
+      wrap.className = 'boomer-tip-wrap';
+
+      var icon = document.createElement('span');
+      icon.className = 'boomer-tip-icon';
+      icon.setAttribute('tabindex', '0');
+      icon.setAttribute('aria-label', 'Help: ' + entry.tip);
+      icon.textContent = '?';
+
+      var bubble = document.createElement('span');
+      bubble.className = 'boomer-tip-bubble';
+      bubble.setAttribute('role', 'tooltip');
+      bubble.textContent = entry.tip;
+
+      wrap.appendChild(icon);
+      wrap.appendChild(bubble);
+
+      // Always insert inline after the element.
+      // Exception: if the parent is a flex win-card-title, append wrap INSIDE
+      // the span (so it stays with the label text, not floating in the flex row).
+      var parent = el.parentNode;
+      if (!parent) return;
+      var parentStyle = window.getComputedStyle(parent);
+      var parentIsFlex = (parentStyle.display === 'flex' || parentStyle.display === 'inline-flex');
+      var style = window.getComputedStyle(el);
+      var isBlock = (style.display === 'block' || style.display === 'flex' || style.display === 'grid');
+      if (isBlock && !parentIsFlex) {
+        // Block-level element not inside a flex row — append inside
+        el.appendChild(wrap);
+      } else {
+        // Inline element OR inside a flex row — insert after, keeping it tight
+        wrap.style.display = 'inline-flex';
+        parent.insertBefore(wrap, el.nextSibling);
+      }
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', injectBoomerTips);
+// Also re-run after any dynamic content load (deferred pages)
+setTimeout(injectBoomerTips, 1500);
+setTimeout(injectBoomerTips, 4000);
 
 
 // ══════════════════════════════
@@ -5336,6 +5836,10 @@ document.addEventListener('DOMContentLoaded', function() {
         <button class="btn" onclick="setColorMode('rave')" id="btnModeRave"
           style="width:100%;font-size:17px;text-align:left;padding:8px 12px;">
           🌈 Rave Mode <span style="font-size:12px;font-weight:normal;color:#555;">(Neon Fluorescent)</span>
+        </button>
+        <button class="btn" onclick="setColorMode('boomer')" id="btnModeBoomer"
+          style="width:100%;font-size:17px;text-align:left;padding:8px 12px;">
+          👴 Boomer Mode <span style="font-size:12px;font-weight:normal;color:#555;">(Large, clear, easy to read)</span>
         </button>
         <div id="colorModeStatus" style="font-size:13px;font-weight:normal;color:#555;"></div>
       </div>
@@ -14651,9 +15155,10 @@ function renderRadioGrid() {
     // Outer wrapper: image card on top, label below
     tile.style.cssText = [
       'display:flex', 'flex-direction:column', 'align-items:stretch',
-      'cursor:pointer', 'position:relative', 'overflow:visible', 'padding:0',
+      'cursor:pointer', 'position:relative', 'overflow:hidden', 'padding:0',
       'background:none', 'border:none', 'box-shadow:none',
-      '-webkit-tap-highlight-color:transparent'
+      '-webkit-tap-highlight-color:transparent',
+      'min-height:0', 'max-height:none'
     ].join(';');
 
     // ── Image card (the Win95 bordered box) ──
@@ -14717,7 +15222,8 @@ function renderRadioGrid() {
     var infoBar = document.createElement('div');
     infoBar.style.cssText =
       'display:flex;align-items:center;justify-content:space-between;gap:5px;' +
-      'padding:5px 6px 6px;' +
+      'padding:5px 6px 6px;height:34px;max-height:34px;flex-shrink:0;flex-grow:0;box-sizing:border-box;' +
+      'overflow:hidden;white-space:nowrap;' +
       'background:' + barBg + ';' +
       'border-top:1px solid ' + barBorder + ';';
 
