@@ -1706,35 +1706,70 @@
   }
 
   /* per-slide accent colors */
+  /* ── Intro slide colour themes (s0–s9) ── */
   .intro-s0 .intro-title { color: #00eaff; }
   .intro-s0 .intro-emoji { color: #00eaff; }
   .intro-s0 .intro-tip   { border-color: #00eaff; color: #00eaff; background: rgba(0,234,255,0.07); }
   .intro-s0 .intro-btn-next { background: #00eaff; color: #000; }
 
-  .intro-s1 .intro-title { color: #ffff00; }
-  .intro-s1 .intro-emoji { color: #ffff00; }
-  .intro-s1 .intro-tip   { border-color: #ffff00; color: #ffff00; background: rgba(255,255,0,0.07); }
-  .intro-s1 .intro-btn-next { background: #ffff00; color: #000; }
+  .intro-s1 .intro-title { color: #2e7d32; }
+  .intro-s1 .intro-emoji { color: #2e7d32; }
+  .intro-s1 .intro-tip   { border-color: #2e7d32; color: #2e7d32; background: rgba(46,125,50,0.07); }
+  .intro-s1 .intro-btn-next { background: #2e7d32; color: #fff; }
 
-  .intro-s2 .intro-title { color: #00ff99; }
-  .intro-s2 .intro-emoji { color: #00ff99; }
-  .intro-s2 .intro-tip   { border-color: #00ff99; color: #00ff99; background: rgba(0,255,153,0.07); }
-  .intro-s2 .intro-btn-next { background: #00ff99; color: #000; }
+  .intro-s2 .intro-title { color: #4fc3f7; }
+  .intro-s2 .intro-emoji { color: #4fc3f7; }
+  .intro-s2 .intro-tip   { border-color: #4fc3f7; color: #4fc3f7; background: rgba(79,195,247,0.07); }
+  .intro-s2 .intro-btn-next { background: #4fc3f7; color: #000; }
 
-  .intro-s3 .intro-title { color: #ff9d00; }
-  .intro-s3 .intro-emoji { color: #ff9d00; }
-  .intro-s3 .intro-tip   { border-color: #ff9d00; color: #ff9d00; background: rgba(255,157,0,0.07); }
-  .intro-s3 .intro-btn-next { background: #ff9d00; color: #000; }
+  .intro-s3 .intro-title { color: #ff00ff; }
+  .intro-s3 .intro-emoji { color: #ff00ff; }
+  .intro-s3 .intro-tip   { border-color: #ff00ff; color: #ff00ff; background: rgba(255,0,255,0.07); }
+  .intro-s3 .intro-btn-next { background: #ff00ff; color: #000; }
 
-  .intro-s4 .intro-title { color: #bf7aff; }
-  .intro-s4 .intro-emoji { color: #bf7aff; }
-  .intro-s4 .intro-tip   { border-color: #bf7aff; color: #bf7aff; background: rgba(191,122,255,0.07); }
-  .intro-s4 .intro-btn-next { background: #bf7aff; color: #000; }
+  .intro-s4 .intro-title { color: #1a5276; }
+  .intro-s4 .intro-emoji { color: #1a5276; }
+  .intro-s4 .intro-tip   { border-color: #1a5276; color: #1a5276; background: rgba(26,82,118,0.07); }
+  .intro-s4 .intro-btn-next { background: #1a5276; color: #fff; }
 
-  .intro-s5 .intro-title { color: #ff4db8; }
-  .intro-s5 .intro-emoji { color: #ff4db8; }
-  .intro-s5 .intro-tip   { border-color: #ff4db8; color: #ff4db8; background: rgba(255,77,184,0.07); }
-  .intro-s5 .intro-btn-next { background: #ff4db8; color: #000; }
+  .intro-s5 .intro-title { color: #1a5276; }
+  .intro-s5 .intro-emoji { color: #1a5276; }
+  .intro-s5 .intro-tip   { border-color: #1a5276; color: #1a5276; background: rgba(26,82,118,0.07); }
+  .intro-s5 .intro-btn-next { background: #1a5276; color: #fff; }
+
+  .intro-s6 .intro-title { color: #1a5276; }
+  .intro-s6 .intro-emoji { color: #1a5276; }
+  .intro-s6 .intro-tip   { border-color: #1a5276; color: #1a5276; background: rgba(26,82,118,0.07); }
+  .intro-s6 .intro-btn-next { background: #1a5276; color: #fff; }
+
+  .intro-s7 .intro-title { color: #1a5276; }
+  .intro-s7 .intro-emoji { color: #1a5276; }
+  .intro-s7 .intro-tip   { border-color: #1a5276; color: #1a5276; background: rgba(26,82,118,0.07); }
+  .intro-s7 .intro-btn-next { background: #1a5276; color: #fff; }
+
+  .intro-s8 .intro-title { color: #1a5276; }
+  .intro-s8 .intro-emoji { color: #1a5276; }
+  .intro-s8 .intro-tip   { border-color: #1a5276; color: #1a5276; background: rgba(26,82,118,0.07); }
+  .intro-s8 .intro-btn-next { background: #1a5276; color: #fff; }
+
+  .intro-s9 .intro-title { color: #1a5276; }
+  .intro-s9 .intro-emoji { color: #1a5276; }
+  .intro-s9 .intro-tip   { border-color: #1a5276; color: #1a5276; background: rgba(26,82,118,0.07); }
+  .intro-s9 .intro-btn-next { background: #1a5276; color: #fff; }
+
+  /* Mode picker buttons on final slide */
+  .intro-mode-picker { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:18px; width:100%; max-width:380px; }
+  .intro-mode-btn {
+    font-family:'VT323',monospace; font-size:20px; font-weight:bold;
+    padding:10px 18px; cursor:pointer; border:2px solid; border-radius:4px;
+    letter-spacing:1px; transition:opacity 0.2s, transform 0.15s;
+    flex:1; min-width:140px; text-align:center;
+  }
+  .intro-mode-btn:active { opacity:0.7; transform:scale(0.97); }
+  .intro-mode-btn.imb-light { background:#e8f5e9; color:#1b5e20; border-color:#2e7d32; }
+  .intro-mode-btn.imb-dark  { background:#0d1b2a; color:#4fc3f7; border-color:#4fc3f7; }
+  .intro-mode-btn.imb-rave  { background:#0a0010; color:#ff00ff; border-color:#ff00ff; }
+  .intro-mode-btn.imb-easy  { background:#d6eaf8; color:#1a5276; border-color:#1a5276; }
 
   .login-overlay {
   
@@ -5727,44 +5762,92 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="introOverlay">
   <button class="intro-btn-skip" onclick="dismissIntro()">Skip ✕</button>
 
-  <!-- SLIDE 0: Welcome -->
+  <!-- SLIDE 0: Hi, Welcome -->
   <div class="intro-slide intro-s0" id="intro-slide-0">
     <div class="intro-emoji">🖥️</div>
-    <div class="intro-title">Welcome to Moving '95</div>
+    <div class="intro-title">Hi! Welcome to Moving '95</div>
     <div class="intro-body">
-      Your all-in-one moving command centre — every box, bin, route, budget and task, all in one place.
+      A <b>fun, friendly</b> approach to moving preparation — every box, bin, route, budget and task, all in one place.
     </div>
     <div class="intro-tip">
-      💡 Hit <b>❓</b> in the top bar any time for the full Help guide. Tap the <b>logo</b> to cycle colour modes — including <b>🔤 Easy Read Mode</b> for larger, clearer text.
+      💡 Before we dive in, let me show you my <b>Moods</b> — four colour themes you can switch between any time by tapping the logo in the top-left corner.
     </div>
   </div>
 
-  <!-- SLIDE 1: Inventory -->
+  <!-- SLIDE 1: Light Mode -->
   <div class="intro-slide intro-s1" id="intro-slide-1">
+    <div class="intro-emoji">☀️</div>
+    <div class="intro-title">Light Mode</div>
+    <div class="intro-body">
+      Clean, bright, and classic. This is the default look — great in any lighting.
+    </div>
+    <div class="intro-tip">
+      ✅ This is <b>Light Mode</b> — the everyday starting point. Fresh and easy on the eyes in a bright room.
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Dark Mode -->
+  <div class="intro-slide intro-s2" id="intro-slide-2">
+    <div class="intro-emoji">🌙</div>
+    <div class="intro-title">Dark Mode</div>
+    <div class="intro-body">
+      Deep navy background, crisp blue accents. Easier on the eyes at night or in low light.
+    </div>
+    <div class="intro-tip">
+      🌙 Perfect for late-night packing sessions. Tap the logo once to switch back to Light — or keep going to explore more moods.
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Rave Mode -->
+  <div class="intro-slide intro-s3" id="intro-slide-3">
+    <div class="intro-emoji">🌈</div>
+    <div class="intro-title">Rave Mode</div>
+    <div class="intro-body">
+      Neon colours, animated icons, and a moving-day soundtrack vibe. Also unlocks a few fun extras hidden in the app.
+    </div>
+    <div class="intro-tip">
+      🕺 Go on — explore Rave Mode after the intro. Some features only come alive when the lights go down. 👀
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Easy Read Mode -->
+  <div class="intro-slide intro-s4" id="intro-slide-4">
+    <div class="intro-emoji">🔤</div>
+    <div class="intro-title">Easy Read Mode</div>
+    <div class="intro-body">
+      Larger text, cleaner fonts, and plenty of breathing room. Great for anyone who prefers bigger, clearer reading.
+    </div>
+    <div class="intro-tip">
+      👍 We'll <b>stay in Easy Read Mode</b> for the rest of this tour so the instructions are as clear as possible for everyone.
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Inventory (Easy Read) -->
+  <div class="intro-slide intro-s5" id="intro-slide-5">
     <div class="intro-emoji">📦</div>
     <div class="intro-title">Inventory</div>
     <div class="intro-body">
-      Log every item with room, type, weight, and photo notes. Each item gets its own ID — nothing gets lost.
+      Log every item with room, type, weight, and photo notes. Each item gets its own ID — nothing gets lost on moving day.
     </div>
     <div class="intro-tip">
-      💡 Create <b>Bins &amp; Boxes</b> first — they get smart IDs like <b>KT-001</b> (Kitchen). Use <b>Qty</b> to create a whole set at once. Tap <b>📇</b> to manage contacts.
+      💡 Create <b>Bins &amp; Boxes</b> first — they get smart IDs like <b>KT-001</b> (Kitchen). Use <b>Qty</b> to make a full set at once. Tap <b>📇</b> to manage contacts.
     </div>
   </div>
 
-  <!-- SLIDE 2: Route -->
-  <div class="intro-slide intro-s2" id="intro-slide-2">
+  <!-- SLIDE 6: Route (Easy Read) -->
+  <div class="intro-slide intro-s6" id="intro-slide-6">
     <div class="intro-emoji">🗺️</div>
     <div class="intro-title">Route Planner</div>
     <div class="intro-body">
-      Plan your full driving route with multiple stops, get distance and time estimates, and find gas stations on the way.
+      Plan your full drive with multiple stops, get distance and time estimates, and find gas stations along the way.
     </div>
     <div class="intro-tip">
-      💡 Use <b>Share My Route</b> to text or email your route + live GPS to a contact — perfect for keeping family updated on moving day.
+      💡 Use <b>Share My Route</b> to text or email your route + live GPS to a contact — great for keeping family updated on moving day.
     </div>
   </div>
 
-  <!-- SLIDE 3: Budget & Tasks -->
-  <div class="intro-slide intro-s3" id="intro-slide-3">
+  <!-- SLIDE 7: Budget & Tasks (Easy Read) -->
+  <div class="intro-slide intro-s7" id="intro-slide-7">
     <div class="intro-emoji">💰✅</div>
     <div class="intro-title">Budget &amp; Tasks</div>
     <div class="intro-body">
@@ -5775,27 +5858,30 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- SLIDE 4: Entertainment -->
-  <div class="intro-slide intro-s4" id="intro-slide-4">
+  <!-- SLIDE 8: Games & Radio (Easy Read) -->
+  <div class="intro-slide intro-s8" id="intro-slide-8">
     <div class="intro-emoji">🎮🎧</div>
     <div class="intro-title">Games &amp; Radio</div>
     <div class="intro-body">
-      Take a break with <b>Solitaire</b>, <b>Snake</b>, <b>Sudoku</b>, <b>Trivia</b> and more. Need a soundtrack? Flip to <b>Radio</b>.
+      Take a break with <b>Solitaire</b>, <b>Snake</b>, <b>Sudoku</b> and more. When you need a soundtrack, flip to <b>Radio</b> — hand-picked stations for every vibe.
     </div>
     <div class="intro-tip">
-      📻 Radio stations are <b>hand-picked</b> — every genre, every mood, curated for this app. Find your moving-day vibe.
+      ❓ Tap the <b>❓</b> button in the top bar any time to open the full Help guide with every feature explained.
     </div>
   </div>
 
-  <!-- SLIDE 5: Let's go -->
-  <div class="intro-slide intro-s5" id="intro-slide-5">
-    <div class="intro-emoji">🚀</div>
-    <div class="intro-title">You're All Set!</div>
+  <!-- SLIDE 9: Pick Your Mood (mode selector) -->
+  <div class="intro-slide intro-s9" id="intro-slide-9">
+    <div class="intro-emoji">🎨</div>
+    <div class="intro-title">Pick Your Mood</div>
     <div class="intro-body">
-      Start with <b>Settings → Personal Info</b>, then add your first item. Everything else will fall into place.
+      Which colour mode would you like to start in? You can change it any time by tapping the logo.
     </div>
-    <div class="intro-tip">
-      🔤 Prefer bigger text? Tap the logo until <b>Easy Read Mode</b> activates. Hit <b>❓</b> anytime to open the full Help guide.
+    <div class="intro-mode-picker">
+      <button class="intro-mode-btn imb-light" onclick="introPickMode('light')">☀️ Light</button>
+      <button class="intro-mode-btn imb-dark"  onclick="introPickMode('dark')">🌙 Dark</button>
+      <button class="intro-mode-btn imb-rave"  onclick="introPickMode('rave')">🌈 Rave</button>
+      <button class="intro-mode-btn imb-easy"  onclick="introPickMode('boomer')">🔤 Easy Read</button>
     </div>
   </div>
 
@@ -5807,6 +5893,10 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="intro-dot" onclick="goToSlide(3)"></div>
     <div class="intro-dot" onclick="goToSlide(4)"></div>
     <div class="intro-dot" onclick="goToSlide(5)"></div>
+    <div class="intro-dot" onclick="goToSlide(6)"></div>
+    <div class="intro-dot" onclick="goToSlide(7)"></div>
+    <div class="intro-dot" onclick="goToSlide(8)"></div>
+    <div class="intro-dot" onclick="goToSlide(9)"></div>
   </div>
 
   <!-- Nav -->
@@ -5815,7 +5905,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <button class="intro-btn intro-btn-next intro-s0" id="introNext" onclick="introStep(1)">Next →</button>
   </div>
 
-  <!-- Auto-progress bar -->
+    <!-- Auto-progress bar -->
   <div id="introBar" class="intro-progress-bar" style="width:0%;"></div>
 </div>
 
@@ -9960,10 +10050,14 @@ function goToProfile() {
 //  INTRO SLIDESHOW
 // ══════════════════════════════
 var _introSlide = 0;
-var _introTotal = 6;
+var _introTotal = 10;
 var _introTimer = null;
 var _introBarTimer = null;
 var INTRO_DURATION = 6000; // ms per slide
+
+// Slide index → colour mode to activate when that slide appears
+// null = no change; slides 5-9 stay in 'boomer' (set by slide 4)
+var _introSlideModes = [null, 'light', 'dark', 'rave', 'boomer', null, null, null, null, null];
 
 function showIntro() {
   var el = document.getElementById('introOverlay');
@@ -9971,6 +10065,8 @@ function showIntro() {
   el.classList.remove('intro-hidden');
   el.style.visibility = 'visible';
   _introSlide = 0;
+  // Reset to default (light) at start of intro
+  setColorMode('light');
   _renderIntroSlide();
   _introAutoAdvance();
 }
@@ -9980,17 +10076,27 @@ function dismissIntro() {
   if (el) { el.classList.add('intro-hidden'); el.style.visibility = 'hidden'; }
   clearTimeout(_introTimer);
   clearInterval(_introBarTimer);
+  // If user never picked a mode (dismissed early), stay in easy read
+  // (mode was already set to boomer by slide 4 — no override needed)
+}
+
+function introPickMode(mode) {
+  // Called by mode-picker buttons on final slide
+  setColorMode(mode);
+  dismissIntro();
 }
 
 function introStep(dir) {
   clearTimeout(_introTimer);
   clearInterval(_introBarTimer);
   var next = _introSlide + dir;
+  // On last slide, Next is hidden so this path is only reached by auto-advance
   if (next >= _introTotal) { dismissIntro(); return; }
   if (next < 0) next = 0;
   _introSlide = next;
   _renderIntroSlide();
-  _introAutoAdvance();
+  // Don't auto-advance the final (picker) slide
+  if (_introSlide < _introTotal - 1) _introAutoAdvance();
 }
 
 function goToSlide(n) {
@@ -9998,10 +10104,14 @@ function goToSlide(n) {
   clearInterval(_introBarTimer);
   _introSlide = n;
   _renderIntroSlide();
-  _introAutoAdvance();
+  if (_introSlide < _introTotal - 1) _introAutoAdvance();
 }
 
 function _renderIntroSlide() {
+  // Switch colour mode if this slide demands it
+  var modeForSlide = _introSlideModes[_introSlide];
+  if (modeForSlide !== null) setColorMode(modeForSlide);
+
   // hide all slides, show current
   for (var i = 0; i < _introTotal; i++) {
     var sl = document.getElementById('intro-slide-' + i);
@@ -10010,8 +10120,7 @@ function _renderIntroSlide() {
   var cur = document.getElementById('intro-slide-' + _introSlide);
   if (cur) {
     cur.classList.add('active');
-    // re-trigger animation
-    void cur.offsetWidth;
+    void cur.offsetWidth; // re-trigger animation
     cur.style.animation = '';
   }
 
@@ -10025,13 +10134,14 @@ function _renderIntroSlide() {
   var prev = document.getElementById('introPrev');
   if (prev) prev.style.display = _introSlide === 0 ? 'none' : 'block';
 
-  // next button label + color
-  var next = document.getElementById('introNext');
-  if (next) {
-    next.textContent = _introSlide === _introTotal - 1 ? "Let's Go! 🚀" : 'Next →';
-    // remove all slide color classes, apply current
-    for (var j = 0; j < _introTotal; j++) next.classList.remove('intro-s' + j);
-    next.classList.add('intro-s' + _introSlide);
+  // next button — hide on final slide (mode picker handles dismiss)
+  var nextBtn = document.getElementById('introNext');
+  if (nextBtn) {
+    var isLast = (_introSlide === _introTotal - 1);
+    nextBtn.style.display = isLast ? 'none' : '';
+    nextBtn.textContent = 'Next →';
+    for (var j = 0; j < _introTotal; j++) nextBtn.classList.remove('intro-s' + j);
+    nextBtn.classList.add('intro-s' + _introSlide);
   }
 
   // reset progress bar
