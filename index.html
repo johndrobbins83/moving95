@@ -442,11 +442,6 @@
     background: #1a5276 !important;
     border-top: 3px solid #2471a3 !important;
   }
-  body.boomer-mode .nav-btn-label {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0 !important;
-  }
   body.boomer-mode .nav-btn.active {
     background: #2471a3 !important;
   }
@@ -889,21 +884,12 @@
     font-size: 14px !important;
   }
 
-  /* Bottom nav: keep labels readable but not overflowing */
-  body.boomer-mode .bottom-nav {
-    flex-wrap: nowrap !important;
-  }
-  body.boomer-mode .nav-btn {
-    flex: 1 !important;
-    min-width: 0 !important;
-    padding: 4px 2px !important;
-  }
+  /* Bottom nav: Easy Read — desktop keeps single row, mobile restructures */
+  /* Desktop (>600px): single row, bigger labels */
   body.boomer-mode .nav-btn-label {
-    font-size: 11px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100% !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
   }
 
   /* ── BOOMER TOOLTIP SYSTEM ── */
@@ -1219,6 +1205,105 @@
     .nav-btn-icon  { font-size: 22px; }
     .nav-btn-label { font-size: 11px; }
     body { padding-bottom: calc(var(--nav-h) + 8px); }
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     EASY READ MODE — Mobile bottom nav (max-width: 600px)
+     Layout: 2 big primary buttons (Inventory + Schedule) on
+     top row, 5 secondary buttons on bottom row.
+     Total nav height = 2 × 52px rows = 104px.
+  ────────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    body.boomer-mode {
+      --nav-h: 108px;
+    }
+
+    /* Override page padding for the taller nav */
+    body.boomer-mode .page.active {
+      padding-bottom: calc(var(--nav-h) + 24px) !important;
+    }
+    body.boomer-mode {
+      padding-bottom: calc(var(--nav-h) + 8px) !important;
+    }
+
+    body.boomer-mode .bottom-nav {
+      flex-wrap: wrap !important;
+      align-content: stretch !important;
+      height: var(--nav-h) !important;
+    }
+
+    /* ALL nav buttons: reset to auto sizing first */
+    body.boomer-mode .nav-btn {
+      flex: 0 0 20% !important; /* 5 across on bottom row by default */
+      height: 54px !important;
+      min-width: 0 !important;
+      padding: 5px 2px !important;
+      border-bottom: 1px solid #2471a3 !important;
+      border-right: 1px solid #2471a3 !important;
+    }
+
+    /* TOP ROW: Inventory + Schedule — 2 big buttons, 50% each */
+    body.boomer-mode #nav-viewer,
+    body.boomer-mode #nav-schedule {
+      flex: 0 0 50% !important;
+      height: 54px !important;
+      border-bottom: 2px solid #2471a3 !important;
+    }
+
+    /* Top-row: remove right border on last of the two */
+    body.boomer-mode #nav-schedule {
+      border-right: none !important;
+    }
+
+    /* Top-row icons + labels: bigger */
+    body.boomer-mode #nav-viewer .nav-btn-icon,
+    body.boomer-mode #nav-schedule .nav-btn-icon {
+      font-size: 24px !important;
+    }
+    body.boomer-mode #nav-viewer .nav-btn-label,
+    body.boomer-mode #nav-schedule .nav-btn-label {
+      font-size: 14px !important;
+      font-weight: 900 !important;
+    }
+
+    /* BOTTOM ROW: Tasks / Route / Budget / Games / Radio — 5 buttons, 20% each */
+    body.boomer-mode #nav-checklist,
+    body.boomer-mode #nav-route,
+    body.boomer-mode #nav-budget,
+    body.boomer-mode #nav-games,
+    body.boomer-mode #nav-radio {
+      flex: 0 0 20% !important;
+      height: 54px !important;
+      border-bottom: none !important;
+    }
+
+    /* Remove right border on last visible bottom-row button */
+    body.boomer-mode #nav-radio {
+      border-right: none !important;
+    }
+
+    /* Bottom-row icons + labels */
+    body.boomer-mode #nav-checklist .nav-btn-icon,
+    body.boomer-mode #nav-route .nav-btn-icon,
+    body.boomer-mode #nav-budget .nav-btn-icon,
+    body.boomer-mode #nav-games .nav-btn-icon,
+    body.boomer-mode #nav-radio .nav-btn-icon {
+      font-size: 20px !important;
+    }
+    body.boomer-mode #nav-checklist .nav-btn-label,
+    body.boomer-mode #nav-route .nav-btn-label,
+    body.boomer-mode #nav-budget .nav-btn-label,
+    body.boomer-mode #nav-games .nav-btn-label,
+    body.boomer-mode #nav-radio .nav-btn-label {
+      font-size: 11px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Settings button (hidden by default — still needs sizing if shown) */
+    body.boomer-mode #nav-config {
+      flex: 0 0 20% !important;
+      height: 54px !important;
+    }
   }
 
   /* ── PAGES ── */
