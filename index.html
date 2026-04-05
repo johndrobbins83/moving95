@@ -678,6 +678,234 @@
     font-weight: 700 !important;
   }
 
+  /* ══════════════════════════════════════════════════════════════════
+     EASY READ MODE — Mobile layout fixes
+     Prevent overflow, ensure wrapping, keep buttons accessible
+  ══════════════════════════════════════════════════════════════════ */
+
+  /* Win-card title rows: allow wrapping so buttons don't overflow */
+  body.boomer-mode .win-card-title {
+    flex-wrap: wrap !important;
+    gap: 6px 8px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Any flex row inside win-card-title should wrap */
+  body.boomer-mode .win-card-title > div,
+  body.boomer-mode .win-card-title > span:last-child {
+    flex-wrap: wrap !important;
+  }
+
+  /* cal-nav-btn: bigger tap targets, min-width so they don't squash */
+  body.boomer-mode .cal-nav-btn {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    min-height: 40px !important;
+    padding: 6px 12px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Viewer toolbar: the button row inside win-card-title */
+  body.boomer-mode #page-viewer .win-card-title > div,
+  body.boomer-mode #page-checklist .win-card-title > div,
+  body.boomer-mode #page-schedule .win-card-title > div,
+  body.boomer-mode #page-budget .win-card-title > div {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  /* Filter chips: bigger, wrap nicely */
+  body.boomer-mode .filter-chip {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    padding: 8px 14px !important;
+    min-height: 40px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Filter bar: single column on narrow screens in easy read */
+  @media (max-width: 600px) {
+    body.boomer-mode .filter-bar {
+      grid-template-columns: 1fr !important;
+    }
+    body.boomer-mode .filter-bar .wide {
+      grid-column: 1 !important;
+    }
+    body.boomer-mode .filter-toggles {
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+    }
+  }
+
+  /* Radio dial: prevent button overflow on mobile */
+  body.boomer-mode #dialBody {
+    padding: 12px 10px 10px !important;
+  }
+  body.boomer-mode #dialPrevBtn,
+  body.boomer-mode #dialNextBtn {
+    font-size: 18px !important;
+    padding: 8px 14px !important;
+    min-height: 44px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  body.boomer-mode #dialTuneBtn {
+    font-size: 18px !important;
+    padding: 8px 14px !important;
+    min-height: 44px !important;
+    flex: 1 !important;
+    flex-shrink: 1 !important;
+    min-width: 80px !important;
+    white-space: nowrap !important;
+  }
+  /* Dial button row: allow shrink on very narrow screens */
+  body.boomer-mode #dialBody > div:last-child {
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+  /* Radio dial station name: truncate gracefully */
+  body.boomer-mode #dialStationName {
+    font-size: 18px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  body.boomer-mode #dialFreq {
+    font-size: 20px !important;
+  }
+
+  /* Radio grid: 2 columns on mobile (same as default), just ensure labels wrap */
+  @media (max-width: 600px) {
+    body.boomer-mode .radio-tile-label {
+      font-size: 13px !important;
+      line-height: 1.2 !important;
+    }
+    body.boomer-mode .radio-tile {
+      min-height: 90px !important;
+      padding: 10px 4px 8px !important;
+    }
+  }
+
+  /* Route page: button groups */
+  body.boomer-mode #page-route .win-card-title,
+  body.boomer-mode #page-route .win-card-body > div[style*="flex"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Stats bar: wrap on small screens */
+  body.boomer-mode .stats-bar {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  body.boomer-mode .stat-chip {
+    flex-shrink: 0 !important;
+  }
+
+  /* Toggle group: wrap on very narrow */
+  body.boomer-mode .toggle-group {
+    flex-wrap: wrap !important;
+  }
+  body.boomer-mode .toggle-group label {
+    flex: 1 !important;
+    min-width: 80px !important;
+    text-align: center !important;
+  }
+
+  /* Profile page stat grid */
+  body.boomer-mode .move-stat-grid,
+  body.boomer-mode [id*="moveSummary"] > div[style*="grid"] {
+    gap: 10px !important;
+  }
+
+  /* Settings page: section buttons */
+  body.boomer-mode .cfg-section-btns,
+  body.boomer-mode [id*="secColor"] .btn-row,
+  body.boomer-mode #secColorModes > .win-card-body > div {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  /* Budget rows: allow text to wrap */
+  body.boomer-mode .budget-item {
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+  }
+
+  /* Checklist items */
+  body.boomer-mode .ck-item {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Schedule event items */
+  body.boomer-mode .ev-item {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Games page: button grid */
+  body.boomer-mode #page-games .win-card-body > div[style*="grid"] {
+    gap: 10px !important;
+  }
+
+  /* General: any inline-styled flex row inside win-card-body */
+  body.boomer-mode .win-card-body {
+    overflow-x: hidden !important;
+  }
+
+  /* Contacts FAB: slightly larger in easy read */
+  body.boomer-mode #contactsFab {
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 24px !important;
+  }
+
+  /* Prevent any element from causing horizontal scroll */
+  body.boomer-mode .page {
+    overflow-x: hidden !important;
+  }
+
+  /* App header: ensure title+sub don't overflow */
+  body.boomer-mode .app-header {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+  body.boomer-mode .app-header-title-wrap {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  body.boomer-mode .app-header-title {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 20px !important;
+  }
+  body.boomer-mode .app-header-sub {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 14px !important;
+  }
+
+  /* Bottom nav: keep labels readable but not overflowing */
+  body.boomer-mode .bottom-nav {
+    flex-wrap: nowrap !important;
+  }
+  body.boomer-mode .nav-btn {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 4px 2px !important;
+  }
+  body.boomer-mode .nav-btn-label {
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+  }
+
   /* ── BOOMER TOOLTIP SYSTEM ── */
   /* ── Boomer Tips: inline ? badge ── */
   .boomer-tip-wrap {
